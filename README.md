@@ -99,6 +99,7 @@ tienda_ropa_mvp-frontend/
 - `PUT /items/{id}` - Actualizar ítem completo
 
 ## Notas
+// test
 
 - El backend debe estar corriendo en `http://localhost:8000`
 - Las imágenes se muestran desde la URL proporcionada o desde el servidor backend
