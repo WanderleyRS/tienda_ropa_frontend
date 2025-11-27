@@ -44,8 +44,8 @@ export default function UsersManagementPage() {
             return;
         }
 
-        if (selectedAlmacenes.length === 0) {
-            toast.error('Debes asignar al menos un almacén al usuario');
+        if (role !== 'admin' && selectedAlmacenes.length === 0) {
+            toast.error('Debes asignar al menos un almacén al usuario vendedor');
             return;
         }
 
