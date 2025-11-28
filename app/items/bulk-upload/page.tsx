@@ -86,44 +86,26 @@ export default function BulkUploadPage() {
         const formData = new FormData();
         files.forEach(file => {
             formData.append('files', file);
-        });
-
-        formData.append('raw_text_block', rawText);
-        formData.append('category_id', String(categoryId));
-        formData.append('stock', String(stock));
-
-        console.log('📤 FormData preparado:', {
-            files: files.length,
-            category_id: categoryId,
-            stock: stock,
-            text_length: rawText.length
-
-            console.log('📥 Response recibido:', response.status, response.statusText);
-
-            if(response.ok) {
-            console.log('✅ Carga exitosa!');
-            setMessage({ type: 'success', text: `¡Carga masiva exitosa! Se crearon ${files.length} ítems.` });
-            setFiles([]);
             setRawText('');
         } else {
             const errorData = await response.json();
             console.error('❌ API Bulk Upload Error:', errorData);
 
-            if (response.status === 401) {
-                console.log('🔒 Token expirado, redirigiendo a login...');
-                router.push('/login?expired=true');
-                return;
-            }
-
-            setMessage({ type: 'error', text: `Error ${response.status}: ${errorData.detail || 'Fallo en la carga masiva.'}` });
+            if(response.status === 401) {
+            console.log('🔒 Token expirado, redirigiendo a login...');
+            router.push('/login?expired=true');
+            return;
         }
-    } catch (error) {
-        console.error('💥 Network Error:', error);
-        setMessage({ type: 'error', text: 'Error de red. No se pudo conectar con el servidor de la API.' });
-    } finally {
-        console.log('🏁 Finalizando carga, setIsLoading(false)');
-        setIsLoading(false);
+
+        setMessage({ type: 'error', text: `Error ${response.status}: ${errorData.detail || 'Fallo en la carga masiva.'}` });
     }
+} catch (error) {
+    console.error('💥 Network Error:', error);
+    setMessage({ type: 'error', text: 'Error de red. No se pudo conectar con el servidor de la API.' });
+} finally {
+    console.log('🏁 Finalizando carga, setIsLoading(false)');
+    setIsLoading(false);
+}
 };
 
 if (isAuthLoading || !isAuthenticated) {
