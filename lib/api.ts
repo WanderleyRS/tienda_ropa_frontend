@@ -315,6 +315,34 @@ export const clientesApi = {
 };
 
 export interface DetalleVentaCreate {
+}
+
+export interface Empresa {
+  id: number;
+  nombre: string;
+  whatsapp_numero?: string;
+  fecha_registro: string;
+  activa: boolean;
+}
+
+export interface AlmacenCreate {
+  nombre: string;
+}
+
+export interface AlmacenUpdate {
+  nombre?: string;
+  activo?: boolean;
+}
+
+// ---------- API objects ----------
+export interface DetalleVenta {
+  id: number;
+  producto_id: number;
+  cantidad: number;
+  precio_unitario: number;
+}
+
+export interface DetalleVentaCreate {
   producto_id: number;
   cantidad: number;
   precio_unitario: number;
@@ -325,6 +353,42 @@ export interface AbonoCreate {
   metodo_pago: string;
 }
 
+export interface Abono {
+  id: number;
+  monto_abonado: number;
+  fecha_abono: string;
+  metodo_pago: string;
+}
+
+export interface Agenda {
+  id: number;
+  venta_id: number;
+  cliente_id: number;
+  almacen_id: number;
+  empresa_id: number;
+  tipo_entrega: 'Delivery' | 'Recoleccion_Tienda';
+  fecha_programada: string;
+  hora_programada?: string;
+  direccion_entrega?: string;
+  notas_logistica?: string;
+  estado_entrega: string;
+  created_at: string;
+}
+
+export interface Venta {
+  id: number;
+  cliente_id?: number;
+  almacen_id: number;
+  empresa_id: number;
+  fecha_venta: string;
+  monto_total: number;
+  estado_pago: string;
+  metodo_pago?: string;
+  cliente?: PotencialCliente;
+  detalles: DetalleVenta[];
+  abonos: Abono[];
+  agenda?: Agenda;
+}
 export interface VentaCreate {
   cliente_id?: number;
   detalles: DetalleVentaCreate[];
@@ -332,69 +396,28 @@ export interface VentaCreate {
   metodo_pago?: string;
 }
 
-export const ventasApi = {
-  crear: async (data: VentaCreate) => {
-    const response = await apiClient.post('/ventas/', data);
+export const agendaApi = {
+  create: async (data: {
+    venta_id: number;
+    tipo_entrega: string;
+    fecha_programada: string;
+    hora_programada?: string;
+    direccion_entrega?: string;
+    notas_logistica?: string;
+  }) => {
+    const response = await apiClient.post<Agenda>('/agenda/', data);
     return response.data;
   },
-  listar: async (search?: string) => {
-    const response = await apiClient.get('/ventas/', { params: { search } });
+
+  list: async (filters?: { fecha?: string; tipo?: string; estado?: string }) => {
+    const response = await apiClient.get<Agenda[]>('/agenda/', { params: filters });
     return response.data;
   },
-  getDetalle: async (id: number) => {
-    const response = await apiClient.get(`/ventas/${id}/detalle`);
-    return response.data;
-  },
-  eliminar: async (id: number) => {
-    await apiClient.delete(`/ventas/${id}`);
-  },
-};
 
-export const abonosApi = {
-  crear: async (ventaId: number, data: AbonoCreate) => {
-    const response = await apiClient.post(`/abonos/?venta_id=${ventaId}`, data);
-    return response.data;
-  },
-  eliminar: async (id: number) => {
-    await apiClient.delete(`/abonos/${id}`);
-  },
-};
-
-// ---------- Categories & Upload ----------
-
-export interface Category {
-  id: number;
-  name: string;
-  almacen_id: number;
-}
-
-export interface CategoryCreate {
-  name: string;
-}
-
-export const categoriesApi = {
-  getAll: async (): Promise<Category[]> => {
-    const response = await apiClient.get<Category[]>('/categories/');
-    return response.data;
-  },
-  create: async (data: CategoryCreate): Promise<Category> => {
-    const response = await apiClient.post<Category>('/categories/', data);
-    return response.data;
-  },
-};
-
-export const uploadApi = {
-  uploadImage: async (file: File): Promise<{ url: string }> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    const response = await apiClient.post<{ url: string }>('/upload/image', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+  complete: async (id: number) => {
+    const response = await apiClient.put<Agenda>(`/agenda/${id}/completar`);
     return response.data;
   },
 };
 
 export default apiClient;
-
