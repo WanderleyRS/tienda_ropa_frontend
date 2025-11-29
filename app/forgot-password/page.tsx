@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { API_BASE_URL } from '@/lib/config';
 import Link from 'next/link';
 import axios from 'axios';
 import { ArrowLeft } from 'lucide-react';
@@ -35,7 +36,7 @@ export default function ForgotPasswordPage() {
         setError(null);
         setIsLoading(true);
         try {
-            await axios.post(`${process.env.NEXT_PUBLIC_API_URL || 'https://tiendaropabackend-production.up.railway.app'}/auth/forgot-password`, {
+            await axios.post(`${API_BASE_URL}/auth/forgot-password`, {
                 username: data.username,
             });
             setIsSubmitted(true);

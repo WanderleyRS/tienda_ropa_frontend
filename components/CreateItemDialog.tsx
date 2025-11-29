@@ -16,18 +16,6 @@ import {
   FormControl,
   FormDescription,
   FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { itemsApi, ItemCreate, categoriesApi, uploadApi, Category } from '@/lib/api';
-import { toast } from 'sonner';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
@@ -95,7 +83,7 @@ export function CreateItemDialog({
     setIsUploading(true);
     try {
       const { url } = await uploadApi.uploadImage(file);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://tiendaropabackend-production.up.railway.app';
+      const apiUrl = API_BASE_URL;
       const fullUrl = url.startsWith('http') ? url : `${apiUrl}${url}`;
 
       form.setValue('photo_url', fullUrl);

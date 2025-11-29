@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Item, itemsApi } from '@/lib/api';
+import { API_BASE_URL } from '@/lib/config';
 import { Edit2, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -131,7 +132,7 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
                 <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-border/50 bg-secondary/20">
                   {item.photo_url ? (
                     <img
-                      src={item.photo_url.startsWith('http') ? item.photo_url : `${process.env.NEXT_PUBLIC_API_URL || 'https://tiendaropabackend-production.up.railway.app'}${item.photo_url}`}
+                      src={item.photo_url.startsWith('http') ? item.photo_url : `${API_BASE_URL}${item.photo_url}`}
                       alt={item.title}
                       className="w-full h-full object-cover"
                       onError={(e) => {

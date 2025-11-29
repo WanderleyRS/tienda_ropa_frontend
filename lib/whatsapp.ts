@@ -1,12 +1,11 @@
 import { CartItem } from '@/contexts/CartContext';
+import { API_BASE_URL } from '@/lib/config';
 
 // WhatsApp phone number for orders (Bolivia)
 const WHATSAPP_PHONE = '59163411905';
 
 /**
- * Builds a formatted WhatsApp message with order details
- * Includes: Title, Price, Quantity, and Image URL for each item
- * 
+ * Builds a formatted WhatsApp message with order details 
  * Note: For image previews to work in WhatsApp, the image URLs must be publicly accessible.
  * localhost URLs will not generate previews.
  */
@@ -34,7 +33,7 @@ export function buildWhatsAppMessage(cartItems: CartItem[], subtotal: number, cl
         // Add image URL - WhatsApp will auto-generate preview if URL is public
         const imageUrl = item.photo_url.startsWith('http')
             ? item.photo_url
-            : `${process.env.NEXT_PUBLIC_API_URL || 'https://tiendaropabackend-production.up.railway.app'}${item.photo_url}`;
+            : `${API_BASE_URL}${item.photo_url}`;
 
         // Put image URL on its own line for better WhatsApp preview generation
         message += `   ${imageUrl}\n\n`;
