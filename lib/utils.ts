@@ -20,16 +20,7 @@ export function getValidImageUrl(path: string | undefined | null): string {
       // Remove the http://localhost:PORT part and keep the rest
       // Assuming standard format http://localhost:8000/static/...
       const relativePath = path.replace(/^https?:\/\/localhost:\d+/, '');
-      const finalUrl = `${API_BASE_URL}${relativePath}`;
-
-      console.log('[getValidImageUrl] Sanitized localhost URL:', {
-        original: path,
-        relativePath,
-        final: finalUrl,
-        apiBase: API_BASE_URL
-      });
-
-      return finalUrl;
+      return `${API_BASE_URL}${relativePath}`;
     }
     return path;
   }
