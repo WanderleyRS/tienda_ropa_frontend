@@ -132,15 +132,19 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
                 <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-border/50 bg-secondary/20">
                   {item.photo_url ? (
                     <img
-                      src={item.photo_url.startsWith('http') ? item.photo_url : `${API_BASE_URL}${item.photo_url}`}
-                      alt={item.title}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Crect width="64" height="64" fill="%23f3f4f6"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%239ca3af"%3E%3F%3C/text%3E%3C/svg%3E';
-                      }}
-                    />
+                      import { getValidImageUrl} from '@/lib/utils';
+
+                  // ... inside the component ...
+                  <img
+                    src={getValidImageUrl(item.photo_url)}
+                    alt={item.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="64" height="64"%3E%3Crect width="64" height="64" fill="%23f3f4f6"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="24" fill="%239ca3af"%3E%3F%3C/text%3E%3C/svg%3E';
+                    }}
+                  />
                   ) : (
-                    <div className="flex items-center justify-center h-full text-xs text-muted-foreground">N/A</div>
+                  <div className="flex items-center justify-center h-full text-xs text-muted-foreground">N/A</div>
                   )}
                 </div>
               </TableCell>

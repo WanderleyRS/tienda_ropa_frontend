@@ -2,8 +2,8 @@
 
 import { CartItem } from '@/contexts/CartContext';
 import { Button } from '@/components/ui/button';
-import { API_BASE_URL } from '@/lib/config';
 import { Minus, Plus, Trash2 } from 'lucide-react';
+import { getValidImageUrl } from '@/lib/utils';
 
 interface CartItemCardProps {
     item: CartItem;
@@ -19,7 +19,7 @@ export function CartItemCard({ item, onUpdateQuantity, onRemove }: CartItemCardP
             {/* Product Image */}
             <div className="w-24 h-24 flex-shrink-0">
                 <img
-                    src={item.photo_url.startsWith('http') ? item.photo_url : `${API_BASE_URL}${item.photo_url}`}
+                    src={getValidImageUrl(item.photo_url)}
                     alt={item.title}
                     className="w-full h-full object-cover rounded"
                     onError={(e) => {

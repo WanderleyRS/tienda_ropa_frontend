@@ -96,8 +96,10 @@ export function CreateItemDialog({
     setIsUploading(true);
     try {
       const { url } = await uploadApi.uploadImage(file);
-      const apiUrl = API_BASE_URL;
-      const fullUrl = url.startsWith('http') ? url : `${apiUrl}${url}`;
+      import { getValidImageUrl } from '@/lib/utils';
+      // ...
+      const { url } = await uploadApi.uploadImage(file);
+      const fullUrl = getValidImageUrl(url);
 
       form.setValue('photo_url', fullUrl);
       toast.success('Imagen subida correctamente');

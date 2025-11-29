@@ -4,9 +4,9 @@ import { Item } from '@/lib/api';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart } from 'lucide-react';
-import { API_BASE_URL } from '@/lib/config';
 import { useCart } from '@/contexts/CartContext';
 import { toast } from 'sonner';
+import { getValidImageUrl } from '@/lib/utils';
 
 interface ProductCardProps {
     product: Item;
@@ -25,7 +25,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border bg-card hover:-translate-y-1">
             <div className="relative aspect-[4/5] overflow-hidden bg-secondary/20">
                 <img
-                    src={product.photo_url.startsWith('http') ? product.photo_url : `${API_BASE_URL}${product.photo_url}`}
+                    src={getValidImageUrl(product.photo_url)}
                     alt={product.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     onError={(e) => {

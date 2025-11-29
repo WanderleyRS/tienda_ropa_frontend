@@ -30,10 +30,10 @@ export function buildWhatsAppMessage(cartItems: CartItem[], subtotal: number, cl
         // Add price and quantity
         message += `   💰 $${item.price.toFixed(2)} x ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}\n`;
 
+        import { getValidImageUrl } from '@/lib/utils';
+        // ...
         // Add image URL - WhatsApp will auto-generate preview if URL is public
-        const imageUrl = item.photo_url.startsWith('http')
-            ? item.photo_url
-            : `${API_BASE_URL}${item.photo_url}`;
+        const imageUrl = getValidImageUrl(item.photo_url);
 
         // Put image URL on its own line for better WhatsApp preview generation
         message += `   ${imageUrl}\n\n`;
