@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
+import apiClient from '@/lib/api'; // Import apiClient
 
 export default function BulkUploadPage() {
     const router = useRouter();
@@ -78,6 +79,50 @@ export default function BulkUploadPage() {
 
         if (!token) {
             console.log('❌ Error: No hay token');
+            setMessage({ type: 'error', text: 'Error: No estás autenticado.' });
+            return;
+        }
+
+        setIsLoading(true);
+        setMessage(null);
+
+        try {
+            const formData = new FormData();
+
+            // Append files
+            files.forEach((file) => {
+                formData.append('files', file);
+            });
+
+            // Append other fields
+            formData.append('category_id', categoryId.toString());
+            formData.append('raw_text_block', rawText);
+            formData.append('stock', stock.toString());
+
+            // Send request using apiClient
+            const response = await apiClient.post('/items/bulk-upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            console.log('✅ Carga exitosa:', response.data);
+            setMessage({ type: 'success', text: `¡Éxito! Se han cargado ${response.data.length} ítems correctamente.` });
+
+            // Optional: Clear form or redirect
+            // setFiles([]);
+            // setRawText('');
+            // setTimeout(() => router.push('/items'), 2000);
+
+        } catch (error: any) {
+            console.error('❌ Error en carga masiva:', error);
+            const errorMsg = error.response?.data?.detail || error.message || 'Error al cargar los ítems. Inténtalo de nuevo.';
+            setMessage({
+                type: 'error',
+                text: errorMsg
+            });
+        } finally {
+            setIsLoading(false);
         }
     };
 
