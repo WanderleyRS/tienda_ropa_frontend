@@ -85,6 +85,7 @@ export interface User {
 
 export interface Item {
   id: number;
+  local_id?: number;
   title: string;
   description: string | null;
   price: number | null;

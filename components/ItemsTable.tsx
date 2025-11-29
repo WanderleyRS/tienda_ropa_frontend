@@ -126,7 +126,7 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
         <TableBody>
           {items.map((item) => (
             <TableRow key={item.id} className="hover:bg-secondary/10 transition-colors">
-              <TableCell className="font-medium text-muted-foreground">#{item.id}</TableCell>
+              <TableCell className="font-medium text-muted-foreground">#{item.local_id || item.id}</TableCell>
               <TableCell>
                 <div className="relative h-12 w-12 rounded-lg overflow-hidden border border-border/50 bg-secondary/20">
                   {item.photo_url ? (
