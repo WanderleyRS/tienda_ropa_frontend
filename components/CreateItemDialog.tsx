@@ -14,7 +14,6 @@ import {
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -29,9 +28,9 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { itemsApi, ItemCreate, categoriesApi, uploadApi, Category } from '@/lib/api';
-import { API_BASE_URL } from '@/lib/config';
+import { itemsApi, ItemCreate, categoriesApi, uploadApi } from '@/lib/api';
 import { toast } from 'sonner';
+import { getValidImageUrl } from '@/lib/utils';
 
 const itemSchema = z.object({
   title: z.string().min(1, 'El título es requerido'),
@@ -95,9 +94,6 @@ export function CreateItemDialog({
 
     setIsUploading(true);
     try {
-      const { url } = await uploadApi.uploadImage(file);
-      import { getValidImageUrl } from '@/lib/utils';
-      // ...
       const { url } = await uploadApi.uploadImage(file);
       const fullUrl = getValidImageUrl(url);
 
@@ -425,4 +421,3 @@ export function CreateItemDialog({
     </Dialog>
   );
 }
-
