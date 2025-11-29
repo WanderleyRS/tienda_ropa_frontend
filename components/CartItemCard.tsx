@@ -18,7 +18,7 @@ export function CartItemCard({ item, onUpdateQuantity, onRemove }: CartItemCardP
             {/* Product Image */}
             <div className="w-24 h-24 flex-shrink-0">
                 <img
-                    src={item.photo_url.startsWith('http') ? item.photo_url : `http://localhost:8000${item.photo_url}`}
+                    src={item.photo_url.startsWith('http') ? item.photo_url : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}${item.photo_url}`}
                     alt={item.title}
                     className="w-full h-full object-cover rounded"
                     onError={(e) => {
