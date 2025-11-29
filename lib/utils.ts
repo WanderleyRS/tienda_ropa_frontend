@@ -13,6 +13,8 @@ export function cn(...inputs: ClassValue[]) {
 export function getValidImageUrl(path: string | undefined | null): string {
   if (!path) return '';
 
+  console.log('[getValidImageUrl] Input:', path);
+
   // 1. If it's already a valid http/https URL
   if (path.startsWith('http')) {
     // If it points to localhost, replace it with our configured API_BASE_URL
@@ -20,11 +22,16 @@ export function getValidImageUrl(path: string | undefined | null): string {
       // Remove the http://localhost:PORT part and keep the rest
       // Assuming standard format http://localhost:8000/static/...
       const relativePath = path.replace(/^https?:\/\/localhost:\d+/, '');
-      return `${API_BASE_URL}${relativePath}`;
+      const finalUrl = `${API_BASE_URL}${relativePath}`;
+      console.log('[getValidImageUrl] Localhost detected. Transformed to:', finalUrl);
+      return finalUrl;
     }
+    console.log('[getValidImageUrl] Already valid HTTP URL:', path);
     return path;
   }
 
   // 2. If it's a relative path, prepend API_BASE_URL
-  return `${API_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+  const finalUrl = `${API_BASE_URL}${path.startsWith('/') ? '' : '/'}${path}`;
+  console.log('[getValidImageUrl] Relative path. Transformed to:', finalUrl);
+  return finalUrl;
 }
