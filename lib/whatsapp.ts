@@ -1,5 +1,6 @@
 import { CartItem } from '@/contexts/CartContext';
 import { API_BASE_URL } from '@/lib/config';
+import { getValidImageUrl } from '@/lib/utils';
 
 // WhatsApp phone number for orders (Bolivia)
 const WHATSAPP_PHONE = '59163411905';
@@ -30,8 +31,6 @@ export function buildWhatsAppMessage(cartItems: CartItem[], subtotal: number, cl
         // Add price and quantity
         message += `   💰 $${item.price.toFixed(2)} x ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}\n`;
 
-        import { getValidImageUrl } from '@/lib/utils';
-        // ...
         // Add image URL - WhatsApp will auto-generate preview if URL is public
         const imageUrl = getValidImageUrl(item.photo_url);
 
