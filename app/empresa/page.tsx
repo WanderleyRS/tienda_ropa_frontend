@@ -65,8 +65,11 @@ export default function EmpresaPage() {
         try {
             const data = await companiesApi.getEmpresa();
             setEmpresaData(data);
+            setEmpresaData(data);
             setEditedEmpresaName(data.nombre);
-            setEditedWhatsApp(data.whatsapp_numero || '');
+            // Remove +591 prefix if present for display
+            const rawPhone = data.whatsapp_numero || '';
+            setEditedWhatsApp(rawPhone.replace(/^(\+?591)?\s*/, ''));
         } catch (error) {
             console.error('Error loading empresa:', error);
             toast.error('Error al cargar datos de empresa');
@@ -83,7 +86,7 @@ export default function EmpresaPage() {
         try {
             await companiesApi.setup({
                 nombre: companyName,
-                whatsapp_numero: whatsappNumber || undefined,
+                whatsapp_numero: whatsappNumber ? `+591${whatsappNumber.trim()}` : undefined,
                 nombre_almacen_inicial: initialWarehouse || undefined
             });
             toast.success('Empresa configurada. Inicia sesión nuevamente para continuar.');
@@ -122,9 +125,9 @@ export default function EmpresaPage() {
     const handleSaveEmpresa = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        // Validar formato de WhatsApp si se proporciona
-        if (editedWhatsApp && !editedWhatsApp.match(/^\+?[1-9]\d{1,14}$/)) {
-            toast.error('Formato de número inválido. Usa formato internacional (ej: +56912345678)');
+        // Validar que sea un número
+        if (editedWhatsApp && !/^\d+$/.test(editedWhatsApp)) {
+            toast.error('El número debe contener solo dígitos');
             return;
         }
 
@@ -132,7 +135,7 @@ export default function EmpresaPage() {
         try {
             await companiesApi.updateEmpresa({
                 nombre: editedEmpresaName,
-                whatsapp_numero: editedWhatsApp || undefined
+                whatsapp_numero: editedWhatsApp ? `+591${editedWhatsApp.trim()}` : undefined
             });
             toast.success('Datos de empresa actualizados');
             setIsEditingEmpresa(false);
@@ -177,14 +180,23 @@ export default function EmpresaPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="whatsappNumber">Número de WhatsApp</Label>
-                                    <Input
-                                        id="whatsappNumber"
-                                        placeholder="+56912345678"
-                                        value={whatsappNumber}
-                                        onChange={(e) => setWhatsappNumber(e.target.value)}
-                                    />
+                                    <div className="flex">
+                                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-200 bg-gray-50 text-gray-500 text-sm">
+                                            🇧🇴 +591
+                                        </span>
+                                        <Input
+                                            id="whatsappNumber"
+                                            placeholder="63411905"
+                                            value={whatsappNumber}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/\D/g, '');
+                                                setWhatsappNumber(val);
+                                            }}
+                                            className="rounded-l-none"
+                                        />
+                                    </div>
                                     <p className="text-xs text-gray-500">
-                                        Número para recibir pedidos de clientes (incluye código de país).
+                                        Ingresa solo el número de celular (sin el código de país).
                                     </p>
                                 </div>
                                 <div className="space-y-2">
@@ -264,14 +276,23 @@ export default function EmpresaPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="editWhatsApp">Número de WhatsApp</Label>
-                                        <Input
-                                            id="editWhatsApp"
-                                            placeholder="+56912345678"
-                                            value={editedWhatsApp}
-                                            onChange={(e) => setEditedWhatsApp(e.target.value)}
-                                        />
+                                        <div className="flex">
+                                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-200 bg-gray-50 text-gray-500 text-sm">
+                                                🇧🇴 +591
+                                            </span>
+                                            <Input
+                                                id="editWhatsApp"
+                                                placeholder="63411905"
+                                                value={editedWhatsApp}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/\D/g, '');
+                                                    setEditedWhatsApp(val);
+                                                }}
+                                                className="rounded-l-none"
+                                            />
+                                        </div>
                                         <p className="text-xs text-gray-500">
-                                            Número para recibir pedidos de clientes. Incluye código de país (ej: +56 para Chile).
+                                            Ingresa solo el número de celular (sin el código de país).
                                         </p>
                                     </div>
                                     <div className="flex gap-2">
@@ -284,7 +305,8 @@ export default function EmpresaPage() {
                                             onClick={() => {
                                                 setIsEditingEmpresa(false);
                                                 setEditedEmpresaName(empresaData?.nombre || '');
-                                                setEditedWhatsApp(empresaData?.whatsapp_numero || '');
+                                                const rawPhone = empresaData?.whatsapp_numero || '';
+                                                setEditedWhatsApp(rawPhone.replace(/^(\+?591)?\s*/, ''));
                                             }}
                                             disabled={isSavingEmpresa}
                                         >
