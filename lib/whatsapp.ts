@@ -34,7 +34,7 @@ export function buildWhatsAppMessage(cartItems: CartItem[], subtotal: number, cl
         // Add image URL - WhatsApp will auto-generate preview if URL is public
         const imageUrl = item.photo_url.startsWith('http')
             ? item.photo_url
-            : `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}${item.photo_url}`;
+            : `${process.env.NEXT_PUBLIC_API_URL || 'https://tiendaropabackend-production.up.railway.app'}${item.photo_url}`;
 
         // Put image URL on its own line for better WhatsApp preview generation
         message += `   ${imageUrl}\n\n`;

@@ -95,7 +95,7 @@ export function CreateItemDialog({
     setIsUploading(true);
     try {
       const { url } = await uploadApi.uploadImage(file);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://tiendaropabackend-production.up.railway.app';
       const fullUrl = url.startsWith('http') ? url : `${apiUrl}${url}`;
 
       form.setValue('photo_url', fullUrl);
