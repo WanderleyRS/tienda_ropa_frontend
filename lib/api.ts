@@ -314,27 +314,6 @@ export const clientesApi = {
   },
 };
 
-export interface DetalleVentaCreate {
-}
-
-export interface Empresa {
-  id: number;
-  nombre: string;
-  whatsapp_numero?: string;
-  fecha_registro: string;
-  activa: boolean;
-}
-
-export interface AlmacenCreate {
-  nombre: string;
-}
-
-export interface AlmacenUpdate {
-  nombre?: string;
-  activo?: boolean;
-}
-
-// ---------- API objects ----------
 export interface DetalleVenta {
   id: number;
   producto_id: number;
