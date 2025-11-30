@@ -1,9 +1,10 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { CartButton } from '@/components/CartButton';
-import { LogOut, Building2, Menu, X } from 'lucide-react';
+import { LogOut, Building2, Menu, X, Moon, Sun } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -11,6 +12,7 @@ import { useState } from 'react';
 
 export function Navbar() {
     const { user, logout, isAuthenticated } = useAuth();
+    const { theme, toggleTheme } = useTheme();
     const router = useRouter();
     const pathname = usePathname();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -103,6 +105,21 @@ export function Navbar() {
                     <div className="flex items-center gap-2 sm:gap-4">
                         {/* Cart Button (always visible) */}
                         <CartButton />
+
+                        {/* Theme Toggle */}
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={toggleTheme}
+                            className="rounded-full"
+                            aria-label="Toggle theme"
+                        >
+                            {theme === 'dark' ? (
+                                <Sun className="h-5 w-5" />
+                            ) : (
+                                <Moon className="h-5 w-5" />
+                            )}
+                        </Button>
 
                         {/* User info (desktop only) */}
                         {isAuthenticated && (
