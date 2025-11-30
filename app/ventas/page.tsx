@@ -12,11 +12,12 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Search, Eye, Loader2 } from 'lucide-react';
+import { Search, Eye, Loader2, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { VentaDetailModal } from '@/components/VentaDetailModal';
+import ScheduleDeliveryModal from '@/components/ScheduleDeliveryModal';
 import { Navbar } from '@/components/Navbar';
 
 interface Venta {
@@ -38,6 +39,8 @@ export default function VentasPage() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedVentaId, setSelectedVentaId] = useState<number | null>(null);
     const [detailModalOpen, setDetailModalOpen] = useState(false);
+    const [scheduleModalOpen, setScheduleModalOpen] = useState(false);
+    const [ventaToSchedule, setVentaToSchedule] = useState<number | null>(null);
 
     useEffect(() => {
         loadVentas();
@@ -63,6 +66,11 @@ export default function VentasPage() {
     const handleViewDetail = (ventaId: number) => {
         setSelectedVentaId(ventaId);
         setDetailModalOpen(true);
+    };
+
+    const handleScheduleDelivery = (ventaId: number) => {
+        setVentaToSchedule(ventaId);
+        setScheduleModalOpen(true);
     };
 
     const getClienteName = (venta: Venta) => {
@@ -146,15 +154,28 @@ export default function VentasPage() {
                                                     </span>
                                                 </TableCell>
                                                 <TableCell className="text-right">
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        onClick={() => handleViewDetail(venta.id)}
-                                                        className="hover:bg-primary/10 hover:text-primary"
-                                                    >
-                                                        <Eye className="w-4 h-4 mr-2" />
-                                                        Ver Detalle
-                                                    </Button>
+                                                    <div className="flex gap-2 justify-end">
+                                                        {venta.estado_pago === 'PAGADO' && (
+                                                            <Button
+                                                                variant="outline"
+                                                                size="sm"
+                                                                onClick={() => handleScheduleDelivery(venta.id)}
+                                                                className="hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200"
+                                                            >
+                                                                <Calendar className="w-4 h-4 mr-2" />
+                                                                Programar
+                                                            </Button>
+                                                        )}
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            onClick={() => handleViewDetail(venta.id)}
+                                                            className="hover:bg-primary/10 hover:text-primary"
+                                                        >
+                                                            <Eye className="w-4 h-4 mr-2" />
+                                                            Ver Detalle
+                                                        </Button>
+                                                    </div>
                                                 </TableCell>
                                             </TableRow>
                                         ))}
@@ -198,15 +219,28 @@ export default function VentasPage() {
                                                 </p>
                                             </div>
                                         </div>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => handleViewDetail(venta.id)}
-                                            className="w-full"
-                                        >
-                                            <Eye className="w-4 h-4 mr-2" />
-                                            Ver Detalle
-                                        </Button>
+                                        <div className="flex gap-2">
+                                            {venta.estado_pago === 'PAGADO' && (
+                                                <Button
+                                                    variant="outline"
+                                                    size="sm"
+                                                    onClick={() => handleScheduleDelivery(venta.id)}
+                                                    className="flex-1"
+                                                >
+                                                    <Calendar className="w-4 h-4 mr-2" />
+                                                    Programar
+                                                </Button>
+                                            )}
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => handleViewDetail(venta.id)}
+                                                className="flex-1"
+                                            >
+                                                <Eye className="w-4 h-4 mr-2" />
+                                                Ver Detalle
+                                            </Button>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -221,6 +255,21 @@ export default function VentasPage() {
                         onClose={() => setDetailModalOpen(false)}
                         ventaId={selectedVentaId}
                         onUpdate={loadVentas}
+                    />
+                )}
+
+                {/* Modal de Programar Entrega */}
+                {ventaToSchedule && (
+                    <ScheduleDeliveryModal
+                        ventaId={ventaToSchedule}
+                        onClose={() => {
+                            setScheduleModalOpen(false);
+                            setVentaToSchedule(null);
+                        }}
+                        onSuccess={() => {
+                            toast.success('Entrega programada exitosamente');
+                            loadVentas();
+                        }}
                     />
                 )}
             </main>
