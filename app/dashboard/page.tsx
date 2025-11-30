@@ -9,9 +9,16 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Plus, Building2, ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { itemsApi, Item } from '@/lib/api';
+import { itemsApi, Item, categoriesApi, companiesApi, Category, Almacen } from '@/lib/api';
 import { Navbar } from '@/components/Navbar';
 import Link from 'next/link';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function DashboardPage() {
   return (
@@ -27,14 +34,47 @@ function DashboardContent() {
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+
+  // Filtros
   const [filterSold, setFilterSold] = useState<boolean | undefined>(undefined);
+  const [filterCategory, setFilterCategory] = useState('ALL');
+  const [filterAlmacen, setFilterAlmacen] = useState('ALL');
+
+  // Datos para filtros
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [almacenes, setAlmacenes] = useState<Almacen[]>([]);
+
+  const loadInitialData = async () => {
+    try {
+      const [catsData, almacenesData] = await Promise.all([
+        categoriesApi.getAll(),
+        user?.role === 'admin' ? companiesApi.getAlmacenes() : Promise.resolve([])
+      ]);
+      setCategories(catsData);
+      if (user?.role === 'admin') {
+        setAlmacenes(almacenesData);
+      }
+    } catch (err) {
+      console.error('Error loading initial data:', err);
+    }
+  };
 
   const loadItems = async () => {
     try {
       setIsLoading(true);
-      const data = await itemsApi.getAll({
+      const filters: any = {
         is_sold: filterSold
-      });
+      };
+
+      if (filterCategory && filterCategory !== 'ALL') {
+        filters.category_id = parseInt(filterCategory);
+      }
+
+      if (filterAlmacen && filterAlmacen !== 'ALL') {
+        filters.almacen_id = parseInt(filterAlmacen);
+      }
+
+      const data = await itemsApi.getAll(filters);
       setItems(data);
     } catch (error: any) {
       console.error('Error al cargar ítems:', error);
@@ -55,8 +95,15 @@ function DashboardContent() {
       return;
     }
 
+    loadInitialData();
+  }, [user]);
+
+  useEffect(() => {
+    const hasAlmacenes = user?.almacenes && user.almacenes.length > 0;
+    if (user?.role === 'admin' && !hasAlmacenes) return;
+
     loadItems();
-  }, [filterSold, user]);
+  }, [filterSold, filterCategory, filterAlmacen, user]);
 
   const handleItemCreated = () => {
     loadItems();
@@ -134,39 +181,77 @@ function DashboardContent() {
         </div>
 
         {/* Actions Bar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-card p-4 rounded-xl border border-border/50 shadow-sm">
-          <div className="flex gap-2 p-1 bg-secondary/50 rounded-lg">
-            <Button
-              variant={filterSold === undefined ? "default" : "ghost"}
-              onClick={() => setFilterSold(undefined)}
-              size="sm"
-              className="rounded-md"
-            >
-              Todos
-            </Button>
-            <Button
-              variant={filterSold === false ? "default" : "ghost"}
-              onClick={() => setFilterSold(false)}
-              size="sm"
-              className="rounded-md"
-            >
-              Disponibles
-            </Button>
-            <Button
-              variant={filterSold === true ? "default" : "ghost"}
-              onClick={() => setFilterSold(true)}
-              size="sm"
-              className="rounded-md"
-            >
-              Vendidos
-            </Button>
+        <div className="flex flex-col gap-4 mb-6 bg-card p-4 rounded-xl border border-border/50 shadow-sm">
+          <div className="flex flex-col md:flex-row justify-between gap-4">
+            <div className="flex flex-wrap gap-2 items-center">
+              {/* Filtro Estado */}
+              <div className="flex gap-2 p-1 bg-secondary/50 rounded-lg">
+                <Button
+                  variant={filterSold === undefined ? "default" : "ghost"}
+                  onClick={() => setFilterSold(undefined)}
+                  size="sm"
+                  className="rounded-md"
+                >
+                  Todos
+                </Button>
+                <Button
+                  variant={filterSold === false ? "default" : "ghost"}
+                  onClick={() => setFilterSold(false)}
+                  size="sm"
+                  className="rounded-md"
+                >
+                  Disponibles
+                </Button>
+                <Button
+                  variant={filterSold === true ? "default" : "ghost"}
+                  onClick={() => setFilterSold(true)}
+                  size="sm"
+                  className="rounded-md"
+                >
+                  Vendidos
+                </Button>
+              </div>
+
+              {/* Filtro Categoría */}
+              <Select value={filterCategory} onValueChange={setFilterCategory}>
+                <SelectTrigger className="w-[180px] bg-background">
+                  <SelectValue placeholder="Categoría" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">Todas las categorías</SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id.toString()}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              {/* Filtro Almacén (Admin) */}
+              {user?.role === 'admin' && (
+                <Select value={filterAlmacen} onValueChange={setFilterAlmacen}>
+                  <SelectTrigger className="w-[180px] bg-background">
+                    <SelectValue placeholder="Almacén" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="ALL">Todos los almacenes</SelectItem>
+                    {almacenes.map((almacen) => (
+                      <SelectItem key={almacen.id} value={almacen.id.toString()}>
+                        {almacen.nombre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
+
+            {(user?.role === 'admin' || user?.role === 'vendedor') && (
+              <Button onClick={() => setIsCreateDialogOpen(true)} className="shadow-lg shadow-primary/20">
+                <Plus className="mr-2 h-4 w-4" />
+                Nuevo Ítem
+              </Button>
+            )}
           </div>
-          {(user?.role === 'admin' || user?.role === 'vendedor') && (
-            <Button onClick={() => setIsCreateDialogOpen(true)} className="shadow-lg shadow-primary/20">
-              <Plus className="mr-2 h-4 w-4" />
-              Nuevo Ítem
-            </Button>
-          )}
         </div>
 
         {/* Items Table */}
