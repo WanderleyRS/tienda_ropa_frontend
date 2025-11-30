@@ -380,8 +380,8 @@ export const ventasApi = {
     const response = await apiClient.post('/ventas/', data);
     return response.data;
   },
-  listar: async (search?: string) => {
-    const response = await apiClient.get('/ventas/', { params: { search } });
+  listar: async (filters?: { search?: string; cliente_id?: number; almacen_id?: number; categoria_id?: number }) => {
+    const response = await apiClient.get('/ventas/', { params: filters });
     return response.data;
   },
   getDetalle: async (id: number) => {
