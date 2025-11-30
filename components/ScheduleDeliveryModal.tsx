@@ -2,6 +2,13 @@
 
 import { useState } from 'react';
 import { agendaApi } from '@/lib/api';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Loader2, Calendar, Truck, Store } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface ScheduleDeliveryModalProps {
     ventaId: number;
@@ -16,15 +23,13 @@ export default function ScheduleDeliveryModal({ ventaId, onClose, onSuccess }: S
     const [direccionEntrega, setDireccionEntrega] = useState('');
     const [notasLogistica, setNotasLogistica] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError('');
 
         // Validación
         if (tipoEntrega === 'Delivery' && !direccionEntrega.trim()) {
-            setError('La dirección de entrega es obligatoria para Delivery');
+            toast.error('La dirección de entrega es obligatoria para Delivery');
             return;
         }
 
@@ -43,131 +48,163 @@ export default function ScheduleDeliveryModal({ ventaId, onClose, onSuccess }: S
             onSuccess();
             onClose();
         } catch (err: any) {
-            setError(err.response?.data?.detail || 'Error al programar la entrega');
+            toast.error(err.response?.data?.detail || 'Error al programar la entrega');
         } finally {
             setIsLoading(false);
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-lg shadow-xl max-w-md w-full p-6">
-                <h2 className="text-2xl font-bold mb-4">Programar Entrega</h2>
+        <Dialog open={true} onOpenChange={onClose}>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card border-border/50 shadow-2xl">
+                <DialogHeader className="border-b border-border/50 pb-4">
+                    <DialogTitle className="text-2xl font-bold flex items-center gap-2">
+                        <span className="bg-primary/10 p-2 rounded-lg text-primary">
+                            <Calendar className="w-5 h-5" />
+                        </span>
+                        Programar Entrega
+                    </DialogTitle>
+                </DialogHeader>
 
-                {error && (
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
-                        {error}
-                    </div>
-                )}
-
-                <form onSubmit={handleSubmit}>
+                <form onSubmit={handleSubmit} className="space-y-6 pt-4">
                     {/* Tipo de Entrega */}
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Tipo de Entrega
-                        </label>
-                        <div className="flex gap-4">
-                            <label className="flex items-center">
-                                <input
-                                    type="radio"
-                                    value="Delivery"
-                                    checked={tipoEntrega === 'Delivery'}
-                                    onChange={(e) => setTipoEntrega(e.target.value as 'Delivery')}
-                                    className="mr-2"
-                                />
-                                🚚 Delivery
-                            </label>
-                            <label className="flex items-center">
-                                <input
-                                    type="radio"
-                                    value="Recoleccion_Tienda"
-                                    checked={tipoEntrega === 'Recoleccion_Tienda'}
-                                    onChange={(e) => setTipoEntrega(e.target.value as 'Recoleccion_Tienda')}
-                                    className="mr-2"
-                                />
-                                🏪 Recolección en Tienda
-                            </label>
+                    <div className="space-y-3">
+                        <Label className="text-sm font-medium">Tipo de Entrega *</Label>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <button
+                                type="button"
+                                onClick={() => setTipoEntrega('Delivery')}
+                                className={`p-4 rounded-xl border-2 transition-all ${tipoEntrega === 'Delivery'
+                                        ? 'border-primary bg-primary/5 shadow-sm'
+                                        : 'border-border/50 hover:border-border hover:bg-secondary/30'
+                                    }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-lg ${tipoEntrega === 'Delivery' ? 'bg-primary/10' : 'bg-secondary/50'}`}>
+                                        <Truck className={`w-5 h-5 ${tipoEntrega === 'Delivery' ? 'text-primary' : 'text-muted-foreground'}`} />
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="font-medium">Delivery</div>
+                                        <div className="text-xs text-muted-foreground">Entrega a domicilio</div>
+                                    </div>
+                                </div>
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => setTipoEntrega('Recoleccion_Tienda')}
+                                className={`p-4 rounded-xl border-2 transition-all ${tipoEntrega === 'Recoleccion_Tienda'
+                                        ? 'border-primary bg-primary/5 shadow-sm'
+                                        : 'border-border/50 hover:border-border hover:bg-secondary/30'
+                                    }`}
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className={`p-2 rounded-lg ${tipoEntrega === 'Recoleccion_Tienda' ? 'bg-primary/10' : 'bg-secondary/50'}`}>
+                                        <Store className={`w-5 h-5 ${tipoEntrega === 'Recoleccion_Tienda' ? 'text-primary' : 'text-muted-foreground'}`} />
+                                    </div>
+                                    <div className="text-left">
+                                        <div className="font-medium">Recolección</div>
+                                        <div className="text-xs text-muted-foreground">Retiro en tienda</div>
+                                    </div>
+                                </div>
+                            </button>
                         </div>
                     </div>
 
-                    {/* Fecha Programada */}
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Fecha Programada *
-                        </label>
-                        <input
-                            type="date"
-                            value={fechaProgramada}
-                            onChange={(e) => setFechaProgramada(e.target.value)}
-                            required
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
-                    </div>
+                    {/* Fecha y Hora */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="fecha" className="text-sm font-medium">
+                                Fecha Programada *
+                            </Label>
+                            <Input
+                                id="fecha"
+                                type="date"
+                                value={fechaProgramada}
+                                onChange={(e) => setFechaProgramada(e.target.value)}
+                                required
+                                className="bg-background"
+                            />
+                        </div>
 
-                    {/* Hora Programada */}
-                    <div className="mb-4">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Hora Programada (Opcional)
-                        </label>
-                        <input
-                            type="time"
-                            value={horaProgramada}
-                            onChange={(e) => setHoraProgramada(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        />
+                        <div className="space-y-2">
+                            <Label htmlFor="hora" className="text-sm font-medium">
+                                Hora Programada (Opcional)
+                            </Label>
+                            <Input
+                                id="hora"
+                                type="time"
+                                value={horaProgramada}
+                                onChange={(e) => setHoraProgramada(e.target.value)}
+                                className="bg-background"
+                            />
+                        </div>
                     </div>
 
                     {/* Dirección de Entrega (condicional) */}
                     {tipoEntrega === 'Delivery' && (
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <div className="space-y-2 animate-in fade-in slide-in-from-top-2">
+                            <Label htmlFor="direccion" className="text-sm font-medium">
                                 Dirección de Entrega *
-                            </label>
-                            <textarea
+                            </Label>
+                            <Textarea
+                                id="direccion"
                                 value={direccionEntrega}
                                 onChange={(e) => setDireccionEntrega(e.target.value)}
                                 required
                                 rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                placeholder="Ingrese la dirección completa..."
+                                className="bg-background resize-none"
+                                placeholder="Ingrese la dirección completa de entrega..."
                             />
                         </div>
                     )}
 
                     {/* Notas de Logística */}
-                    <div className="mb-6">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <div className="space-y-2">
+                        <Label htmlFor="notas" className="text-sm font-medium">
                             Notas de Logística (Opcional)
-                        </label>
-                        <textarea
+                        </Label>
+                        <Textarea
+                            id="notas"
                             value={notasLogistica}
                             onChange={(e) => setNotasLogistica(e.target.value)}
                             rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="Instrucciones adicionales..."
+                            className="bg-background resize-none"
+                            placeholder="Instrucciones adicionales para la entrega..."
                         />
                     </div>
 
                     {/* Botones */}
-                    <div className="flex gap-3">
-                        <button
+                    <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4 border-t border-border/50">
+                        <Button
                             type="button"
+                            variant="outline"
                             onClick={onClose}
-                            className="flex-1 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
                             disabled={isLoading}
+                            className="flex-1"
                         >
                             Cancelar
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
-                            className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:bg-gray-400"
                             disabled={isLoading}
+                            className="flex-1 shadow-sm"
                         >
-                            {isLoading ? 'Programando...' : 'Programar'}
-                        </button>
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                    Programando...
+                                </>
+                            ) : (
+                                <>
+                                    <Calendar className="w-4 h-4 mr-2" />
+                                    Programar Entrega
+                                </>
+                            )}
+                        </Button>
                     </div>
                 </form>
-            </div>
-        </div>
+            </DialogContent>
+        </Dialog>
     );
 }
