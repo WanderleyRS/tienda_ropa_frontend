@@ -75,8 +75,8 @@ export default function ScheduleDeliveryModal({ ventaId, onClose, onSuccess }: S
                                 type="button"
                                 onClick={() => setTipoEntrega('Delivery')}
                                 className={`p-4 rounded-xl border-2 transition-all ${tipoEntrega === 'Delivery'
-                                        ? 'border-primary bg-primary/5 shadow-sm'
-                                        : 'border-border/50 hover:border-border hover:bg-secondary/30'
+                                    ? 'border-primary bg-primary/5 shadow-sm'
+                                    : 'border-border/50 hover:border-border hover:bg-secondary/30'
                                     }`}
                             >
                                 <div className="flex items-center gap-3">
@@ -94,8 +94,8 @@ export default function ScheduleDeliveryModal({ ventaId, onClose, onSuccess }: S
                                 type="button"
                                 onClick={() => setTipoEntrega('Recoleccion_Tienda')}
                                 className={`p-4 rounded-xl border-2 transition-all ${tipoEntrega === 'Recoleccion_Tienda'
-                                        ? 'border-primary bg-primary/5 shadow-sm'
-                                        : 'border-border/50 hover:border-border hover:bg-secondary/30'
+                                    ? 'border-primary bg-primary/5 shadow-sm'
+                                    : 'border-border/50 hover:border-border hover:bg-secondary/30'
                                     }`}
                             >
                                 <div className="flex items-center gap-3">
@@ -150,7 +150,7 @@ export default function ScheduleDeliveryModal({ ventaId, onClose, onSuccess }: S
                             <Textarea
                                 id="direccion"
                                 value={direccionEntrega}
-                                onChange={(e) => setDireccionEntrega(e.target.value)}
+                                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setDireccionEntrega(e.target.value)}
                                 required
                                 rows={3}
                                 className="bg-background resize-none"
@@ -167,7 +167,7 @@ export default function ScheduleDeliveryModal({ ventaId, onClose, onSuccess }: S
                         <Textarea
                             id="notas"
                             value={notasLogistica}
-                            onChange={(e) => setNotasLogistica(e.target.value)}
+                            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setNotasLogistica(e.target.value)}
                             rows={2}
                             className="bg-background resize-none"
                             placeholder="Instrucciones adicionales para la entrega..."
