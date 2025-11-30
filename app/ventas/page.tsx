@@ -1,4 +1,4 @@
-'use use client';
+'use client';
 
 import { useState, useEffect } from 'react';
 import { ventasApi, companiesApi, categoriesApi, Almacen, Category, PotencialCliente } from '@/lib/api';
