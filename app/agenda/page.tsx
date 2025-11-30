@@ -27,6 +27,7 @@ import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ClientSelector } from '@/components/ClientSelector';
+import { Skeleton } from '@/components/ui/skeleton';
 
 interface AgendaWithClient extends Agenda {
     cliente?: {
@@ -260,9 +261,37 @@ export default function AgendaPage() {
                 )}
 
                 {isLoading ? (
-                    <div className="flex items-center justify-center py-24 bg-card rounded-xl border border-border/50">
-                        <Loader2 className="w-8 h-8 animate-spin text-primary mr-2" />
-                        <span className="text-muted-foreground">Cargando entregas...</span>
+                    <div className="bg-card rounded-xl border border-border/50 shadow-sm overflow-hidden">
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader className="bg-secondary/30">
+                                    <TableRow>
+                                        <TableHead className="font-semibold">ID Venta</TableHead>
+                                        <TableHead className="font-semibold">Cliente</TableHead>
+                                        {user?.role === 'admin' && <TableHead className="font-semibold">Almacén</TableHead>}
+                                        <TableHead className="font-semibold">Tipo</TableHead>
+                                        <TableHead className="font-semibold">Fecha/Hora</TableHead>
+                                        <TableHead className="font-semibold">Dirección</TableHead>
+                                        <TableHead className="font-semibold">Estado</TableHead>
+                                        <TableHead className="text-right font-semibold">Acción</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {[...Array(5)].map((_, i) => (
+                                        <TableRow key={i}>
+                                            <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                                            <TableCell><Skeleton className="h-4 w-32" /></TableCell>
+                                            {user?.role === 'admin' && <TableCell><Skeleton className="h-4 w-24" /></TableCell>}
+                                            <TableCell><Skeleton className="h-4 w-20" /></TableCell>
+                                            <TableCell><Skeleton className="h-4 w-28" /></TableCell>
+                                            <TableCell><Skeleton className="h-4 w-40" /></TableCell>
+                                            <TableCell><Skeleton className="h-6 w-20 rounded-full" /></TableCell>
+                                            <TableCell className="text-right"><Skeleton className="h-8 w-24 ml-auto" /></TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
                     </div>
                 ) : agendas.length === 0 ? (
                     <div className="bg-card rounded-xl border border-border/50 shadow-sm p-12 text-center">
