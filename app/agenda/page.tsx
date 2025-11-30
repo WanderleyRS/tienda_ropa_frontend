@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { agendaApi, Agenda, companiesApi, Almacen, clientesApi, PotencialCliente } from '@/lib/api';
+import { agendaApi, Agenda, companiesApi, Almacen, PotencialCliente } from '@/lib/api';
 import { useRouter } from 'next/navigation';
 import { Navbar } from '@/components/Navbar';
 import { Input } from '@/components/ui/input';
@@ -22,10 +22,11 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Loader2, Package, Truck, Store, CheckCircle2, Clock, MapPin } from 'lucide-react';
+import { Loader2, Package, Truck, Store, CheckCircle2, Clock, MapPin, User, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
+import { ClientSelector } from '@/components/ClientSelector';
 
 interface AgendaWithClient extends Agenda {
     cliente?: {
@@ -44,7 +45,6 @@ export default function AgendaPage() {
     const router = useRouter();
     const [agendas, setAgendas] = useState<AgendaWithClient[]>([]);
     const [almacenes, setAlmacenes] = useState<Almacen[]>([]);
-    const [clientes, setClientes] = useState<PotencialCliente[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState('');
 
@@ -53,7 +53,10 @@ export default function AgendaPage() {
     const [filtroTipo, setFiltroTipo] = useState('ALL');
     const [filtroEstado, setFiltroEstado] = useState('Agendado');
     const [filtroAlmacen, setFiltroAlmacen] = useState('ALL');
-    const [filtroCliente, setFiltroCliente] = useState('ALL');
+
+    // Estado para el selector de cliente
+    const [selectedClient, setSelectedClient] = useState<PotencialCliente | null>(null);
+    const [isClientSelectorOpen, setIsClientSelectorOpen] = useState(false);
 
     useEffect(() => {
         if (!authLoading && !isAuthenticated) {
@@ -71,16 +74,15 @@ export default function AgendaPage() {
         if (isAuthenticated) {
             loadAgendas();
         }
-    }, [isAuthenticated, filtroFecha, filtroTipo, filtroEstado, filtroAlmacen, filtroCliente]);
+    }, [isAuthenticated, filtroFecha, filtroTipo, filtroEstado, filtroAlmacen, selectedClient]);
 
     const loadInitialData = async () => {
         try {
-            const [almacenesData, clientesData] = await Promise.all([
-                companiesApi.getAlmacenes(),
-                clientesApi.listarTodos(),
-            ]);
-            setAlmacenes(almacenesData);
-            setClientes(clientesData);
+            // Solo cargamos almacenes si es admin, y evitamos cargar todos los clientes
+            if (user?.role === 'admin') {
+                const almacenesData = await companiesApi.getAlmacenes();
+                setAlmacenes(almacenesData);
+            }
         } catch (err) {
             console.error('Error loading initial data:', err);
         }
@@ -95,7 +97,7 @@ export default function AgendaPage() {
             if (filtroTipo && filtroTipo !== 'ALL') filters.tipo = filtroTipo;
             if (filtroEstado && filtroEstado !== 'ALL') filters.estado = filtroEstado;
             if (filtroAlmacen && filtroAlmacen !== 'ALL') filters.almacen_id = filtroAlmacen;
-            if (filtroCliente && filtroCliente !== 'ALL') filters.cliente_id = filtroCliente;
+            if (selectedClient) filters.cliente_id = selectedClient.id;
 
             const data = await agendaApi.list(filters);
             setAgendas(data);
@@ -129,7 +131,7 @@ export default function AgendaPage() {
         setFiltroTipo('ALL');
         setFiltroEstado('ALL');
         setFiltroAlmacen('ALL');
-        setFiltroCliente('ALL');
+        setSelectedClient(null);
     };
 
     if (authLoading || !isAuthenticated) {
@@ -221,19 +223,31 @@ export default function AgendaPage() {
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-muted-foreground">Cliente</label>
-                            <Select value={filtroCliente} onValueChange={setFiltroCliente}>
-                                <SelectTrigger className="bg-background">
-                                    <SelectValue placeholder="Todos" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="ALL">Todos</SelectItem>
-                                    {clientes.map((cliente) => (
-                                        <SelectItem key={cliente.id} value={cliente.id.toString()}>
-                                            {`${cliente.nombre} ${cliente.apellido_paterno}`}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            {selectedClient ? (
+                                <div className="flex gap-2">
+                                    <div className="flex-1 flex items-center px-3 py-2 bg-primary/10 text-primary rounded-md border border-primary/20 text-sm truncate">
+                                        <User className="w-4 h-4 mr-2 flex-shrink-0" />
+                                        <span className="truncate">{selectedClient.nombre} {selectedClient.apellido_paterno}</span>
+                                    </div>
+                                    <Button
+                                        variant="outline"
+                                        size="icon"
+                                        onClick={() => setSelectedClient(null)}
+                                        className="flex-shrink-0"
+                                    >
+                                        <X className="w-4 h-4" />
+                                    </Button>
+                                </div>
+                            ) : (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => setIsClientSelectorOpen(true)}
+                                    className="w-full justify-start text-muted-foreground font-normal"
+                                >
+                                    <User className="w-4 h-4 mr-2" />
+                                    Seleccionar cliente...
+                                </Button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -348,6 +362,12 @@ export default function AgendaPage() {
                         </div>
                     </div>
                 )}
+
+                <ClientSelector
+                    isOpen={isClientSelectorOpen}
+                    onClose={() => setIsClientSelectorOpen(false)}
+                    onSelect={setSelectedClient}
+                />
             </main>
         </div>
     );
