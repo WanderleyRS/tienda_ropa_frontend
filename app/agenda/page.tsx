@@ -50,10 +50,10 @@ export default function AgendaPage() {
 
     // Filtros
     const [filtroFecha, setFiltroFecha] = useState('');
-    const [filtroTipo, setFiltroTipo] = useState('');
+    const [filtroTipo, setFiltroTipo] = useState('ALL');
     const [filtroEstado, setFiltroEstado] = useState('Agendado');
-    const [filtroAlmacen, setFiltroAlmacen] = useState('');
-    const [filtroCliente, setFiltroCliente] = useState('');
+    const [filtroAlmacen, setFiltroAlmacen] = useState('ALL');
+    const [filtroCliente, setFiltroCliente] = useState('ALL');
 
     useEffect(() => {
         if (!authLoading && !isAuthenticated) {
@@ -92,10 +92,10 @@ export default function AgendaPage() {
         try {
             const filters: any = {};
             if (filtroFecha) filters.fecha = filtroFecha;
-            if (filtroTipo) filters.tipo = filtroTipo;
-            if (filtroEstado) filters.estado = filtroEstado;
-            if (filtroAlmacen) filters.almacen_id = filtroAlmacen;
-            if (filtroCliente) filters.cliente_id = filtroCliente;
+            if (filtroTipo && filtroTipo !== 'ALL') filters.tipo = filtroTipo;
+            if (filtroEstado && filtroEstado !== 'ALL') filters.estado = filtroEstado;
+            if (filtroAlmacen && filtroAlmacen !== 'ALL') filters.almacen_id = filtroAlmacen;
+            if (filtroCliente && filtroCliente !== 'ALL') filters.cliente_id = filtroCliente;
 
             const data = await agendaApi.list(filters);
             setAgendas(data);
@@ -126,10 +126,10 @@ export default function AgendaPage() {
 
     const limpiarFiltros = () => {
         setFiltroFecha('');
-        setFiltroTipo('');
-        setFiltroEstado('');
-        setFiltroAlmacen('');
-        setFiltroCliente('');
+        setFiltroTipo('ALL');
+        setFiltroEstado('ALL');
+        setFiltroAlmacen('ALL');
+        setFiltroCliente('ALL');
     };
 
     if (authLoading || !isAuthenticated) {
@@ -178,7 +178,7 @@ export default function AgendaPage() {
                                     <SelectValue placeholder="Todos" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">Todos</SelectItem>
+                                    <SelectItem value="ALL">Todos</SelectItem>
                                     <SelectItem value="Delivery">Delivery</SelectItem>
                                     <SelectItem value="Recoleccion_Tienda">Recolección</SelectItem>
                                 </SelectContent>
@@ -192,7 +192,7 @@ export default function AgendaPage() {
                                     <SelectValue placeholder="Todos" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">Todos</SelectItem>
+                                    <SelectItem value="ALL">Todos</SelectItem>
                                     <SelectItem value="Agendado">Agendado</SelectItem>
                                     <SelectItem value="En_Transito">En Tránsito</SelectItem>
                                     <SelectItem value="Entregado">Entregado</SelectItem>
@@ -208,7 +208,7 @@ export default function AgendaPage() {
                                         <SelectValue placeholder="Todos" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value="">Todos</SelectItem>
+                                        <SelectItem value="ALL">Todos</SelectItem>
                                         {almacenes.map((almacen) => (
                                             <SelectItem key={almacen.id} value={almacen.id.toString()}>
                                                 {almacen.nombre}
@@ -226,7 +226,7 @@ export default function AgendaPage() {
                                     <SelectValue placeholder="Todos" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">Todos</SelectItem>
+                                    <SelectItem value="ALL">Todos</SelectItem>
                                     {clientes.map((cliente) => (
                                         <SelectItem key={cliente.id} value={cliente.id.toString()}>
                                             {`${cliente.nombre} ${cliente.apellido_paterno}`}
@@ -319,10 +319,10 @@ export default function AgendaPage() {
                                             <TableCell>
                                                 <span
                                                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${agenda.estado_entrega === 'Entregado'
-                                                            ? 'bg-green-50 text-green-700 border-green-100'
-                                                            : agenda.estado_entrega === 'En_Transito'
-                                                                ? 'bg-yellow-50 text-yellow-700 border-yellow-100'
-                                                                : 'bg-blue-50 text-blue-700 border-blue-100'
+                                                        ? 'bg-green-50 text-green-700 border-green-100'
+                                                        : agenda.estado_entrega === 'En_Transito'
+                                                            ? 'bg-yellow-50 text-yellow-700 border-yellow-100'
+                                                            : 'bg-blue-50 text-blue-700 border-blue-100'
                                                         }`}
                                                 >
                                                     {agenda.estado_entrega}
