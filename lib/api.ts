@@ -375,6 +375,79 @@ export interface VentaCreate {
   metodo_pago?: string;
 }
 
+export const ventasApi = {
+  crear: async (data: VentaCreate) => {
+    const response = await apiClient.post('/ventas/', data);
+    return response.data;
+  },
+  listar: async (search?: string) => {
+    const response = await apiClient.get('/ventas/', { params: { search } });
+    return response.data;
+  },
+  getDetalle: async (id: number) => {
+    const response = await apiClient.get(`/ventas/${id}/detalle`);
+    return response.data;
+  },
+  eliminar: async (id: number) => {
+    await apiClient.delete(`/ventas/${id}`);
+  },
+};
+
+export const abonosApi = {
+  crear: async (ventaId: number, data: AbonoCreate) => {
+    const response = await apiClient.post(`/abonos/?venta_id=${ventaId}`, data);
+    return response.data;
+  },
+  eliminar: async (id: number) => {
+    await apiClient.delete(`/abonos/${id}`);
+  },
+};
+
+// ---------- Categories & Upload ----------
+
+export interface Category {
+  id: number;
+  name: string;
+  almacen_id: number;
+}
+
+export interface CategoryCreate {
+  name: string;
+}
+
+export const categoriesApi = {
+  getAll: async (): Promise<Category[]> => {
+    const response = await apiClient.get<Category[]>('/categories/');
+    return response.data;
+  },
+  create: async (data: CategoryCreate): Promise<Category> => {
+    const response = await apiClient.post<Category>('/categories/', data);
+    return response.data;
+  },
+};
+
+export const uploadApi = {
+  uploadImage: async (file: File): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    const response = await apiClient.post<{ url: string }>('/upload/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+  upload: async (formData: FormData) => {
+    const response = await apiClient.post<Item[]>('/items/bulk-upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  },
+};
+
+
 export const agendaApi = {
   create: async (data: {
     venta_id: number;
