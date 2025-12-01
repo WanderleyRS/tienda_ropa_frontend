@@ -85,22 +85,23 @@ export default function TiendaPage() {
             </header>
 
             {/* Hero Section */}
-            <div className="bg-secondary/30 py-16 sm:py-24">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div className="bg-secondary/10 py-16 sm:py-24 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/50 pointer-events-none" />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
                     <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-foreground mb-6">
-                        Estilo Único, <span className="text-foreground underline decoration-4 decoration-primary/20">Segunda Vida</span>
+                        Estilo Único, <span className="text-primary underline decoration-4 decoration-primary/20">Segunda Vida</span>
                     </h1>
                     <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
                         Descubre prendas exclusivas, dale una nueva oportunidad a la moda y viste con conciencia. Calidad y estilo a precios increíbles.
                     </p>
 
                     {/* Search & Filter Toolbar */}
-                    <div className="max-w-3xl mx-auto bg-white p-2 rounded-2xl shadow-lg border border-border flex flex-col sm:flex-row gap-2">
+                    <div className="max-w-3xl mx-auto bg-card p-2 rounded-2xl shadow-lg border border-border flex flex-col sm:flex-row gap-2">
                         <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                             <Input
                                 placeholder="¿Qué estás buscando hoy?"
-                                className="pl-10 border-0 shadow-none focus-visible:ring-0 bg-transparent h-12 text-base"
+                                className="pl-10 border-0 shadow-none focus-visible:ring-0 bg-transparent h-12 text-base text-foreground placeholder:text-muted-foreground"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
                             />
@@ -110,7 +111,7 @@ export default function TiendaPage() {
                                 value={selectedCategory}
                                 onValueChange={setSelectedCategory}
                             >
-                                <SelectTrigger className="h-12 border-0 bg-secondary/50 hover:bg-secondary focus:ring-0 rounded-xl">
+                                <SelectTrigger className="h-12 border-0 bg-secondary/50 hover:bg-secondary focus:ring-0 rounded-xl text-foreground">
                                     <SelectValue placeholder="Categoría" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -167,7 +168,7 @@ export default function TiendaPage() {
 
                 {/* Empty State */}
                 {!isLoading && products.length === 0 && (
-                    <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-border">
+                    <div className="text-center py-24 bg-card rounded-3xl border border-dashed border-border">
                         <div className="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
                             <Search className="h-10 w-10 text-primary" />
                         </div>
