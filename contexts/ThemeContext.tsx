@@ -13,29 +13,37 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
     const [theme, setTheme] = useState<Theme>('light');
-    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        setMounted(true);
-        // Load theme from localStorage
-        const savedTheme = localStorage.getItem('theme') as Theme | null;
-        if (savedTheme) {
-            setTheme(savedTheme);
-            document.documentElement.classList.toggle('dark', savedTheme === 'dark');
+        // Only run on client side
+        if (typeof window !== 'undefined') {
+            const savedTheme = localStorage.getItem('theme') as Theme | null;
+            if (savedTheme) {
+                setTheme(savedTheme);
+                document.documentElement.classList.add('dark');
+            }
         }
     }, []);
+
+    useEffect(() => {
+        // Apply theme class whenever theme changes
+        if (typeof window !== 'undefined') {
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        }
+    }, [theme]);
 
     const toggleTheme = () => {
         const newTheme = theme === 'light' ? 'dark' : 'light';
         setTheme(newTheme);
-        localStorage.setItem('theme', newTheme);
-        document.documentElement.classList.toggle('dark', newTheme === 'dark');
-    };
 
-    // Prevent flash of unstyled content
-    if (!mounted) {
-        return <>{children}</>;
-    }
+        if (typeof window !== 'undefined') {
+            localStorage.setItem('theme', newTheme);
+        }
+    };
 
     return (
         <ThemeContext.Provider value={{ theme, toggleTheme }}>
