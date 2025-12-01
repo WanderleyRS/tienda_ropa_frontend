@@ -38,12 +38,12 @@ export function Navbar() {
     ];
 
     return (
-        <header className="bg-white/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
+        <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50 transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16">
                 <div className="flex items-center justify-between h-full">
                     <div className="flex items-center gap-4 sm:gap-8">
                         <Link href={isAuthenticated ? "/dashboard" : "/tienda"} className="flex items-center gap-2 group">
-                            <div className="bg-primary/5 p-2 rounded-lg group-hover:bg-primary/10 transition-colors">
+                            <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
                                 <span className="text-xl">🛍️</span>
                             </div>
                             <span className="text-lg sm:text-xl font-bold text-foreground hidden sm:block">
@@ -61,8 +61,8 @@ export function Navbar() {
                                     className={cn(
                                         "px-4 py-2 rounded-full text-sm font-medium transition-all",
                                         pathname === item.href
-                                            ? "bg-primary/10 text-primary"
-                                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                                            ? "bg-primary/10 text-primary font-bold"
+                                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                                     )}
                                 >
                                     {item.label}
@@ -77,8 +77,8 @@ export function Navbar() {
                                     className={cn(
                                         "px-4 py-2 rounded-full text-sm font-medium transition-all",
                                         pathname === item.href
-                                            ? "bg-primary/10 text-primary"
-                                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                                            ? "bg-primary/10 text-primary font-bold"
+                                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                                     )}
                                 >
                                     {item.label}
@@ -92,8 +92,8 @@ export function Navbar() {
                                     className={cn(
                                         "px-4 py-2 rounded-full text-sm font-medium transition-all",
                                         pathname === '/empresa'
-                                            ? "bg-primary/10 text-primary"
-                                            : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                                            ? "bg-primary/10 text-primary font-bold"
+                                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                                     )}
                                 >
                                     Empresa
