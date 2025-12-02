@@ -59,37 +59,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const token = response.access_token;
+      const userData = response.user;
 
-      // Guardar token
+      // Guardar token y usuario
       if (typeof window !== 'undefined') {
         localStorage.setItem('auth_token', token);
+        localStorage.setItem('user', JSON.stringify(userData));
         setToken(token);
+        setUser(userData);
+
         // Log para debugging
         if (process.env.NODE_ENV === 'development') {
-          console.log('✅ Token guardado en localStorage');
+          console.log('✅ Login exitoso: Token y Usuario guardados');
         }
-      }
-
-      // Obtener información del usuario
-      try {
-        const userData = await authApi.getMe();
-        if (typeof window !== 'undefined') {
-          localStorage.setItem('user', JSON.stringify(userData));
-        }
-        setUser(userData);
-      } catch (userError: any) {
-        // Si falla obtener el usuario, limpiar el token
-        if (typeof window !== 'undefined') {
-          localStorage.removeItem('auth_token');
-          setToken(null);
-        }
-        throw new Error(userError.response?.data?.detail || 'Error al obtener información del usuario');
       }
     } catch (error: any) {
+      // Si falla, limpiar todo
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user');
+      }
+      setToken(null);
+      setUser(null);
+
       // Log del error para debugging
       console.error('Error en login:', error);
       throw error;
     }
+
   };
 
   const logout = () => {
