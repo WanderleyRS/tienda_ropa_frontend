@@ -135,7 +135,12 @@ export default function EmpresaPage() {
         try {
             await companiesApi.updateEmpresa({
                 nombre: editedEmpresaName,
-                whatsapp_numero: editedWhatsApp ? `+591${editedWhatsApp.trim()}` : undefined
+                whatsapp_numero: editedWhatsApp ? `+591${editedWhatsApp.trim()}` : undefined,
+                navbar_title: empresaData.navbar_title,
+                navbar_icon_url: empresaData.navbar_icon_url,
+                store_title_1: empresaData.store_title_1,
+                store_title_2: empresaData.store_title_2,
+                store_subtitle: empresaData.store_subtitle
             });
             toast.success('Datos de empresa actualizados');
             setIsEditingEmpresa(false);
@@ -242,7 +247,7 @@ export default function EmpresaPage() {
                             <CardTitle className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Building2 className="h-5 w-5" />
-                                    Datos de la Empresa
+                                    Datos de la Empresa & Branding
                                 </div>
                                 {!isEditingEmpresa && (
                                     <Button
@@ -257,83 +262,139 @@ export default function EmpresaPage() {
                                 )}
                             </CardTitle>
                             <CardDescription>
-                                Información general de tu empresa y contacto para pedidos.
+                                Información general y personalización de la marca de tu tienda.
                             </CardDescription>
                         </CardHeader>
                         <CardContent>
                             {isLoadingEmpresa ? (
                                 <div className="text-center py-8 text-muted-foreground">Cargando...</div>
                             ) : isEditingEmpresa ? (
-                                <form onSubmit={handleSaveEmpresa} className="space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="editEmpresaName">Nombre de la Empresa</Label>
-                                        <Input
-                                            id="editEmpresaName"
-                                            value={editedEmpresaName}
-                                            onChange={(e) => setEditedEmpresaName(e.target.value)}
-                                            required
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="editWhatsApp">Número de WhatsApp</Label>
-                                        <div className="flex">
-                                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-secondary text-muted-foreground text-sm">
-                                                🇧🇴 +591
-                                            </span>
+                                <form onSubmit={handleSaveEmpresa} className="space-y-6">
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        <div className="space-y-2">
+                                            <Label htmlFor="editEmpresaName">Nombre de la Empresa</Label>
                                             <Input
-                                                id="editWhatsApp"
-                                                placeholder="63411905"
-                                                value={editedWhatsApp}
-                                                onChange={(e) => {
-                                                    const val = e.target.value.replace(/\D/g, '');
-                                                    setEditedWhatsApp(val);
-                                                }}
-                                                className="rounded-l-none"
+                                                id="editEmpresaName"
+                                                value={editedEmpresaName}
+                                                onChange={(e) => setEditedEmpresaName(e.target.value)}
+                                                required
                                             />
                                         </div>
-                                        <p className="text-xs text-muted-foreground">
-                                            Ingresa solo el número de celular (sin el código de país).
-                                        </p>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="editWhatsApp">Número de WhatsApp</Label>
+                                            <div className="flex">
+                                                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-secondary text-muted-foreground text-sm">
+                                                    🇧🇴 +591
+                                                </span>
+                                                <Input
+                                                    id="editWhatsApp"
+                                                    placeholder="63411905"
+                                                    value={editedWhatsApp}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/\D/g, '');
+                                                        setEditedWhatsApp(val);
+                                                    }}
+                                                    className="rounded-l-none"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex gap-2">
-                                        <Button type="submit" disabled={isSavingEmpresa}>
-                                            {isSavingEmpresa ? 'Guardando...' : 'Guardar Cambios'}
-                                        </Button>
+
+                                    <div className="space-y-4 border-t pt-4">
+                                        <h3 className="font-medium text-foreground">Personalización de Tienda</h3>
+
+                                        <div className="grid gap-4 md:grid-cols-2">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="navbarTitle">Título del Navbar</Label>
+                                                <Input
+                                                    id="navbarTitle"
+                                                    placeholder="Ej. Mi Marca"
+                                                    value={empresaData?.navbar_title || ''}
+                                                    onChange={(e) => setEmpresaData({ ...empresaData, navbar_title: e.target.value })}
+                                                />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label htmlFor="navbarIcon">URL del Icono (Navbar)</Label>
+                                                <Input
+                                                    id="navbarIcon"
+                                                    placeholder="https://..."
+                                                    value={empresaData?.navbar_icon_url || ''}
+                                                    onChange={(e) => setEmpresaData({ ...empresaData, navbar_icon_url: e.target.value })}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label htmlFor="storeTitle1">Título Principal (Línea 1)</Label>
+                                            <Input
+                                                id="storeTitle1"
+                                                placeholder="Ej. Colección Exclusiva"
+                                                value={empresaData?.store_title_1 || ''}
+                                                onChange={(e) => setEmpresaData({ ...empresaData, store_title_1: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="storeTitle2">Título Principal (Línea 2 - Gradiente)</Label>
+                                            <Input
+                                                id="storeTitle2"
+                                                placeholder="Ej. Estilo con Historia"
+                                                value={empresaData?.store_title_2 || ''}
+                                                onChange={(e) => setEmpresaData({ ...empresaData, store_title_2: e.target.value })}
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <Label htmlFor="storeSubtitle">Subtítulo</Label>
+                                            <Input
+                                                id="storeSubtitle"
+                                                placeholder="Ej. Piezas únicas seleccionadas..."
+                                                value={empresaData?.store_subtitle || ''}
+                                                onChange={(e) => setEmpresaData({ ...empresaData, store_subtitle: e.target.value })}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex gap-2 justify-end">
                                         <Button
                                             type="button"
                                             variant="outline"
                                             onClick={() => {
                                                 setIsEditingEmpresa(false);
-                                                setEditedEmpresaName(empresaData?.nombre || '');
-                                                const rawPhone = empresaData?.whatsapp_numero || '';
-                                                setEditedWhatsApp(rawPhone.replace(/^(\+?591)?\s*/, ''));
+                                                loadEmpresaData(); // Reset changes
                                             }}
                                             disabled={isSavingEmpresa}
                                         >
                                             Cancelar
                                         </Button>
+                                        <Button type="submit" disabled={isSavingEmpresa}>
+                                            {isSavingEmpresa ? 'Guardando...' : 'Guardar Cambios'}
+                                        </Button>
                                     </div>
                                 </form>
                             ) : (
-                                <div className="space-y-4">
-                                    <div>
-                                        <p className="text-sm text-muted-foreground mb-1">Nombre</p>
-                                        <p className="text-lg font-semibold text-foreground">{empresaData?.nombre || 'N/A'}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
-                                            <Phone className="h-4 w-4" />
-                                            WhatsApp para Pedidos
-                                        </p>
-                                        {empresaData?.whatsapp_numero ? (
+                                <div className="space-y-6">
+                                    <div className="grid gap-4 md:grid-cols-2">
+                                        <div>
+                                            <p className="text-sm text-muted-foreground mb-1">Nombre Legal</p>
+                                            <p className="text-lg font-semibold text-foreground">{empresaData?.nombre || 'N/A'}</p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
+                                                <Phone className="h-4 w-4" />
+                                                WhatsApp
+                                            </p>
                                             <p className="text-lg font-semibold text-green-600 dark:text-green-400">
-                                                {empresaData.whatsapp_numero}
+                                                {empresaData?.whatsapp_numero || 'No configurado'}
                                             </p>
-                                        ) : (
-                                            <p className="text-sm text-muted-foreground italic">
-                                                No configurado. Haz clic en "Editar" para agregar un número.
-                                            </p>
-                                        )}
+                                        </div>
+                                    </div>
+
+                                    <div className="border-t pt-4">
+                                        <h3 className="text-sm font-medium text-muted-foreground mb-3">Vista Previa Branding</h3>
+                                        <div className="bg-secondary/20 p-4 rounded-lg space-y-2">
+                                            <p className="text-sm"><span className="font-semibold">Navbar:</span> {empresaData?.navbar_title || 'Default'}</p>
+                                            <p className="text-sm"><span className="font-semibold">Título 1:</span> {empresaData?.store_title_1 || 'Default'}</p>
+                                            <p className="text-sm"><span className="font-semibold">Título 2:</span> {empresaData?.store_title_2 || 'Default'}</p>
+                                        </div>
                                     </div>
                                 </div>
                             )}

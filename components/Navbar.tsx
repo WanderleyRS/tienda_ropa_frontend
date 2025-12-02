@@ -43,11 +43,19 @@ export function Navbar() {
                 <div className="flex items-center justify-between h-full">
                     <div className="flex items-center gap-4 sm:gap-8">
                         <Link href={isAuthenticated ? "/dashboard" : "/tienda"} className="flex items-center gap-2 group">
-                            <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
-                                <span className="text-xl">🛍️</span>
-                            </div>
+                            {user?.empresa_navbar_icon_url ? (
+                                <img
+                                    src={user.empresa_navbar_icon_url}
+                                    alt="Logo"
+                                    className="h-10 w-10 object-contain rounded-lg bg-primary/10 p-1"
+                                />
+                            ) : (
+                                <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">
+                                    <span className="text-xl">🛍️</span>
+                                </div>
+                            )}
                             <span className="text-lg sm:text-xl font-bold text-foreground hidden sm:block">
-                                Tienda Ropa MVP
+                                {user?.empresa_navbar_title || "Tienda Ropa MVP"}
                             </span>
                         </Link>
 

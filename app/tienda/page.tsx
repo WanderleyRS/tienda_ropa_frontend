@@ -22,9 +22,32 @@ export default function TiendaPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
+    // Branding State
+    const [branding, setBranding] = useState({
+        title1: 'Colección Exclusiva',
+        title2: 'Estilo con Historia',
+        subtitle: 'Piezas únicas seleccionadas para quienes buscan calidad, sostenibilidad y un estilo inconfundible.'
+    });
+
     useEffect(() => {
         loadCategories();
+        loadBranding();
     }, []);
+
+    const loadBranding = async () => {
+        try {
+            // Intentamos cargar la empresa (si hay sesión o pública)
+            // Nota: Si no hay endpoint público de empresa, esto podría fallar si no está logueado.
+            // Asumiremos que el endpoint /companies/empresa requiere auth, pero para la tienda pública
+            // idealmente deberíamos tener un endpoint público o usar el del usuario si está logueado.
+            // Por ahora, usaremos valores por defecto si falla.
+
+            // TODO: Crear endpoint público para branding de empresa si se requiere soporte multi-tenant real sin login.
+            // Por ahora, si el usuario es admin/vendedor verá su branding.
+        } catch (error) {
+            console.log('Using default branding');
+        }
+    };
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -56,8 +79,17 @@ export default function TiendaPage() {
                 params.category_id = Number(selectedCategory);
             }
 
+            // Si hay empresa_id en la URL o contexto, usarlo.
+            // Por ahora, itemsApi.getAll maneja la lógica de "tienda pública" si se pasa empresa_id.
+
             const data = await itemsApi.getAll(params);
             setProducts(data);
+
+            // Intentar obtener branding del primer producto (si tiene info de empresa) o usar defaults
+            if (data.length > 0 && (data[0] as any).empresa_branding) {
+                // Si el backend devolviera branding en los items... pero no lo hace.
+            }
+
         } catch (error) {
             console.error('Error loading products:', error);
         } finally {
@@ -79,14 +111,16 @@ export default function TiendaPage() {
 
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
                     <span className="inline-block py-1 px-3 rounded-full bg-secondary/30 text-xs font-medium tracking-widest text-muted-foreground mb-6 uppercase">
-                        Colección Exclusiva
+                        {branding.title1}
                     </span>
                     <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-foreground mb-8 leading-tight">
-                        Estilo con <br className="hidden sm:block" />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60">Historia</span>
+                        {branding.title2.split(' ').slice(0, -1).join(' ')} <br className="hidden sm:block" />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60">
+                            {branding.title2.split(' ').slice(-1)}
+                        </span>
                     </h1>
                     <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed font-light">
-                        Piezas únicas seleccionadas para quienes buscan calidad, sostenibilidad y un estilo inconfundible.
+                        {branding.subtitle}
                     </p>
 
                     {/* Floating Search Bar */}

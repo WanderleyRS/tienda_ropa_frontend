@@ -82,6 +82,8 @@ export interface User {
   almacenes?: Almacen[];
   empresa_id?: number;
   empresa_nombre?: string;
+  empresa_navbar_title?: string;
+  empresa_navbar_icon_url?: string;
 }
 
 export interface Item {
@@ -121,6 +123,12 @@ export interface EmpresaCreate {
   nombre: string;
   whatsapp_numero?: string;
   nombre_almacen_inicial?: string;
+  // Branding
+  navbar_title?: string;
+  navbar_icon_url?: string;
+  store_title_1?: string;
+  store_title_2?: string;
+  store_subtitle?: string;
 }
 
 export interface Empresa {
