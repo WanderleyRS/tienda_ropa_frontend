@@ -153,13 +153,13 @@ export default function EmpresaPage() {
     const hasAlmacenes = user?.almacenes && user.almacenes.length > 0;
     if (!hasAlmacenes) {
         return (
-            <div className="min-h-screen bg-gray-50">
+            <div className="min-h-screen bg-background">
                 <Navbar />
                 <div className="max-w-2xl mx-auto px-4 py-12">
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 text-2xl">
-                                <Building2 className="h-6 w-6 text-blue-600" />
+                                <Building2 className="h-6 w-6 text-primary" />
                                 Configura tu Empresa
                             </CardTitle>
                             <CardDescription>
@@ -181,7 +181,7 @@ export default function EmpresaPage() {
                                 <div className="space-y-2">
                                     <Label htmlFor="whatsappNumber">Número de WhatsApp</Label>
                                     <div className="flex">
-                                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-200 bg-gray-50 text-gray-500 text-sm">
+                                        <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-secondary text-muted-foreground text-sm">
                                             🇧🇴 +591
                                         </span>
                                         <Input
@@ -195,7 +195,7 @@ export default function EmpresaPage() {
                                             className="rounded-l-none"
                                         />
                                     </div>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-muted-foreground">
                                         Ingresa solo el número de celular (sin el código de país).
                                     </p>
                                 </div>
@@ -207,7 +207,7 @@ export default function EmpresaPage() {
                                         value={initialWarehouse}
                                         onChange={(e) => setInitialWarehouse(e.target.value)}
                                     />
-                                    <p className="text-xs text-gray-500">
+                                    <p className="text-xs text-muted-foreground">
                                         Crearemos un primer almacén automáticamente para ti.
                                     </p>
                                 </div>
@@ -224,15 +224,15 @@ export default function EmpresaPage() {
 
     // VISTA 2: Gestión de Empresa
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-background">
             <Navbar />
             <div className="max-w-5xl mx-auto px-4 py-8">
                 <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+                    <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
                         <Building2 className="h-8 w-8" />
                         {user?.empresa_nombre || 'Mi Empresa'}
                     </h1>
-                    <p className="text-gray-600 mt-2">Gestión de empresa y almacenes</p>
+                    <p className="text-muted-foreground mt-2">Gestión de empresa y almacenes</p>
                 </div>
 
                 <div className="grid gap-6 md:grid-cols-2">
@@ -262,7 +262,7 @@ export default function EmpresaPage() {
                         </CardHeader>
                         <CardContent>
                             {isLoadingEmpresa ? (
-                                <div className="text-center py-8 text-gray-500">Cargando...</div>
+                                <div className="text-center py-8 text-muted-foreground">Cargando...</div>
                             ) : isEditingEmpresa ? (
                                 <form onSubmit={handleSaveEmpresa} className="space-y-4">
                                     <div className="space-y-2">
@@ -277,7 +277,7 @@ export default function EmpresaPage() {
                                     <div className="space-y-2">
                                         <Label htmlFor="editWhatsApp">Número de WhatsApp</Label>
                                         <div className="flex">
-                                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-200 bg-gray-50 text-gray-500 text-sm">
+                                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-secondary text-muted-foreground text-sm">
                                                 🇧🇴 +591
                                             </span>
                                             <Input
@@ -291,7 +291,7 @@ export default function EmpresaPage() {
                                                 className="rounded-l-none"
                                             />
                                         </div>
-                                        <p className="text-xs text-gray-500">
+                                        <p className="text-xs text-muted-foreground">
                                             Ingresa solo el número de celular (sin el código de país).
                                         </p>
                                     </div>
@@ -317,20 +317,20 @@ export default function EmpresaPage() {
                             ) : (
                                 <div className="space-y-4">
                                     <div>
-                                        <p className="text-sm text-gray-500 mb-1">Nombre</p>
-                                        <p className="text-lg font-semibold">{empresaData?.nombre || 'N/A'}</p>
+                                        <p className="text-sm text-muted-foreground mb-1">Nombre</p>
+                                        <p className="text-lg font-semibold text-foreground">{empresaData?.nombre || 'N/A'}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500 mb-1 flex items-center gap-1">
+                                        <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
                                             <Phone className="h-4 w-4" />
                                             WhatsApp para Pedidos
                                         </p>
                                         {empresaData?.whatsapp_numero ? (
-                                            <p className="text-lg font-semibold text-green-600">
+                                            <p className="text-lg font-semibold text-green-600 dark:text-green-400">
                                                 {empresaData.whatsapp_numero}
                                             </p>
                                         ) : (
-                                            <p className="text-sm text-gray-400 italic">
+                                            <p className="text-sm text-muted-foreground italic">
                                                 No configurado. Haz clic en "Editar" para agregar un número.
                                             </p>
                                         )}
@@ -355,7 +355,7 @@ export default function EmpresaPage() {
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
-                                <form onSubmit={handleCreateWarehouse} className="flex gap-4 items-end bg-gray-50 p-4 rounded-lg border border-gray-100">
+                                <form onSubmit={handleCreateWarehouse} className="flex gap-4 items-end bg-secondary/20 p-4 rounded-lg border border-border">
                                     <div className="flex-1 space-y-2">
                                         <Label htmlFor="newWarehouse">Nuevo Almacén</Label>
                                         <Input
@@ -376,20 +376,20 @@ export default function EmpresaPage() {
                                     {almacenes.map((almacen) => (
                                         <div
                                             key={almacen.id}
-                                            className="p-4 rounded-lg border bg-white shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
+                                            className="p-4 rounded-lg border bg-card shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
                                         >
                                             <div>
                                                 <div className="flex items-center justify-between mb-2">
-                                                    <h3 className="font-semibold text-gray-900">{almacen.nombre}</h3>
+                                                    <h3 className="font-semibold text-card-foreground">{almacen.nombre}</h3>
                                                     {almacen.activo ? (
-                                                        <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full flex items-center gap-1">
+                                                        <span className="text-xs bg-green-500/10 text-green-600 dark:text-green-400 px-2 py-1 rounded-full flex items-center gap-1">
                                                             <CheckCircle2 className="h-3 w-3" /> Activo
                                                         </span>
                                                     ) : (
-                                                        <span className="text-xs bg-gray-100 text-gray-800 px-2 py-1 rounded-full">Inactivo</span>
+                                                        <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded-full">Inactivo</span>
                                                     )}
                                                 </div>
-                                                <p className="text-xs text-gray-500">ID: {almacen.id}</p>
+                                                <p className="text-xs text-muted-foreground">ID: {almacen.id}</p>
                                             </div>
                                         </div>
                                     ))}

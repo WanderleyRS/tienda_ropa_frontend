@@ -22,50 +22,52 @@ export function ProductCard({ product }: ProductCardProps) {
     };
 
     return (
-        <Card className="group overflow-hidden hover:shadow-lg transition-all duration-300 border-border bg-card hover:-translate-y-1">
-            <div className="relative aspect-[4/5] overflow-hidden bg-secondary/20">
+        <div className="group relative flex flex-col gap-3">
+            {/* Image Container */}
+            <div className="relative aspect-[3/4] overflow-hidden rounded-xl bg-secondary/20 shadow-sm transition-all duration-500 group-hover:shadow-md">
                 <img
                     src={getValidImageUrl(product.photo_url)}
                     alt={product.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
                     onError={(e) => {
                         (e.target as HTMLImageElement).src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="400"%3E%3Crect width="400" height="400" fill="%23f3f4f6"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="48" fill="%239ca3af"%3E%3F%3C/text%3E%3C/svg%3E';
                     }}
                 />
+
+                {/* Badges & Overlays */}
                 {isSold && (
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-[2px] flex items-center justify-center">
-                        <span className="bg-white text-black px-6 py-2 font-bold text-lg border-2 border-black transform -rotate-12 shadow-xl">
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-[2px]">
+                        <span className="border border-white/30 bg-white/10 px-6 py-2 text-sm font-medium tracking-widest text-white backdrop-blur-md">
                             VENDIDO
                         </span>
                     </div>
                 )}
+
                 {!isSold && (
-                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                         <Button
                             onClick={handleAddToCart}
-                            className="w-full bg-white text-black hover:bg-gray-200 font-semibold shadow-lg transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300 border-none"
+                            className="w-full bg-white/90 text-black hover:bg-white shadow-lg backdrop-blur-sm font-medium"
                         >
                             <ShoppingCart className="mr-2 h-4 w-4" />
-                            Añadir al Carrito
+                            Añadir
                         </Button>
                     </div>
                 )}
             </div>
-            <CardContent className="p-5">
-                <div className="mb-2">
-                    <h3 className="font-semibold text-lg leading-tight text-foreground line-clamp-2 min-h-[3rem] group-hover:underline decoration-1 underline-offset-4 transition-all">
-                        {product.title}
-                    </h3>
+
+            {/* Product Info */}
+            <div className="space-y-1">
+                <h3 className="font-medium text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                    {product.title}
+                </h3>
+                <div className="flex items-center justify-between">
+                    <p className="text-lg font-bold text-foreground">
+                        ${product.price?.toFixed(2) || '0.00'}
+                    </p>
+                    {/* Optional: Add category or size here if available */}
                 </div>
-                <div className="flex items-end justify-between mt-4">
-                    <div className="flex flex-col">
-                        <span className="text-xs text-muted-foreground uppercase tracking-wider font-medium">Precio</span>
-                        <span className="text-2xl font-bold text-foreground">
-                            ${product.price?.toFixed(2) || '0.00'}
-                        </span>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
+            </div>
+        </div>
     );
 }

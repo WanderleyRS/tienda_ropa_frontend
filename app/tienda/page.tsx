@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { itemsApi, Item, categoriesApi } from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
-import { CartButton } from '@/components/CartButton';
+import { Navbar } from '@/components/Navbar';
 import { ShoppingBag, Search } from 'lucide-react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
@@ -66,91 +66,92 @@ export default function TiendaPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background font-sans">
-            {/* Header */}
-            <header className="bg-white/80 backdrop-blur-md border-b border-border sticky top-0 z-50">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <Link href="/tienda" className="flex items-center gap-2 group">
-                        <div className="bg-primary/5 p-2 rounded-lg group-hover:bg-primary/10 transition-colors">
-                            <ShoppingBag className="h-6 w-6 text-foreground" />
-                        </div>
-                        <span className="text-xl font-bold text-foreground hidden sm:block">
-                            Tienda Ropa MVP
-                        </span>
-                    </Link>
-                    <div className="flex items-center gap-4">
-                        <CartButton />
-                    </div>
-                </div>
-            </header>
+        <div className="min-h-screen bg-background font-sans selection:bg-primary/20">
+            <Navbar />
 
             {/* Hero Section */}
-            <div className="bg-secondary/10 py-16 sm:py-24 relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-background/50 pointer-events-none" />
+            <div className="relative pt-20 pb-32 sm:pt-32 sm:pb-40 overflow-hidden">
+                {/* Background Elements */}
+                <div className="absolute inset-0 -z-10">
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-primary/5 rounded-full blur-3xl opacity-50" />
+                    <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-secondary/5 rounded-full blur-3xl opacity-30" />
+                </div>
+
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10">
-                    <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-foreground mb-6">
-                        Estilo Único, <span className="text-primary underline decoration-4 decoration-primary/20">Segunda Vida</span>
+                    <span className="inline-block py-1 px-3 rounded-full bg-secondary/30 text-xs font-medium tracking-widest text-muted-foreground mb-6 uppercase">
+                        Colección Exclusiva
+                    </span>
+                    <h1 className="text-5xl sm:text-7xl font-bold tracking-tight text-foreground mb-8 leading-tight">
+                        Estilo con <br className="hidden sm:block" />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-primary/60">Historia</span>
                     </h1>
-                    <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-10">
-                        Descubre prendas exclusivas, dale una nueva oportunidad a la moda y viste con conciencia. Calidad y estilo a precios increíbles.
+                    <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-12 leading-relaxed font-light">
+                        Piezas únicas seleccionadas para quienes buscan calidad, sostenibilidad y un estilo inconfundible.
                     </p>
 
-                    {/* Search & Filter Toolbar */}
-                    <div className="max-w-3xl mx-auto bg-card p-2 rounded-2xl shadow-lg border border-border flex flex-col sm:flex-row gap-2">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input
-                                placeholder="¿Qué estás buscando hoy?"
-                                className="pl-10 border-0 shadow-none focus-visible:ring-0 bg-transparent h-12 text-base text-foreground placeholder:text-muted-foreground"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
-                        </div>
-                        <div className="w-full sm:w-48">
-                            <Select
-                                value={selectedCategory}
-                                onValueChange={setSelectedCategory}
-                            >
-                                <SelectTrigger className="h-12 border-0 bg-secondary/50 hover:bg-secondary focus:ring-0 rounded-xl text-foreground">
-                                    <SelectValue placeholder="Categoría" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Todas</SelectItem>
-                                    {categories.map((cat) => (
-                                        <SelectItem key={cat.id} value={String(cat.id)}>
-                                            {cat.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                    {/* Floating Search Bar */}
+                    <div className="max-w-2xl mx-auto">
+                        <div className="bg-background/80 backdrop-blur-xl p-2 rounded-2xl shadow-2xl border border-border/50 flex flex-col sm:flex-row gap-2 transition-all hover:border-primary/20 hover:shadow-primary/5">
+                            <div className="relative flex-1 group">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                <Input
+                                    placeholder="Buscar prendas..."
+                                    className="pl-12 border-0 shadow-none focus-visible:ring-0 bg-transparent h-12 text-base text-foreground placeholder:text-muted-foreground/50"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <div className="w-full sm:w-48">
+                                <Select
+                                    value={selectedCategory}
+                                    onValueChange={setSelectedCategory}
+                                >
+                                    <SelectTrigger className="h-12 border-0 bg-secondary/50 hover:bg-secondary focus:ring-0 rounded-xl text-foreground font-medium transition-colors">
+                                        <SelectValue placeholder="Categoría" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Todas</SelectItem>
+                                        {categories.map((cat) => (
+                                            <SelectItem key={cat.id} value={String(cat.id)}>
+                                                {cat.name}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
             {/* Main Content */}
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                <div className="mb-8 flex items-center justify-between">
-                    <h2 className="text-2xl font-bold text-foreground">
-                        Explorar Colección
-                    </h2>
-                    <span className="text-sm text-muted-foreground">
-                        {products.length} productos encontrados
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-24">
+                <div className="mb-12 flex items-end justify-between border-b border-border/40 pb-4">
+                    <div>
+                        <h2 className="text-3xl font-bold text-foreground tracking-tight">
+                            Catálogo
+                        </h2>
+                        <p className="text-sm text-muted-foreground mt-1">
+                            Explora nuestras últimas adiciones
+                        </p>
+                    </div>
+                    <span className="text-sm font-medium text-muted-foreground bg-secondary/30 px-3 py-1 rounded-full">
+                        {products.length} items
                     </span>
                 </div>
 
                 {/* Loading State */}
                 {isLoading && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
                         {[...Array(8)].map((_, i) => (
                             <div
                                 key={i}
-                                className="bg-card rounded-2xl border border-border h-[400px] animate-pulse"
+                                className="space-y-4 animate-pulse"
                             >
-                                <div className="h-64 bg-muted rounded-t-2xl" />
-                                <div className="p-4 space-y-3">
-                                    <div className="h-6 bg-muted rounded w-3/4" />
-                                    <div className="h-4 bg-muted rounded w-1/2" />
+                                <div className="aspect-[3/4] bg-secondary/20 rounded-xl" />
+                                <div className="space-y-2">
+                                    <div className="h-4 bg-secondary/20 rounded w-3/4" />
+                                    <div className="h-4 bg-secondary/20 rounded w-1/4" />
                                 </div>
                             </div>
                         ))}
@@ -159,7 +160,7 @@ export default function TiendaPage() {
 
                 {/* Products Grid */}
                 {!isLoading && products.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-8 gap-y-12">
                         {products.map((product) => (
                             <ProductCard key={product.id} product={product} />
                         ))}
@@ -168,21 +169,21 @@ export default function TiendaPage() {
 
                 {/* Empty State */}
                 {!isLoading && products.length === 0 && (
-                    <div className="text-center py-24 bg-card rounded-3xl border border-dashed border-border">
-                        <div className="bg-primary/10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <Search className="h-10 w-10 text-primary" />
+                    <div className="text-center py-32">
+                        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-secondary/20 mb-6">
+                            <Search className="h-10 w-10 text-muted-foreground" />
                         </div>
-                        <h3 className="text-2xl font-bold text-foreground mb-2">
-                            No encontramos lo que buscas
+                        <h3 className="text-2xl font-bold text-foreground mb-3">
+                            Sin resultados
                         </h3>
-                        <p className="text-muted-foreground max-w-md mx-auto">
-                            Intenta ajustar los filtros o busca con otros términos. ¡Siempre agregamos nuevas prendas!
+                        <p className="text-muted-foreground max-w-md mx-auto mb-8">
+                            No encontramos prendas que coincidan con tu búsqueda. Intenta con otros términos o categorías.
                         </p>
                         <button
                             onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
-                            className="mt-6 text-primary font-medium hover:underline"
+                            className="text-primary font-medium hover:underline underline-offset-4"
                         >
-                            Ver todos los productos
+                            Limpiar filtros
                         </button>
                     </div>
                 )}

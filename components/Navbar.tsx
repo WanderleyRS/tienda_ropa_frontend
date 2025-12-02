@@ -171,7 +171,7 @@ export function Navbar() {
 
             {/* Mobile Menu */}
             {mobileMenuOpen && isAuthenticated && (
-                <div className="md:hidden border-t border-border bg-white">
+                <div className="md:hidden border-t border-border bg-background">
                     <nav className="px-4 py-4 space-y-1">
                         {/* User info */}
                         <div className="px-4 py-3 bg-secondary/30 rounded-lg mb-3">
