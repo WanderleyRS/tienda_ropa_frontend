@@ -136,6 +136,11 @@ export function ImageUploader({ value, onChange, maxSize = 128, aspectRatio = 1,
                         src={value}
                         alt="Preview"
                         className="w-32 h-32 object-contain rounded-lg border border-border bg-white p-2"
+                        onError={(e) => {
+                            console.error('Error loading image:', value);
+                            e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="128" height="128"%3E%3Crect width="128" height="128" fill="%23f0f0f0"/%3E%3Ctext x="50%25" y="50%25" dominant-baseline="middle" text-anchor="middle" font-family="sans-serif" font-size="14" fill="%23999"%3EError%3C/text%3E%3C/svg%3E';
+                        }}
+                        onLoad={() => console.log('Image loaded successfully:', value)}
                     />
                     <Button
                         type="button"
