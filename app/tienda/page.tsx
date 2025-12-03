@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { itemsApi, Item, categoriesApi } from '@/lib/api';
+import { itemsApi, Item, categoriesApi, companiesApi } from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
 import { Navbar } from '@/components/Navbar';
 import { ShoppingBag, Search } from 'lucide-react';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
+import { useAuth } from '@/contexts/AuthContext';
 import {
     Select,
     SelectContent,
@@ -16,6 +17,7 @@ import {
 } from '@/components/ui/select';
 
 export default function TiendaPage() {
+    const { user } = useAuth();
     const [products, setProducts] = useState<Item[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -32,18 +34,19 @@ export default function TiendaPage() {
     useEffect(() => {
         loadCategories();
         loadBranding();
-    }, []);
+    }, [user]);
 
     const loadBranding = async () => {
         try {
-            // Intentamos cargar la empresa (si hay sesión o pública)
-            // Nota: Si no hay endpoint público de empresa, esto podría fallar si no está logueado.
-            // Asumiremos que el endpoint /companies/empresa requiere auth, pero para la tienda pública
-            // idealmente deberíamos tener un endpoint público o usar el del usuario si está logueado.
-            // Por ahora, usaremos valores por defecto si falla.
-
-            // TODO: Crear endpoint público para branding de empresa si se requiere soporte multi-tenant real sin login.
-            // Por ahora, si el usuario es admin/vendedor verá su branding.
+            // If user is authenticated, try to get empresa branding
+            if (user) {
+                const empresaData = await companiesApi.getEmpresa();
+                setBranding({
+                    title1: empresaData.store_title_1 || 'Colección Exclusiva',
+                    title2: empresaData.store_title_2 || 'Estilo con Historia',
+                    subtitle: empresaData.store_subtitle || 'Piezas únicas seleccionadas para quienes buscan calidad, sostenibilidad y un estilo inconfundible.'
+                });
+            }
         } catch (error) {
             console.log('Using default branding');
         }

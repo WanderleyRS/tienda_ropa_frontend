@@ -137,6 +137,12 @@ export interface Empresa {
   whatsapp_numero?: string;
   fecha_registro: string;
   activa: boolean;
+  // Branding
+  navbar_title?: string;
+  navbar_icon_url?: string;
+  store_title_1?: string;
+  store_title_2?: string;
+  store_subtitle?: string;
 }
 
 export interface AlmacenCreate {
