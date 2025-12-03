@@ -135,7 +135,7 @@ export function ImageUploader({ value, onChange, maxSize = 128, aspectRatio = 1,
                     <img
                         src={value}
                         alt="Preview"
-                        className="w-32 h-32 object-contain rounded-lg border border-border bg-secondary/20"
+                        className="w-32 h-32 object-cover rounded-lg border border-border bg-secondary/20"
                     />
                     <Button
                         type="button"
@@ -150,8 +150,8 @@ export function ImageUploader({ value, onChange, maxSize = 128, aspectRatio = 1,
             ) : (
                 <div
                     className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-colors ${isDragging
-                            ? 'border-primary bg-primary/5'
-                            : 'border-border hover:border-primary/50 hover:bg-secondary/20'
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50 hover:bg-secondary/20'
                         }`}
                     onDrop={handleDrop}
                     onDragOver={handleDragOver}

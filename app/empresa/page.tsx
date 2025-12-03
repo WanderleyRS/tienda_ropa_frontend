@@ -392,6 +392,14 @@ export default function EmpresaPage() {
                                     <div className="border-t pt-4">
                                         <h3 className="text-sm font-medium text-muted-foreground mb-3">Vista Previa Branding</h3>
                                         <div className="bg-secondary/20 p-4 rounded-lg space-y-2">
+                                            <div className="flex items-center gap-2">
+                                                <span className="font-semibold text-sm">Icono Navbar:</span>
+                                                {empresaData?.navbar_icon_url ? (
+                                                    <img src={empresaData.navbar_icon_url} alt="Icon" className="h-10 w-10 object-cover rounded-lg border" />
+                                                ) : (
+                                                    <span className="text-sm text-muted-foreground">Sin icono</span>
+                                                )}
+                                            </div>
                                             <p className="text-sm"><span className="font-semibold">Navbar:</span> {empresaData?.navbar_title || 'Default'}</p>
                                             <p className="text-sm"><span className="font-semibold">Título 1:</span> {empresaData?.store_title_1 || 'Default'}</p>
                                             <p className="text-sm"><span className="font-semibold">Título 2:</span> {empresaData?.store_title_2 || 'Default'}</p>
