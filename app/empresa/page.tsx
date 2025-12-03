@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { companiesApi, Almacen } from '@/lib/api';
 import { toast } from 'sonner';
 import { Building2, Warehouse, Plus, CheckCircle2, Phone, Edit } from 'lucide-react';
+import { ImageUploader } from '@/components/ImageUploader';
 import { useRouter } from 'next/navigation';
 
 export default function EmpresaPage() {
@@ -314,12 +315,12 @@ export default function EmpresaPage() {
                                                 />
                                             </div>
                                             <div className="space-y-2">
-                                                <Label htmlFor="navbarIcon">URL del Icono (Navbar)</Label>
-                                                <Input
-                                                    id="navbarIcon"
-                                                    placeholder="https://..."
+                                                <Label htmlFor="navbarIcon">Icono del Navbar</Label>
+                                                <ImageUploader
                                                     value={empresaData?.navbar_icon_url || ''}
-                                                    onChange={(e) => setEmpresaData({ ...empresaData, navbar_icon_url: e.target.value })}
+                                                    onChange={(url) => setEmpresaData({ ...empresaData, navbar_icon_url: url })}
+                                                    maxSize={128}
+                                                    label="Subir Icono"
                                                 />
                                             </div>
                                         </div>
