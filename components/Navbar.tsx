@@ -47,7 +47,7 @@ export function Navbar() {
                                 <img
                                     src={user.empresa_navbar_icon_url}
                                     alt="Logo"
-                                    className="h-10 w-10 object-contain rounded-lg bg-primary/10 p-1"
+                                    className="h-10 w-10 object-contain rounded-lg bg-white p-1"
                                 />
                             ) : (
                                 <div className="bg-primary/10 p-2 rounded-lg group-hover:bg-primary/20 transition-colors">

@@ -395,7 +395,7 @@ export default function EmpresaPage() {
                                             <div className="flex items-center gap-2">
                                                 <span className="font-semibold text-sm">Icono Navbar:</span>
                                                 {empresaData?.navbar_icon_url ? (
-                                                    <img src={empresaData.navbar_icon_url} alt="Icon" className="h-10 w-10 object-cover rounded-lg border" />
+                                                    <img src={empresaData.navbar_icon_url} alt="Icon" className="h-10 w-10 object-contain rounded-lg border bg-white p-1" />
                                                 ) : (
                                                     <span className="text-sm text-muted-foreground">Sin icono</span>
                                                 )}

@@ -135,7 +135,7 @@ export function ImageUploader({ value, onChange, maxSize = 128, aspectRatio = 1,
                     <img
                         src={value}
                         alt="Preview"
-                        className="w-32 h-32 object-cover rounded-lg border border-border bg-secondary/20"
+                        className="w-32 h-32 object-contain rounded-lg border border-border bg-white p-2"
                     />
                     <Button
                         type="button"
