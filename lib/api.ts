@@ -439,6 +439,9 @@ export const categoriesApi = {
     const response = await apiClient.post<Category>('/categories/', data);
     return response.data;
   },
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/categories/${id}`);
+  }
 };
 
 export const uploadApi = {
