@@ -32,6 +32,7 @@ export function Navbar() {
     const authNavItems = [
         { href: '/dashboard', label: 'Dashboard' },
         { href: '/ventas', label: 'Ventas' },
+        { href: '/compras', label: '🛒 Compras' },
         { href: '/agenda', label: '📦 Agenda' },
         { href: '/items/bulk-upload', label: 'Carga Masiva' },
         ...(user?.role === 'admin' ? [{ href: '/usuarios', label: 'Usuarios' }] : []),

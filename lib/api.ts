@@ -487,4 +487,125 @@ export const agendaApi = {
   },
 };
 
+// ========================================
+// Compras API
+// ========================================
+
+export interface Proveedor {
+  id: number;
+  nombre: string;
+  celular?: string;
+  email?: string;
+  direccion?: string;
+  notas?: string;
+  empresa_id: number;
+  activo: boolean;
+  fecha_registro: string;
+}
+
+export interface ProveedorCreate {
+  nombre: string;
+  celular?: string;
+  email?: string;
+  direccion?: string;
+  notas?: string;
+}
+
+export interface DetalleCompra {
+  id: number;
+  compra_id: number;
+  categoria_id: number;
+  cantidad: number;
+  items_creados: number;
+  costo_unitario: number;
+  subtotal: number;
+}
+
+export interface DetalleCompraCreate {
+  categoria_id: number;
+  cantidad: number;
+  costo_unitario: number;
+}
+
+export interface Compra {
+  id: number;
+  codigo: string;
+  proveedor_id: number;
+  almacen_id: number;
+  empresa_id: number;
+  usuario_id: number;
+  fecha_compra: string;
+  monto_total: number;
+  metodo_pago?: string;
+  estado: string;
+  items_esperados: number;
+  items_creados: number;
+  notas?: string;
+  fecha_registro: string;
+  detalles: DetalleCompra[];
+  proveedor?: Proveedor;
+}
+
+export interface CompraCreate {
+  proveedor_id: number;
+  fecha_compra?: string;
+  metodo_pago?: string;
+  notas?: string;
+  detalles: DetalleCompraCreate[];
+}
+
+export interface CompraRapidaCreate {
+  proveedor_id: number;
+  categoria_id: number;
+  cantidad: number;
+  costo_unitario: number;
+  metodo_pago?: string;
+}
+
+export interface CompraEstado {
+  compra_id: number;
+  codigo: string;
+  estado: string;
+  items_esperados: number;
+  items_creados: number;
+  progreso_porcentaje: number;
+  detalles: {
+    categoria_id: number;
+    cantidad: number;
+    items_creados: number;
+    completado: boolean;
+  }[];
+}
+
+export const comprasApi = {
+  // Proveedores
+  createProveedor: (data: ProveedorCreate) =>
+    apiClient.post<Proveedor>('/compras/proveedores', data).then(res => res.data),
+
+  getProveedores: (activo: boolean = true) =>
+    apiClient.get<Proveedor[]>('/compras/proveedores', { params: { activo } }).then(res => res.data),
+
+  getProveedor: (id: number) =>
+    apiClient.get<Proveedor>(`/compras/proveedores/${id}`).then(res => res.data),
+
+  updateProveedor: (id: number, data: Partial<ProveedorCreate>) =>
+    apiClient.put<Proveedor>(`/compras/proveedores/${id}`, data).then(res => res.data),
+
+  // Compras
+  createCompra: (data: CompraCreate) =>
+    apiClient.post<Compra>('/compras', data).then(res => res.data),
+
+  createCompraRapida: (data: CompraRapidaCreate) =>
+    apiClient.post<Compra>('/compras/rapida', data).then(res => res.data),
+
+  getCompras: (estado?: string, skip: number = 0, limit: number = 100) =>
+    apiClient.get<Compra[]>('/compras', { params: { estado, skip, limit } }).then(res => res.data),
+
+  getCompra: (id: number) =>
+    apiClient.get<Compra>(`/compras/${id}`).then(res => res.data),
+
+  getCompraEstado: (id: number) =>
+    apiClient.get<CompraEstado>(`/compras/${id}/estado`).then(res => res.data),
+};
+
 export default apiClient;
