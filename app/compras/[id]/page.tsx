@@ -10,6 +10,8 @@ import { comprasApi, categoriesApi, Compra, Category } from '@/lib/api';
 import { toast } from 'sonner';
 import { ArrowLeft, Package, CheckCircle2, Clock, AlertCircle, TrendingUp, Plus, Link2 } from 'lucide-react';
 import Link from 'next/link';
+import { CrearItemCompraModal } from '@/components/CrearItemCompraModal';
+import { RelacionarItemsModal } from '@/components/RelacionarItemsModal';
 
 export default function CompraDetallePage() {
     const params = useParams();
@@ -19,6 +21,8 @@ export default function CompraDetallePage() {
     const [compra, setCompra] = useState<Compra | null>(null);
     const [categorias, setCategorias] = useState<Category[]>([]);
     const [isLoadingCompra, setIsLoadingCompra] = useState(true);
+    const [modalCrearOpen, setModalCrearOpen] = useState(false);
+    const [modalRelacionarOpen, setModalRelacionarOpen] = useState(false);
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
@@ -292,9 +296,9 @@ export default function CompraDetallePage() {
                                             <CardDescription className="mb-4">
                                                 Para 1-3 items. Formulario rápido para crear prendas una por una.
                                             </CardDescription>
-                                            <Button className="w-full" variant="outline" disabled>
+                                            <Button className="w-full" variant="outline" onClick={() => setModalCrearOpen(true)}>
                                                 <Plus className="h-4 w-4 mr-2" />
-                                                Próximamente
+                                                Crear Item
                                             </Button>
                                         </CardContent>
                                     </Card>
@@ -313,9 +317,9 @@ export default function CompraDetallePage() {
                                             <CardDescription className="mb-4">
                                                 Asigna items ya creados sin compra a esta compra.
                                             </CardDescription>
-                                            <Button className="w-full" variant="outline" disabled>
+                                            <Button className="w-full" variant="outline" onClick={() => setModalRelacionarOpen(true)}>
                                                 <Link2 className="h-4 w-4 mr-2" />
-                                                Próximamente
+                                                Ver Items
                                             </Button>
                                         </CardContent>
                                     </Card>
@@ -331,6 +335,27 @@ export default function CompraDetallePage() {
                     </Card>
                 )}
             </div>
+
+            {/* Modales */}
+            {compra && (
+                <>
+                    <CrearItemCompraModal
+                        open={modalCrearOpen}
+                        onOpenChange={setModalCrearOpen}
+                        compraId={compra.id}
+                        categoriaId={compra.detalles[0]?.categoria_id}
+                        precioCompra={compra.detalles[0]?.costo_unitario}
+                        onItemCreado={loadData}
+                    />
+
+                    <RelacionarItemsModal
+                        open={modalRelacionarOpen}
+                        onOpenChange={setModalRelacionarOpen}
+                        compraId={compra.id}
+                        onItemsRelacionados={loadData}
+                    />
+                </>
+            )}
         </div>
     );
 }
