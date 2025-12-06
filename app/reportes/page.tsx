@@ -11,14 +11,13 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { reportesApi, ResumenEjecutivo, EstadoResultados, MetricasInventario, TopProducto } from '@/lib/api';
 import { format, subDays } from 'date-fns';
-import { es } from 'date-fns/locale';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-    PieChart, Pie, Cell, LineChart, Line
+    PieChart, Pie, Cell
 } from 'recharts';
 import {
     Calendar as CalendarIcon, DollarSign, TrendingUp, Package, ShoppingBag,
-    AlertCircle, ArrowUpRight, ArrowDownRight, Filter
+    AlertCircle
 } from 'lucide-react';
 import { toast } from 'sonner';
 
