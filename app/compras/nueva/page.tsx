@@ -10,9 +10,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { comprasApi, categoriesApi, Proveedor, Category, DetalleCompraCreate } from '@/lib/api';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, Trash2, Save, UserPlus } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, UserPlus, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { NuevoProveedorModal } from '@/components/NuevoProveedorModal';
+import { GestionCategoriasModal } from '@/components/GestionCategoriasModal';
 
 export default function NuevaCompraPage() {
     const { isAuthenticated, isLoading } = useAuth();
@@ -31,6 +32,7 @@ export default function NuevaCompraPage() {
         { categoria_id: 0, cantidad: 1, costo_unitario: 0 }
     ]);
     const [modalProveedorOpen, setModalProveedorOpen] = useState(false);
+    const [modalCategoriasOpen, setModalCategoriasOpen] = useState(false);
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
@@ -229,10 +231,21 @@ export default function NuevaCompraPage() {
                                             <CardTitle>Detalles por Categoría</CardTitle>
                                             <CardDescription>Especifica cantidad y costo por categoría</CardDescription>
                                         </div>
-                                        <Button type="button" onClick={agregarDetalle} size="sm">
-                                            <Plus className="h-4 w-4 mr-2" />
-                                            Agregar
-                                        </Button>
+                                        <div className="flex gap-2">
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setModalCategoriasOpen(true)}
+                                            >
+                                                <Settings className="h-4 w-4 mr-2" />
+                                                Gestionar Categorías
+                                            </Button>
+                                            <Button type="button" onClick={agregarDetalle} size="sm">
+                                                <Plus className="h-4 w-4 mr-2" />
+                                                Agregar
+                                            </Button>
+                                        </div>
                                     </div>
                                 </CardHeader>
                                 <CardContent>
@@ -334,6 +347,12 @@ export default function NuevaCompraPage() {
                 open={modalProveedorOpen}
                 onOpenChange={setModalProveedorOpen}
                 onProveedorCreado={handleProveedorCreado}
+            />
+
+            <GestionCategoriasModal
+                open={modalCategoriasOpen}
+                onOpenChange={setModalCategoriasOpen}
+                onCategoriesChanged={loadData}
             />
         </div>
     );
