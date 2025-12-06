@@ -74,7 +74,23 @@ export function RelacionarItemsModal({
             onOpenChange(false);
         } catch (error: any) {
             console.error('Error assigning items:', error);
-            toast.error(error.response?.data?.detail || 'Error al asignar items');
+
+            // Manejar errores de validación con detalles
+            const errorData = error.response?.data?.detail;
+
+            if (typeof errorData === 'object' && errorData.detalles) {
+                // Error estructurado con detalles
+                const errorMsg = errorData.error || 'Error al asignar items';
+                const detalles = errorData.detalles.join('\n');
+
+                toast.error(errorMsg, {
+                    description: detalles,
+                    duration: 8000
+                });
+            } else {
+                // Error simple
+                toast.error(errorData || 'Error al asignar items');
+            }
         } finally {
             setIsAssigning(false);
         }
@@ -140,8 +156,8 @@ export function RelacionarItemsModal({
                                 <div
                                     key={item.id}
                                     className={`flex items-center gap-4 p-3 border rounded-lg cursor-pointer transition-colors ${selectedItems.has(item.id)
-                                            ? 'border-primary bg-primary/5'
-                                            : 'hover:bg-muted/50'
+                                        ? 'border-primary bg-primary/5'
+                                        : 'hover:bg-muted/50'
                                         }`}
                                     onClick={() => toggleItem(item.id)}
                                 >
