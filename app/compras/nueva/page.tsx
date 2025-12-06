@@ -159,7 +159,7 @@ export default function NuevaCompraPage() {
                                                 id="proveedor"
                                                 value={proveedorId}
                                                 onChange={(e) => setProveedorId(Number(e.target.value))}
-                                                className="w-full mt-1 px-3 py-2 border rounded-md"
+                                                className="w-full mt-1 px-3 py-2 border rounded-md bg-background text-foreground dark:bg-gray-800 dark:border-gray-700"
                                                 required
                                             >
                                                 <option value={0}>Selecciona un proveedor</option>
@@ -177,7 +177,7 @@ export default function NuevaCompraPage() {
                                                 id="metodoPago"
                                                 value={metodoPago}
                                                 onChange={(e) => setMetodoPago(e.target.value)}
-                                                className="w-full mt-1 px-3 py-2 border rounded-md"
+                                                className="w-full mt-1 px-3 py-2 border rounded-md bg-background text-foreground dark:bg-gray-800 dark:border-gray-700"
                                             >
                                                 <option value="EFECTIVO">Efectivo</option>
                                                 <option value="TRANSFERENCIA">Transferencia</option>
@@ -224,7 +224,7 @@ export default function NuevaCompraPage() {
                                                     <select
                                                         value={detalle.categoria_id}
                                                         onChange={(e) => actualizarDetalle(index, 'categoria_id', Number(e.target.value))}
-                                                        className="w-full mt-1 px-3 py-2 border rounded-md"
+                                                        className="w-full mt-1 px-3 py-2 border rounded-md bg-background text-foreground dark:bg-gray-800 dark:border-gray-700"
                                                         required
                                                     >
                                                         <option value={0}>Selecciona categoría</option>
