@@ -34,6 +34,7 @@ export function Navbar() {
         { href: '/ventas', label: 'Ventas' },
         { href: '/compras', label: '🛒 Compras' },
         { href: '/agenda', label: '📦 Agenda' },
+        { href: '/reportes', label: '📊 Reportes' },
         { href: '/items/bulk-upload', label: 'Carga Masiva' },
         ...(user?.role === 'admin' ? [{ href: '/usuarios', label: 'Usuarios' }] : []),
     ];
