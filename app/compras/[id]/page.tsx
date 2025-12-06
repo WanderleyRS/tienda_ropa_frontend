@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { comprasApi, categoriesApi, Compra, Category } from '@/lib/api';
 import { toast } from 'sonner';
-import { ArrowLeft, Package, CheckCircle2, Clock, AlertCircle, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle2, Clock, AlertCircle, TrendingUp, Plus, Link2 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function CompraDetallePage() {
@@ -184,8 +184,8 @@ export default function CompraDetallePage() {
                                             className="bg-primary h-3 rounded-full transition-all"
                                             style={{
                                                 width: `${compra.items_esperados > 0
-                                                        ? (compra.items_creados / compra.items_esperados) * 100
-                                                        : 0
+                                                    ? (compra.items_creados / compra.items_esperados) * 100
+                                                    : 0
                                                     }%`,
                                             }}
                                         />
@@ -250,27 +250,77 @@ export default function CompraDetallePage() {
                             </Card>
                         )}
 
-                        {/* Acciones */}
-                        {compra.estado === 'PENDIENTE' && (
-                            <Card className="border-primary/50 bg-primary/5">
-                                <CardContent className="pt-6">
-                                    <div className="flex items-center gap-4">
-                                        <Package className="h-8 w-8 text-primary" />
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold">Siguiente paso: Carga Masiva</h3>
-                                            <p className="text-sm text-muted-foreground">
-                                                Usa la carga masiva para agregar las prendas de esta compra
-                                            </p>
-                                        </div>
-                                        <Link href="/items/bulk-upload">
-                                            <Button>
-                                                <TrendingUp className="h-4 w-4 mr-2" />
-                                                Ir a Carga Masiva
+                        {/* Acciones - 3 Opciones para Agregar Items */}
+                        {compra.estado !== 'COMPLETADA' && (
+                            <div className="space-y-4">
+                                <h2 className="text-xl font-semibold">Agregar Prendas a la Compra</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {/* Opción 1: Carga Masiva */}
+                                    <Card className="hover:border-primary/50 transition-colors cursor-pointer">
+                                        <CardHeader>
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-primary/10">
+                                                    <Package className="h-6 w-6 text-primary" />
+                                                </div>
+                                                <CardTitle className="text-lg">Carga Masiva</CardTitle>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <CardDescription className="mb-4">
+                                                Para múltiples items. Usa Gemini para parsear chat de WhatsApp.
+                                            </CardDescription>
+                                            <Link href="/items/bulk-upload">
+                                                <Button className="w-full">
+                                                    <TrendingUp className="h-4 w-4 mr-2" />
+                                                    Ir a Carga Masiva
+                                                </Button>
+                                            </Link>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Opción 2: Crear Individual */}
+                                    <Card className="hover:border-primary/50 transition-colors">
+                                        <CardHeader>
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-green-500/10">
+                                                    <Plus className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                                </div>
+                                                <CardTitle className="text-lg">Crear Individual</CardTitle>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <CardDescription className="mb-4">
+                                                Para 1-3 items. Formulario rápido para crear prendas una por una.
+                                            </CardDescription>
+                                            <Button className="w-full" variant="outline" disabled>
+                                                <Plus className="h-4 w-4 mr-2" />
+                                                Próximamente
                                             </Button>
-                                        </Link>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Opción 3: Relacionar Existentes */}
+                                    <Card className="hover:border-primary/50 transition-colors">
+                                        <CardHeader>
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-blue-500/10">
+                                                    <Link2 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                                </div>
+                                                <CardTitle className="text-lg">Relacionar Existentes</CardTitle>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <CardDescription className="mb-4">
+                                                Asigna items ya creados sin compra a esta compra.
+                                            </CardDescription>
+                                            <Button className="w-full" variant="outline" disabled>
+                                                <Link2 className="h-4 w-4 mr-2" />
+                                                Próximamente
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+                            </div>
                         )}
                     </div>
                 ) : (

@@ -284,6 +284,10 @@ export const itemsApi = {
   delete: async (id: number): Promise<void> => {
     await apiClient.delete(`/items/${id}`);
   },
+  getSinCompra: async (): Promise<Item[]> => {
+    const response = await apiClient.get<Item[]>('/items/sin-compra');
+    return response.data;
+  }
 };
 
 // API para Clientes Potenciales (Leads)
@@ -609,6 +613,9 @@ export const comprasApi = {
 
   getCompraEstado: (id: number) =>
     apiClient.get<CompraEstado>(`/compras/${id}/estado`).then(res => res.data),
+
+  asignarItems: (compraId: number, itemIds: number[]) =>
+    apiClient.post(`/compras/${compraId}/asignar-items`, itemIds).then(res => res.data)
 };
 
 export default apiClient;
