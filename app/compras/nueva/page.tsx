@@ -10,8 +10,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { comprasApi, categoriesApi, Proveedor, Category, DetalleCompraCreate } from '@/lib/api';
 import { toast } from 'sonner';
-import { ArrowLeft, Plus, Trash2, Save } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Save, UserPlus } from 'lucide-react';
 import Link from 'next/link';
+import { NuevoProveedorModal } from '@/components/NuevoProveedorModal';
 
 export default function NuevaCompraPage() {
     const { isAuthenticated, isLoading } = useAuth();
@@ -29,6 +30,7 @@ export default function NuevaCompraPage() {
     const [detalles, setDetalles] = useState<DetalleCompraCreate[]>([
         { categoria_id: 0, cantidad: 1, costo_unitario: 0 }
     ]);
+    const [modalProveedorOpen, setModalProveedorOpen] = useState(false);
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
@@ -77,6 +79,12 @@ export default function NuevaCompraPage() {
 
     const calcularTotalPrendas = () => {
         return detalles.reduce((sum, d) => sum + d.cantidad, 0);
+    };
+
+    const handleProveedorCreado = (nuevoProveedor: Proveedor) => {
+        setProveedores([...proveedores, nuevoProveedor]);
+        setProveedorId(nuevoProveedor.id);
+        toast.success('Proveedor seleccionado automáticamente');
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -155,20 +163,32 @@ export default function NuevaCompraPage() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <Label htmlFor="proveedor">Proveedor *</Label>
-                                            <select
-                                                id="proveedor"
-                                                value={proveedorId}
-                                                onChange={(e) => setProveedorId(Number(e.target.value))}
-                                                className="w-full mt-1 px-3 py-2 border rounded-md bg-background text-foreground dark:bg-gray-800 dark:border-gray-700"
-                                                required
-                                            >
-                                                <option value={0}>Selecciona un proveedor</option>
-                                                {proveedores.map((p) => (
-                                                    <option key={p.id} value={p.id}>
-                                                        {p.nombre}
-                                                    </option>
-                                                ))}
-                                            </select>
+                                            <div className="flex gap-2">
+                                                <select
+                                                    id="proveedor"
+                                                    value={proveedorId}
+                                                    onChange={(e) => setProveedorId(Number(e.target.value))}
+                                                    className="flex-1 mt-1 px-3 py-2 border rounded-md bg-background text-foreground dark:bg-gray-800 dark:border-gray-700"
+                                                    required
+                                                >
+                                                    <option value={0}>Selecciona un proveedor</option>
+                                                    {proveedores.map((p) => (
+                                                        <option key={p.id} value={p.id}>
+                                                            {p.nombre}
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <Button
+                                                    type="button"
+                                                    variant="outline"
+                                                    size="icon"
+                                                    className="mt-1"
+                                                    onClick={() => setModalProveedorOpen(true)}
+                                                    title="Nuevo proveedor"
+                                                >
+                                                    <UserPlus className="h-4 w-4" />
+                                                </Button>
+                                            </div>
                                         </div>
 
                                         <div>
@@ -309,6 +329,12 @@ export default function NuevaCompraPage() {
                     </form>
                 )}
             </div>
+
+            <NuevoProveedorModal
+                open={modalProveedorOpen}
+                onOpenChange={setModalProveedorOpen}
+                onProveedorCreado={handleProveedorCreado}
+            />
         </div>
     );
 }
