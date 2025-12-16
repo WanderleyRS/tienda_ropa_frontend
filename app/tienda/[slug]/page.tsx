@@ -4,13 +4,12 @@ import { Suspense, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { apiClient, categoriesApi, companiesApi } from '@/lib/api'; // Direct import to avoid circular dependency issues if any
-import { Item, Category, Empresa } from '@/types';
+import { Item, Category, Empresa } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Loader2, Search, ShoppingBag, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { ProductCard } from '@/components/ProductCard';
-import { Badge } from '@/components/ui/badge';
 import axios from 'axios';
 
 function TiendaSlugContent() {
@@ -186,7 +185,7 @@ function TiendaSlugContent() {
                 ) : (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                         {filteredItems.map((item) => (
-                            <ProductCard key={item.id} item={item} />
+                            <ProductCard key={item.id} product={item} />
                         ))}
                     </div>
                 )}
