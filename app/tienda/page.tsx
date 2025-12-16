@@ -16,7 +16,9 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 
-export default function TiendaPage() {
+import { Suspense } from 'react';
+
+function TiendaContent() {
     const { user } = useAuth();
     const searchParams = useSearchParams();
     const publicEmpresaId = searchParams.get('empresa_id');
@@ -234,5 +236,13 @@ export default function TiendaPage() {
                 )}
             </main>
         </div>
+    );
+}
+
+export default function TiendaPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+            <TiendaContent />
+        </Suspense>
     );
 }
