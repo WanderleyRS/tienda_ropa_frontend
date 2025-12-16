@@ -4,7 +4,7 @@
 import { API_BASE_URL } from '@/lib/config';
 
 // Create an Axios instance
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -232,6 +232,10 @@ export const companiesApi = {
   },
   getPublicEmpresa: async (id: number): Promise<Empresa> => {
     const response = await apiClient.get<Empresa>(`/companies/public/${id}`);
+    return response.data;
+  },
+  getPublicEmpresaBySlug: async (slug: string): Promise<Empresa> => {
+    const response = await apiClient.get<Empresa>(`/companies/public/slug/${slug}`);
     return response.data;
   },
   updateEmpresa: async (data: EmpresaCreate): Promise<Empresa> => {
