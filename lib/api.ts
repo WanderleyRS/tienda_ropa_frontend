@@ -82,6 +82,7 @@ export interface User {
   almacenes?: Almacen[];
   empresa_id?: number;
   empresa_nombre?: string;
+  empresa_slug?: string;
   empresa_navbar_title?: string;
   empresa_navbar_icon_url?: string;
 }

@@ -175,8 +175,13 @@ function NavbarContent() {
                                 onClick={() => {
                                     if (user) {
                                         const empresaId = user.empresa_id || (user.almacenes && user.almacenes.length > 0 ? user.almacenes[0].empresa_id : null);
+                                        const empresaSlug = user.empresa_slug;
 
-                                        if (empresaId) {
+                                        if (empresaSlug) {
+                                            const link = `${window.location.origin}/tienda/${empresaSlug}`;
+                                            navigator.clipboard.writeText(link);
+                                            toast.success(`Enlace copiado: ${link}`);
+                                        } else if (empresaId) {
                                             const link = `${window.location.origin}/tienda?empresa_id=${empresaId}`;
                                             navigator.clipboard.writeText(link);
                                             toast.success('Enlace de tienda copiado al portapapeles');
