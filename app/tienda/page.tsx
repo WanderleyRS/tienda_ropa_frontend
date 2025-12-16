@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { itemsApi, Item, categoriesApi, companiesApi } from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
 import { Navbar } from '@/components/Navbar';
-import { ShoppingBag, Search } from 'lucide-react';
-import Link from 'next/link';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -18,6 +18,9 @@ import {
 
 export default function TiendaPage() {
     const { user } = useAuth();
+    const searchParams = useSearchParams();
+    const publicEmpresaId = searchParams.get('empresa_id');
+
     const [products, setProducts] = useState<Item[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -34,12 +37,20 @@ export default function TiendaPage() {
     useEffect(() => {
         loadCategories();
         loadBranding();
-    }, [user]);
+    }, [user, publicEmpresaId]);
 
     const loadBranding = async () => {
         try {
-            // If user is authenticated, try to get empresa branding
-            if (user) {
+            if (publicEmpresaId) {
+                // Tienda Pública: Cargar branding de la empresa específica
+                const empresaData = await companiesApi.getPublicEmpresa(Number(publicEmpresaId));
+                setBranding({
+                    title1: empresaData.store_title_1 || 'Colección Exclusiva',
+                    title2: empresaData.store_title_2 || 'Estilo con Historia',
+                    subtitle: empresaData.store_subtitle || 'Piezas únicas seleccionadas para quienes buscan calidad, sostenibilidad y un estilo inconfundible.'
+                });
+            } else if (user) {
+                // Usuario Logueado: Cargar branding de su propia empresa
                 const empresaData = await companiesApi.getEmpresa();
                 setBranding({
                     title1: empresaData.store_title_1 || 'Colección Exclusiva',
@@ -48,7 +59,7 @@ export default function TiendaPage() {
                 });
             }
         } catch (error) {
-            console.log('Using default branding');
+            console.log('Using default branding', error);
         }
     };
 
@@ -58,7 +69,7 @@ export default function TiendaPage() {
         }, 500); // Debounce search
 
         return () => clearTimeout(timer);
-    }, [searchQuery, selectedCategory]);
+    }, [searchQuery, selectedCategory, publicEmpresaId]);
 
     const loadCategories = async () => {
         try {
@@ -82,16 +93,13 @@ export default function TiendaPage() {
                 params.category_id = Number(selectedCategory);
             }
 
-            // Si hay empresa_id en la URL o contexto, usarlo.
-            // Por ahora, itemsApi.getAll maneja la lógica de "tienda pública" si se pasa empresa_id.
+            // Si hay empresa_id en la URL (tienda pública)
+            if (publicEmpresaId) {
+                params.empresa_id = Number(publicEmpresaId);
+            }
 
             const data = await itemsApi.getAll(params);
             setProducts(data);
-
-            // Intentar obtener branding del primer producto (si tiene info de empresa) o usar defaults
-            if (data.length > 0 && (data[0] as any).empresa_branding) {
-                // Si el backend devolviera branding en los items... pero no lo hace.
-            }
 
         } catch (error) {
             console.error('Error loading products:', error);

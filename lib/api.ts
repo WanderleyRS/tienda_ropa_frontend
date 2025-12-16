@@ -230,6 +230,10 @@ export const companiesApi = {
     const response = await apiClient.get<Empresa>('/companies/empresa');
     return response.data;
   },
+  getPublicEmpresa: async (id: number): Promise<Empresa> => {
+    const response = await apiClient.get<Empresa>(`/companies/public/${id}`);
+    return response.data;
+  },
   updateEmpresa: async (data: EmpresaCreate): Promise<Empresa> => {
     const response = await apiClient.put<Empresa>('/companies/empresa', data);
     return response.data;
