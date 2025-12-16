@@ -4,11 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { CartButton } from '@/components/CartButton';
-import { LogOut, Building2, Menu, X, Moon, Sun } from 'lucide-react';
+import { LogOut, Building2, Menu, X, Moon, Sun, Share2 } from 'lucide-react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 export function Navbar() {
     const { user, logout, isAuthenticated } = useAuth();
@@ -131,16 +132,30 @@ export function Navbar() {
                             )}
                         </Button>
 
-                        {/* User info (desktop only) */}
+                        {/* Share Store Button (Authenticated) */}
                         {isAuthenticated && (
-                            <div className="text-sm text-right hidden lg:block">
-                                <div className="font-medium text-foreground">{user?.username}</div>
-                                {user?.empresa_nombre && (
-                                    <div className="text-xs text-muted-foreground flex items-center justify-end gap-1">
-                                        <Building2 className="h-3 w-3" /> {user.empresa_nombre}
-                                    </div>
-                                )}
-                            </div>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => {
+                                    if (user) {
+                                        const empresaId = user.empresa_id || (user.almacenes && user.almacenes.length > 0 ? user.almacenes[0].empresa_id : null);
+
+                                        if (empresaId) {
+                                            const link = `${window.location.origin}/tienda?empresa_id=${empresaId}`;
+                                            navigator.clipboard.writeText(link);
+                                            toast.success('Enlace de tienda copiado al portapapeles');
+                                        } else {
+                                            toast.error('No se pudo identificar tu empresa');
+                                        }
+                                    }
+                                }}
+                                className="text-muted-foreground hover:text-primary hidden md:flex gap-2"
+                                title="Copiar enlace de tienda"
+                            >
+                                <Share2 className="h-4 w-4" />
+                                <span className="hidden lg:inline">Compartir</span>
+                            </Button>
                         )}
 
                         {/* Logout button (desktop) */}
