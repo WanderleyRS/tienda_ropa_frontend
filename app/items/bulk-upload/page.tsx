@@ -6,49 +6,83 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Navbar } from '@/components/Navbar';
 import apiClient from '@/lib/api';
+import { Image as ImageIcon, Save, ArrowLeft, ArrowRight, CheckCircle, UploadCloud } from 'lucide-react';
+
+// Interfaces
+interface Almacen {
+    id: number;
+    nombre: string;
+}
+
+interface Category {
+    id: number;
+    name: string;
+}
+
+interface ParsedItem {
+    title: string;
+    description: string;
+    price: number;
+}
+
+interface StructuredItem extends ParsedItem {
+    stock: number;
+    category_id: number;
+    almacen_id: number;
+    image_index: number; // Index in the files array
+}
 
 export default function BulkUploadPage() {
     const router = useRouter();
     const { token, isAuthenticated, isLoading: isAuthLoading } = useAuth();
 
-    useEffect(() => {
-        if (!isAuthLoading && !isAuthenticated) {
-            router.push('/login');
-        }
-    }, [isAuthenticated, isAuthLoading, router]);
-
-    const [files, setFiles] = useState<File[]>([]);
-    const [rawText, setRawText] = useState('');
-    const [categoryId, setCategoryId] = useState(1);
-    const [stock, setStock] = useState(1);
+    // Global State
+    const [step, setStep] = useState<1 | 2>(1);
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-    // Lógica para dividir el texto y contar los bloques
-    const itemBlocks = useMemo(() => {
-        const CHAT_LINE_START_REGEX = /^\s*\[.*?\]\s*[^:]+?:/gim;
+    // Data State
+    const [almacenes, setAlmacenes] = useState<Almacen[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
 
-        if (!rawText.trim()) return [];
+    // Step 1 State
+    const [files, setFiles] = useState<File[]>([]);
+    const [rawText, setRawText] = useState('');
+    const [selectedAlmacenId, setSelectedAlmacenId] = useState<number>(0);
 
-        const normalizedText = rawText
-            .replace(/\r\n/g, '\n')
-            .replace(/[\u200B\u202F\u00A0]/g, ' ')
-            .trim();
+    // Step 2 State
+    const [itemsToReview, setItemsToReview] = useState<StructuredItem[]>([]);
 
-        const separatedText = normalizedText.replace(
-            CHAT_LINE_START_REGEX,
-            '|||SEPARATOR|||$&'
-        );
+    useEffect(() => {
+        if (!isAuthLoading && !isAuthenticated) {
+            router.push('/login');
+        } else if (isAuthenticated) {
+            fetchInitialData();
+        }
+    }, [isAuthenticated, isAuthLoading, router]);
 
-        const blocks = separatedText.split('|||SEPARATOR|||')
-            .map(block => block.trim())
-            .filter(block => block.length > 0);
+    const fetchInitialData = async () => {
+        try {
+            const [almacenesRes, categoriesRes] = await Promise.all([
+                apiClient.get('/companies/almacenes'),
+                apiClient.get('/categories/')
+            ]);
+            setAlmacenes(almacenesRes.data);
+            setCategories(categoriesRes.data);
 
-        return blocks;
-    }, [rawText]);
+            if (almacenesRes.data.length > 0) {
+                setSelectedAlmacenId(almacenesRes.data[0].id);
+            }
+        } catch (error) {
+            console.error('Error loading initial data:', error);
+            setMessage({ type: 'error', text: 'Error cargando almacenes o categorías.' });
+        }
+    };
+
+    // --- Handlers Step 1 ---
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -56,206 +90,326 @@ export default function BulkUploadPage() {
         }
     };
 
-    const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setRawText(e.target.value);
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleParse = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('🚀 INICIO DE CARGA MASIVA');
-        console.log('📊 Files:', files.length, 'Bloques:', itemBlocks.length);
-
-        if (files.length !== itemBlocks.length) {
-            console.log('❌ Error: Discrepancia en cantidad');
-            setMessage({ type: 'error', text: `Error: El número de fotos (${files.length}) y bloques de texto (${itemBlocks.length}) debe coincidir.` });
-            return;
-        }
-
-        if (categoryId <= 0 || stock <= 0) {
-            console.log('❌ Error: Categoría o stock inválidos');
-            setMessage({ type: 'error', text: 'Error: La Categoría ID y el Stock deben ser números enteros positivos.' });
-            return;
-        }
-
-        if (!token) {
-            console.log('❌ Error: No hay token');
-            setMessage({ type: 'error', text: 'Error: No estás autenticado.' });
-            return;
-        }
-
-        setIsLoading(true);
         setMessage(null);
+        setIsLoading(true);
 
         try {
+            if (files.length === 0) {
+                throw new Error("Debes subir al menos una imagen.");
+            }
+            if (!rawText.trim()) {
+                throw new Error("Debes ingresar el texto de los items.");
+            }
+            if (!selectedAlmacenId) {
+                throw new Error("Selecciona un almacén.");
+            }
+
             const formData = new FormData();
-
-            // Append files
-            files.forEach((file) => {
-                formData.append('files', file);
-            });
-
-            // Append other fields
-            formData.append('category_id', categoryId.toString());
             formData.append('raw_text_block', rawText);
-            formData.append('stock', stock.toString());
 
-            // Send request using apiClient
-            const response = await apiClient.post('/items/bulk-upload', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            // Call Parse Endpoint (Dry Run)
+            const response = await apiClient.post('/items/parse-text', formData);
+            const parsedData: ParsedItem[] = response.data;
 
-            console.log('✅ Carga exitosa:', response.data);
-            setMessage({ type: 'success', text: `¡Éxito! Se han cargado ${response.data.length} ítems correctamente.` });
+            if (parsedData.length === 0) {
+                throw new Error("No se detectaron items en el texto.");
+            }
 
-            // Optional: Clear form or redirect
-            // setFiles([]);
-            // setRawText('');
-            // setTimeout(() => router.push('/items'), 2000);
+            // Map to Structured Items (Default assignments)
+            const structured: StructuredItem[] = parsedData.map((item, index) => ({
+                ...item,
+                stock: 1,
+                category_id: categories.length > 0 ? categories[0].id : 1,
+                almacen_id: selectedAlmacenId,
+                // Try to map image 1-to-1 if counts match, else default to -1 (none) or 0
+                image_index: index < files.length ? index : -1
+            }));
+
+            setItemsToReview(structured);
+            setStep(2);
+            setMessage({ type: 'success', text: `Se detectaron ${parsedData.length} items. Revisa y confirma.` });
 
         } catch (error: any) {
-            console.error('❌ Error en carga masiva:', error);
-            const errorMsg = error.response?.data?.detail || error.message || 'Error al cargar los ítems. Inténtalo de nuevo.';
-            setMessage({
-                type: 'error',
-                text: errorMsg
-            });
+            console.error('Parse Error:', error);
+            setMessage({ type: 'error', text: error.message || "Error al analizar el texto." });
         } finally {
             setIsLoading(false);
         }
     };
 
-    if (isAuthLoading || !isAuthenticated) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="text-center p-8 bg-card rounded-xl shadow-2xl border border-border">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-primary mx-auto"></div>
-                    <p className="mt-4 text-lg font-semibold text-foreground">Verificando sesión...</p>
-                </div>
-            </div>
-        );
-    }
+    // --- Handlers Step 2 ---
 
-    const isSubmitDisabled = isLoading || files.length === 0 || files.length !== itemBlocks.length || categoryId <= 0 || stock <= 0;
+    const updateItem = (index: number, field: keyof StructuredItem, value: any) => {
+        const newItems = [...itemsToReview];
+        newItems[index] = { ...newItems[index], [field]: value };
+        setItemsToReview(newItems);
+    };
+
+    const handleFinalSubmit = async () => {
+        setIsLoading(true);
+        setMessage(null);
+
+        try {
+            // Validate
+            for (let i = 0; i < itemsToReview.length; i++) {
+                const item = itemsToReview[i];
+                if (item.image_index < 0 || item.image_index >= files.length) {
+                    throw new Error(`El item #${i + 1} (${item.title}) no tiene una imagen válida asignada.`);
+                }
+            }
+
+            const formData = new FormData();
+
+            // Append all files
+            files.forEach((file) => {
+                formData.append('files', file);
+            });
+
+            // Append data JSON
+            const dataPayload = JSON.stringify(itemsToReview);
+            formData.append('data', dataPayload);
+
+            await apiClient.post('/items/bulk-create-structured', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+
+            setMessage({ type: 'success', text: "¡Carga masiva completada exitosamente!" });
+
+            // Reset or Redirect
+            setTimeout(() => {
+                router.push('/items');
+            }, 1500);
+
+        } catch (error: any) {
+            console.error('Submit Error:', error);
+            setMessage({ type: 'error', text: error.response?.data?.detail || error.message || "Error al guardar los items." });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // --- Render ---
+
+    if (isAuthLoading || !isAuthenticated) return <div className="p-8 text-center">Cargando...</div>;
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="min-h-screen bg-background pb-20">
             <Navbar />
-            <div className="p-4 sm:p-8 font-sans">
-                <div className="max-w-5xl mx-auto py-8">
-                    <h1 className="text-3xl sm:text-4xl font-bold mb-8 text-foreground text-center">
-                        Carga Masiva de Ítems
+
+            <div className="max-w-6xl mx-auto p-4 sm:p-8">
+                <div className="flex items-center justify-between mb-8">
+                    <h1 className="text-3xl font-bold text-foreground">
+                        {step === 1 ? 'Carga Masiva: Preparación' : 'Carga Masiva: Revisión'}
                     </h1>
+                    <div className="text-sm text-muted-foreground">
+                        Paso {step} de 2
+                    </div>
+                </div>
 
-                    {message && (
-                        <div className={`p-4 mb-8 rounded-md border ${message.type === 'success'
-                            ? 'bg-green-500/10 border-green-500/20 text-green-600 dark:text-green-400'
-                            : 'bg-destructive/10 border-destructive/20 text-destructive'
-                            }`}>
-                            {message.text}
-                        </div>
-                    )}
+                {message && (
+                    <div className={`p-4 mb-6 rounded-md border ${message.type === 'success'
+                        ? 'bg-green-500/10 border-green-500/20 text-green-600'
+                        : 'bg-destructive/10 border-destructive/20 text-destructive'
+                        }`}>
+                        {message.text}
+                    </div>
+                )}
 
+                {step === 1 && (
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* Sidebar / Info */}
+                        {/* Configuration */}
                         <div className="lg:col-span-1 space-y-6">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle>Estado de Carga</CardTitle>
-                                    <CardDescription>Verifica la correlación</CardDescription>
+                                    <CardTitle>Configuración Inicial</CardTitle>
+                                    <CardDescription>Define el destino de la carga</CardDescription>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className={`p-4 rounded-lg border text-center transition-colors ${files.length === itemBlocks.length && files.length > 0 ? 'bg-green-500/10 border-green-500/20' : 'bg-secondary/50 border-border'}`}>
-                                        <div className="text-3xl font-bold text-foreground">{files.length}</div>
-                                        <div className="text-sm text-muted-foreground">Fotos</div>
+                                    <div className="space-y-2">
+                                        <Label>Seleccionar Almacén</Label>
+                                        <select
+                                            className="w-full p-2 border rounded-md bg-background"
+                                            value={selectedAlmacenId}
+                                            onChange={(e) => setSelectedAlmacenId(Number(e.target.value))}
+                                        >
+                                            {almacenes.map(a => (
+                                                <option key={a.id} value={a.id}>{a.nombre}</option>
+                                            ))}
+                                        </select>
                                     </div>
-                                    <div className={`p-4 rounded-lg border text-center transition-colors ${files.length === itemBlocks.length && itemBlocks.length > 0 ? 'bg-green-500/10 border-green-500/20' : 'bg-secondary/50 border-border'}`}>
-                                        <div className="text-3xl font-bold text-foreground">{itemBlocks.length}</div>
-                                        <div className="text-sm text-muted-foreground">Bloques de Texto</div>
+                                    <div className="pt-4 border-t">
+                                        <div className="flex items-center justify-between text-sm">
+                                            <span>Fotos seleccionadas:</span>
+                                            <span className="font-bold">{files.length}</span>
+                                        </div>
                                     </div>
-                                    {files.length !== itemBlocks.length && (
-                                        <p className="text-xs text-destructive font-medium text-center">
-                                            Las cantidades deben coincidir
-                                        </p>
-                                    )}
                                 </CardContent>
                             </Card>
                         </div>
 
-                        {/* Main Form */}
+                        {/* Upload Form */}
                         <div className="lg:col-span-2">
                             <Card>
                                 <CardContent className="p-6 space-y-6">
-                                    <form onSubmit={handleSubmit} className="space-y-6">
-                                        <div className="space-y-2">
-                                            <Label htmlFor="files">1. Fotos de los Ítems</Label>
+                                    <div className="space-y-2">
+                                        <Label className="text-lg">1. Sube tus Fotos</Label>
+                                        <div className="border-2 border-dashed border-input rounded-xl p-8 hover:bg-secondary/20 transition-colors text-center cursor-pointer relative">
                                             <Input
-                                                id="files"
-                                                type="file"
-                                                multiple
+                                                type="file" multiple accept="image/*"
+                                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                                 onChange={handleFileChange}
-                                                accept="image/*"
-                                                className="cursor-pointer"
                                             />
-                                            <p className="text-xs text-muted-foreground">
-                                                Selecciona las imágenes en orden.
+                                            <UploadCloud className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                                            <p className="text-sm text-muted-foreground font-medium">
+                                                {files.length > 0
+                                                    ? `${files.length} archivos seleccionados`
+                                                    : "Arrastra fotos o haz clic para seleccionar"}
                                             </p>
                                         </div>
-
-                                        <div className="space-y-2">
-                                            <Label htmlFor="raw_text">2. Bloque de Descripciones</Label>
-                                            <textarea
-                                                id="raw_text"
-                                                rows={10}
-                                                value={rawText}
-                                                onChange={handleTextChange}
-                                                placeholder="Pega aquí el texto del chat..."
-                                                className="w-full p-3 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent text-sm font-mono bg-transparent text-foreground placeholder:text-muted-foreground"
-                                            />
-                                        </div>
-
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label htmlFor="category_id">Categoría</Label>
-                                                <select
-                                                    id="category_id"
-                                                    value={categoryId}
-                                                    onChange={(e) => setCategoryId(parseInt(e.target.value) || 0)}
-                                                    className="w-full p-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring text-sm bg-transparent text-foreground"
-                                                >
-                                                    <option value={1} className="bg-popover text-popover-foreground">Ropa</option>
-                                                    <option value={2} className="bg-popover text-popover-foreground">Accesorios</option>
-                                                    <option value={3} className="bg-popover text-popover-foreground">Calzado</option>
-                                                    <option value={4} className="bg-popover text-popover-foreground">Hogar</option>
-                                                </select>
+                                        {files.length > 0 && (
+                                            <div className="flex gap-2 overflow-x-auto py-2">
+                                                {files.map((f, i) => (
+                                                    <div key={i} className="w-16 h-16 shrink-0 rounded-md border overflow-hidden relative">
+                                                        <img src={URL.createObjectURL(f)} className="w-full h-full object-cover" />
+                                                    </div>
+                                                ))}
                                             </div>
+                                        )}
+                                    </div>
 
-                                            <div className="space-y-2">
-                                                <Label htmlFor="stock">Stock Inicial</Label>
-                                                <Input
-                                                    id="stock"
-                                                    type="number"
-                                                    value={stock}
-                                                    onChange={(e) => setStock(parseInt(e.target.value) || 0)}
-                                                    min="1"
-                                                />
-                                            </div>
-                                        </div>
+                                    <div className="space-y-2">
+                                        <Label className="text-lg">2. Pega la Descripción (WhatsApp)</Label>
+                                        <textarea
+                                            className="w-full min-h-[300px] p-4 border rounded-md bg-background font-mono text-sm"
+                                            placeholder="[10:30 a. m.] Vania: Conjunto dos piezas..."
+                                            value={rawText}
+                                            onChange={(e) => setRawText(e.target.value)}
+                                        />
+                                    </div>
 
-                                        <Button
-                                            type="submit"
-                                            disabled={isSubmitDisabled}
-                                            className="w-full"
-                                        >
-                                            {isLoading ? 'Procesando...' : 'Cargar Ítems'}
-                                        </Button>
-                                    </form>
+                                    <Button onClick={handleParse} disabled={isLoading} className="w-full h-12 text-lg">
+                                        {isLoading ? 'Analizando...' : 'Analizar y Revisar'} <ArrowRight className="ml-2 h-5 w-5" />
+                                    </Button>
                                 </CardContent>
                             </Card>
                         </div>
                     </div>
-                </div>
+                )}
+
+                {step === 2 && (
+                    <div className="space-y-8">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between">
+                                <div>
+                                    <CardTitle>Revisión de Items</CardTitle>
+                                    <CardDescription>Asigna fotos y verifica detalles antes de guardar</CardDescription>
+                                </div>
+                                <Button variant="outline" onClick={() => setStep(1)} size="sm">
+                                    <ArrowLeft className="mr-2 h-4 w-4" /> Volver
+                                </Button>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                {itemsToReview.map((item, idx) => (
+                                    <div key={idx} className="flex flex-col md:flex-row gap-6 p-4 border rounded-lg bg-card/50 hover:border-primary/50 transition-colors">
+
+                                        {/* Image Selector Section */}
+                                        <div className="w-full md:w-64 flex-shrink-0 space-y-2">
+                                            <Label>Imagen Asignada</Label>
+                                            <div className="aspect-square rounded-md border overflow-hidden bg-secondary relative group">
+                                                {item.image_index >= 0 && files[item.image_index] ? (
+                                                    <img src={URL.createObjectURL(files[item.image_index])} className="w-full h-full object-cover" />
+                                                ) : (
+                                                    <div className="flex items-center justify-center h-full text-muted-foreground text-xs">Sin Imagen</div>
+                                                )}
+
+                                                {/* Overlay for selection */}
+                                                <select
+                                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                                    value={item.image_index}
+                                                    onChange={(e) => updateItem(idx, 'image_index', Number(e.target.value))}
+                                                >
+                                                    <option value={-1}>Sin Imagen</option>
+                                                    {files.map((f, fIdx) => (
+                                                        <option key={fIdx} value={fIdx}>Foto #{fIdx + 1} - {f.name}</option>
+                                                    ))}
+                                                </select>
+                                                <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs p-1 text-center pointer-events-none">
+                                                    Clic para cambiar
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Data Inputs */}
+                                        <div className="flex-1 space-y-4">
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div className="space-y-2">
+                                                    <Label>Título</Label>
+                                                    <Input
+                                                        value={item.title}
+                                                        onChange={(e) => updateItem(idx, 'title', e.target.value)}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label>Categoría</Label>
+                                                    <select
+                                                        className="w-full h-10 px-3 border rounded-md bg-background text-sm"
+                                                        value={item.category_id}
+                                                        onChange={(e) => updateItem(idx, 'category_id', Number(e.target.value))}
+                                                    >
+                                                        {categories.map(c => (
+                                                            <option key={c.id} value={c.id}>{c.name}</option>
+                                                        ))}
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label>Descripción</Label>
+                                                <textarea
+                                                    className="w-full min-h-[80px] p-2 border rounded-md bg-background text-sm"
+                                                    value={item.description}
+                                                    onChange={(e) => updateItem(idx, 'description', e.target.value)}
+                                                />
+                                            </div>
+
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                                <div className="space-y-2">
+                                                    <Label>Precio</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={item.price}
+                                                        onChange={(e) => updateItem(idx, 'price', Number(e.target.value))}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label>Stock</Label>
+                                                    <Input
+                                                        type="number"
+                                                        value={item.stock}
+                                                        onChange={(e) => updateItem(idx, 'stock', Number(e.target.value))}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </CardContent>
+                            <CardFooter className="flex justify-end gap-4 border-t pt-6">
+                                <div className="flex-1 text-sm text-muted-foreground self-center">
+                                    Revisa que todos los items tengan foto asignada.
+                                </div>
+                                <Button variant="outline" onClick={() => setStep(1)} disabled={isLoading}>
+                                    Cancelar
+                                </Button>
+                                <Button onClick={handleFinalSubmit} disabled={isLoading} className="min-w-[200px]">
+                                    {isLoading ? 'Guardando...' : 'Confirmar Todo'} <CheckCircle className="ml-2 h-4 w-4" />
+                                </Button>
+                            </CardFooter>
+                        </Card>
+                    </div>
+                )}
             </div>
         </div>
     );
