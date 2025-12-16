@@ -141,7 +141,7 @@ function TiendaSlugContent() {
 
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 {/* Search and Filter */}
-                <div className="flex flex-col md:flex-row gap-4 mb-8 sticky top-16 z-30 bg-background/95 backdrop-blur-sm p-4 rounded-xl border border-border/50 shadow-sm">
+                <div className="flex flex-col md:flex-row gap-4 mb-8 bg-background/95 backdrop-blur-sm p-4 rounded-xl border border-border/50 shadow-sm">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
@@ -188,7 +188,7 @@ function TiendaSlugContent() {
                         )}
                     </div>
                 ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
                         {filteredItems.map((item) => (
                             <ProductCard key={item.id} product={item} />
                         ))}
