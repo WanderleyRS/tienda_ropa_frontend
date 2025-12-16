@@ -110,7 +110,11 @@ export default function BulkUploadPage() {
             formData.append('raw_text_block', rawText);
 
             // Call Parse Endpoint (Dry Run)
-            const response = await apiClient.post('/items/parse-text', formData);
+            const response = await apiClient.post('/items/parse-text', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
             const parsedData: ParsedItem[] = response.data;
 
             if (parsedData.length === 0) {
