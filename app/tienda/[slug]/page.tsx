@@ -128,6 +128,11 @@ function TiendaSlugContent() {
                     <h1 className="text-3xl sm:text-5xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60 mb-3">
                         {empresa.store_title_1 || empresa.nombre}
                     </h1>
+                    {empresa.store_title_2 && (
+                        <h2 className="text-xl sm:text-2xl font-semibold text-muted-foreground mb-4">
+                            {empresa.store_title_2}
+                        </h2>
+                    )}
                     <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
                         {empresa.store_subtitle || "Bienvenido a nuestra tienda online."}
                     </p>
