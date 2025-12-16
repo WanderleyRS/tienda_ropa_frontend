@@ -5,18 +5,23 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { CartButton } from '@/components/CartButton';
 import { LogOut, Building2, Menu, X, Moon, Sun, Share2 } from 'lucide-react';
-import { useRouter, usePathname } from 'next/navigation';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { toast } from 'sonner';
 
-export function Navbar() {
+function NavbarContent() {
     const { user, logout, isAuthenticated } = useAuth();
     const { theme, toggleTheme } = useTheme();
     const router = useRouter();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+    // Detect if we are in public store mode
+    const publicEmpresaId = searchParams.get('empresa_id');
+    const isPublicStore = !!publicEmpresaId;
 
     const handleLogout = () => {
         logout();
@@ -26,7 +31,7 @@ export function Navbar() {
 
     // Public navigation items (always visible)
     const publicNavItems = [
-        { href: '/tienda', label: 'Tienda' },
+        { href: isPublicStore ? `/tienda?empresa_id=${publicEmpresaId}` : '/tienda', label: 'Tienda' },
     ];
 
     // Authenticated-only navigation items
@@ -40,12 +45,17 @@ export function Navbar() {
         ...(user?.role === 'admin' ? [{ href: '/usuarios', label: 'Usuarios' }] : []),
     ];
 
+    // Determine Logo Link
+    const logoLink = isAuthenticated
+        ? "/dashboard"
+        : (isPublicStore ? `/tienda?empresa_id=${publicEmpresaId}` : "/tienda");
+
     return (
         <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50 transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16">
                 <div className="flex items-center justify-between h-full">
                     <div className="flex items-center gap-4 sm:gap-8">
-                        <Link href={isAuthenticated ? "/dashboard" : "/tienda"} className="flex items-center gap-2 group">
+                        <Link href={logoLink} className="flex items-center gap-2 group">
                             {user?.empresa_navbar_icon_url ? (
                                 <img
                                     src={user.empresa_navbar_icon_url}
@@ -71,7 +81,7 @@ export function Navbar() {
                                     href={item.href}
                                     className={cn(
                                         "px-4 py-2 rounded-full text-sm font-medium transition-all",
-                                        pathname === item.href
+                                        pathname === item.href || (isPublicStore && pathname === '/tienda')
                                             ? "bg-primary/10 text-primary font-bold"
                                             : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                                     )}
@@ -170,8 +180,8 @@ export function Navbar() {
                             </Button>
                         )}
 
-                        {/* Login button for non-authenticated users */}
-                        {!isAuthenticated && (
+                        {/* Login button for non-authenticated users - HIDDEN IN PUBLIC STORE MODE */}
+                        {!isAuthenticated && !isPublicStore && (
                             <Link href="/login" className="hidden sm:block">
                                 <Button size="sm" className="rounded-full px-6 shadow-lg shadow-primary/20">
                                     Iniciar sesión
@@ -270,5 +280,13 @@ export function Navbar() {
                 </div>
             )}
         </header>
+    );
+}
+
+export function Navbar() {
+    return (
+        <Suspense fallback={<header className="h-16 border-b bg-background/80" />}>
+            <NavbarContent />
+        </Suspense>
     );
 }
