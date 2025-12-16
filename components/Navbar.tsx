@@ -8,8 +8,10 @@ import { LogOut, Building2, Menu, X, Moon, Sun, Share2 } from 'lucide-react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import { useState, Suspense } from 'react';
+import { useState, Suspense, useEffect } from 'react';
 import { toast } from 'sonner';
+
+import { companiesApi } from '@/lib/api';
 
 function NavbarContent() {
     const { user, logout, isAuthenticated } = useAuth();
@@ -18,10 +20,29 @@ function NavbarContent() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [publicBranding, setPublicBranding] = useState<{ title?: string, logo?: string } | null>(null);
 
     // Detect if we are in public store mode
     const publicEmpresaId = searchParams.get('empresa_id');
     const isPublicStore = !!publicEmpresaId;
+
+    // Fetch public branding if in public mode and not authenticated
+    useEffect(() => {
+        const fetchBranding = async () => {
+            if (isPublicStore && !isAuthenticated && publicEmpresaId) {
+                try {
+                    const empresa = await companiesApi.getPublicEmpresa(Number(publicEmpresaId));
+                    setPublicBranding({
+                        title: empresa.navbar_title || empresa.nombre,
+                        logo: empresa.navbar_icon_url
+                    });
+                } catch (error) {
+                    console.error("Error loading public branding", error);
+                }
+            }
+        };
+        fetchBranding();
+    }, [isPublicStore, isAuthenticated, publicEmpresaId]);
 
     const handleLogout = () => {
         logout();
@@ -50,15 +71,19 @@ function NavbarContent() {
         ? "/dashboard"
         : (isPublicStore ? `/tienda?empresa_id=${publicEmpresaId}` : "/tienda");
 
+    // Determine Display Data (User -> Public -> Default)
+    const displayLogo = user?.empresa_navbar_icon_url || publicBranding?.logo;
+    const displayTitle = user?.empresa_navbar_title || publicBranding?.title || "Tienda Ropa MVP";
+
     return (
         <header className="bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50 transition-colors duration-300">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16">
                 <div className="flex items-center justify-between h-full">
                     <div className="flex items-center gap-4 sm:gap-8">
                         <Link href={logoLink} className="flex items-center gap-2 group">
-                            {user?.empresa_navbar_icon_url ? (
+                            {displayLogo ? (
                                 <img
-                                    src={user.empresa_navbar_icon_url}
+                                    src={displayLogo}
                                     alt="Logo"
                                     className="h-10 w-10 object-contain rounded-lg bg-white p-1"
                                 />
@@ -68,7 +93,7 @@ function NavbarContent() {
                                 </div>
                             )}
                             <span className="text-lg sm:text-xl font-bold text-foreground hidden sm:block">
-                                {user?.empresa_navbar_title || "Tienda Ropa MVP"}
+                                {displayTitle}
                             </span>
                         </Link>
 
