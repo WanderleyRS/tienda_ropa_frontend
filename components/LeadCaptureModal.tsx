@@ -12,6 +12,7 @@ interface LeadCaptureModalProps {
     isOpen: boolean;
     onClose: () => void;
     onSuccess: (clienteId: number, nombreCompleto: string, celularCompleto: string) => void;
+    empresaId?: number;
 }
 
 const COUNTRY_PREFIXES = [
@@ -27,13 +28,13 @@ const COUNTRY_PREFIXES = [
     { code: '+58', country: 'Venezuela', flag: '🇻🇪' },
 ];
 
-export function LeadCaptureModal({ isOpen, onClose, onSuccess }: LeadCaptureModalProps) {
+export function LeadCaptureModal({ isOpen, onClose, onSuccess, empresaId }: LeadCaptureModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         nombre: '',
         apellido_paterno: '',
         apellido_materno: '',
-        prefijo: '+591', // Default Bolivia
+        prefijo: '+591',
         celular: ''
     });
 
@@ -45,7 +46,6 @@ export function LeadCaptureModal({ isOpen, onClose, onSuccess }: LeadCaptureModa
             return;
         }
 
-        // Validar celular (básico: solo números y longitud mínima)
         const cleanPhone = formData.celular.replace(/\D/g, '');
         if (cleanPhone.length < 6) {
             toast.error('El número de celular parece inválido');
@@ -55,13 +55,15 @@ export function LeadCaptureModal({ isOpen, onClose, onSuccess }: LeadCaptureModa
         setIsLoading(true);
         try {
             const celularCompleto = `${formData.prefijo}${cleanPhone}`;
-
-            const cliente = await clientesApi.crearPotencial({
+            const leadData = {
                 nombre: formData.nombre,
                 apellido_paterno: formData.apellido_paterno,
                 apellido_materno: formData.apellido_materno || undefined,
                 celular: celularCompleto
-            });
+            };
+
+            // Use public endpoint with empresa_id = 1 as default
+            const cliente = await clientesApi.crearPotencialPublic(leadData, empresaId || 1);
 
             const nombreCompleto = `${formData.nombre} ${formData.apellido_paterno} ${formData.apellido_materno || ''}`.trim();
 

@@ -324,6 +324,11 @@ export const clientesApi = {
     return response.data;
   },
 
+  crearPotencialPublic: async (data: PotencialClienteCreate, empresaId: number): Promise<PotencialCliente> => {
+    const response = await apiClient.post<PotencialCliente>(`/clientes/potencial/public?empresa_id=${empresaId}`, data);
+    return response.data;
+  },
+
   listarPendientes: async (): Promise<PotencialCliente[]> => {
     const response = await apiClient.get<PotencialCliente[]>('/clientes/potencial/dashboard');
     return response.data;
