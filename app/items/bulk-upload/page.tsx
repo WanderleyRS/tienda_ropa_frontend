@@ -183,7 +183,7 @@ export default function BulkUploadPage() {
 
             // Reset or Redirect
             setTimeout(() => {
-                router.push('/items');
+                router.push('/dashboard');
             }, 1500);
 
         } catch (error: any) {
