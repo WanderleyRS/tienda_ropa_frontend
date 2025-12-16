@@ -439,8 +439,8 @@ export interface CategoryCreate {
 }
 
 export const categoriesApi = {
-  getAll: async (): Promise<Category[]> => {
-    const response = await apiClient.get<Category[]>('/categories/');
+  getAll: async (params?: { empresa_id?: number }): Promise<Category[]> => {
+    const response = await apiClient.get<Category[]>('/categories/', { params });
     return response.data;
   },
   create: async (data: CategoryCreate): Promise<Category> => {

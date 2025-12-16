@@ -75,7 +75,11 @@ function TiendaContent() {
 
     const loadCategories = async () => {
         try {
-            const data = await categoriesApi.getAll();
+            const params: any = {};
+            if (publicEmpresaId) {
+                params.empresa_id = Number(publicEmpresaId);
+            }
+            const data = await categoriesApi.getAll(params);
             setCategories(data);
         } catch (error) {
             console.error('Error loading categories:', error);
