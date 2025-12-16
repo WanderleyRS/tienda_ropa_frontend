@@ -43,8 +43,9 @@ export function ProductCard({ product }: ProductCardProps) {
                     </div>
                 )}
 
+                {/* DESKTOP ONLY: Hover Button */}
                 {!isSold && (
-                    <div className="absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                    <div className="hidden md:block absolute bottom-4 left-4 right-4 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                         <Button
                             onClick={handleAddToCart}
                             className="w-full bg-white/90 text-black hover:bg-white shadow-lg backdrop-blur-sm font-medium"
@@ -57,16 +58,29 @@ export function ProductCard({ product }: ProductCardProps) {
             </div>
 
             {/* Product Info */}
-            <div className="space-y-1">
-                <h3 className="font-medium text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
-                    {product.title}
-                </h3>
-                <div className="flex items-center justify-between">
-                    <p className="text-lg font-bold text-foreground">
-                        ${product.price?.toFixed(2) || '0.00'}
-                    </p>
-                    {/* Optional: Add category or size here if available */}
+            <div className="space-y-2">
+                <div>
+                    <h3 className="font-medium text-foreground leading-snug line-clamp-2 group-hover:text-primary transition-colors">
+                        {product.title}
+                    </h3>
+                    <div className="flex items-center justify-between mt-1">
+                        <p className="text-lg font-bold text-foreground">
+                            ${product.price?.toFixed(2) || '0.00'}
+                        </p>
+                    </div>
                 </div>
+
+                {/* MOBILE ONLY: Always visible Button */}
+                {!isSold && (
+                    <Button
+                        onClick={handleAddToCart}
+                        size="sm"
+                        className="w-full md:hidden bg-primary text-primary-foreground shadow-sm"
+                    >
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        Añadir al Carrito
+                    </Button>
+                )}
             </div>
         </div>
     );
