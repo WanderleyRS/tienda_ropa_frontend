@@ -28,6 +28,7 @@ import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { ClientSelector } from '@/components/ClientSelector';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CreateExternalDeliveryModal } from '@/components/CreateExternalDeliveryModal';
 
 interface AgendaWithClient extends Agenda {
     cliente?: {
@@ -147,12 +148,15 @@ export default function AgendaPage() {
         <div className="min-h-screen bg-background font-sans">
             <Navbar />
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="mb-8">
-                    <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
-                        <Package className="w-8 h-8 text-primary" />
-                        Agenda de Entregas
-                    </h1>
-                    <p className="text-muted-foreground">Gestión de entregas y recolecciones programadas</p>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+                    <div>
+                        <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-2">
+                            <Package className="w-8 h-8 text-primary" />
+                            Agenda de Entregas
+                        </h1>
+                        <p className="text-muted-foreground">Gestión de entregas y recolecciones programadas</p>
+                    </div>
+                    <CreateExternalDeliveryModal onDeliveryCreated={loadAgendas} />
                 </div>
 
                 {/* Filtros */}
