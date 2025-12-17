@@ -31,6 +31,9 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
     const [time, setTime] = useState('');
     const [address, setAddress] = useState('');
     const [notes, setNotes] = useState('');
+    // Encomienda fields
+    const [departamento, setDepartamento] = useState('');
+    const [empresaTransporte, setEmpresaTransporte] = useState('');
 
     useEffect(() => {
         if (open) {
@@ -67,6 +70,16 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
             toast.error('La dirección es obligatoria para Delivery');
             return;
         }
+        if (deliveryType === 'Encomienda') {
+            if (!departamento) {
+                toast.error('Selecciona un departamento de destino');
+                return;
+            }
+            if (!empresaTransporte) {
+                toast.error('Ingresa la empresa de transporte');
+                return;
+            }
+        }
 
         setIsLoading(true);
         try {
@@ -78,7 +91,9 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                 fecha_programada: date.toISOString(),
                 hora_programada: time || undefined,
                 direccion_entrega: address || undefined,
-                notas_logistica: notes || undefined
+                notas_logistica: notes || undefined,
+                departamento: deliveryType === 'Encomienda' ? departamento : undefined,
+                empresa_transporte: deliveryType === 'Encomienda' ? empresaTransporte : undefined,
             };
 
             await agendaApi.create(payload);
@@ -104,6 +119,8 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
         setTime('');
         setAddress('');
         setNotes('');
+        setDepartamento('');
+        setEmpresaTransporte('');
     };
 
     return (
@@ -164,6 +181,7 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                                 <SelectContent>
                                     <SelectItem value="Delivery">Delivery a Domicilio</SelectItem>
                                     <SelectItem value="Recoleccion_Tienda">Recogida en Tienda</SelectItem>
+                                    <SelectItem value="Encomienda">Encomienda (Nacional)</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -193,6 +211,38 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                             </Popover>
                         </div>
                     </div>
+
+                    {deliveryType === 'Encomienda' && (
+                        <div className="grid grid-cols-2 gap-4 bg-muted/30 p-3 rounded-lg border border-border/50">
+                            <div className="space-y-2">
+                                <Label>Departamento Destino</Label>
+                                <Select value={departamento} onValueChange={setDepartamento}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Seleccionar..." />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="La Paz">La Paz</SelectItem>
+                                        <SelectItem value="Cochabamba">Cochabamba</SelectItem>
+                                        <SelectItem value="Santa Cruz">Santa Cruz</SelectItem>
+                                        <SelectItem value="Oruro">Oruro</SelectItem>
+                                        <SelectItem value="Potosí">Potosí</SelectItem>
+                                        <SelectItem value="Chuquisaca">Chuquisaca</SelectItem>
+                                        <SelectItem value="Tarija">Tarija</SelectItem>
+                                        <SelectItem value="Beni">Beni</SelectItem>
+                                        <SelectItem value="Pando">Pando</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Empresa Transporte</Label>
+                                <Input
+                                    placeholder="Ej. Bolivar, Copacabana..."
+                                    value={empresaTransporte}
+                                    onChange={(e) => setEmpresaTransporte(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    )}
 
                     <div className="space-y-2">
                         <Label>Hora (Opcional)</Label>

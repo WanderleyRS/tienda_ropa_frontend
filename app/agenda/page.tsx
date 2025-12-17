@@ -22,7 +22,7 @@ import {
     TableHeader,
     TableRow,
 } from '@/components/ui/table';
-import { Loader2, Package, Truck, Store, CheckCircle2, Clock, MapPin, User, X } from 'lucide-react';
+import { Loader2, Package, Truck, Store, CheckCircle2, Clock, MapPin, User, X, PackagePlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -349,10 +349,22 @@ export default function AgendaPage() {
                                                             <Truck className="w-4 h-4 text-blue-600" />
                                                             <span className="text-sm">Delivery</span>
                                                         </>
+                                                    ) : agenda.tipo_entrega === 'Encomienda' ? (
+                                                        <div className="flex flex-col">
+                                                            <div className="flex items-center gap-2">
+                                                                <PackagePlus className="w-4 h-4 text-purple-600" />
+                                                                <span className="text-sm font-medium">Encomienda</span>
+                                                            </div>
+                                                            {agenda.departamento && (
+                                                                <span className="text-xs text-muted-foreground ml-6">
+                                                                    {agenda.departamento} ({agenda.empresa_transporte})
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     ) : (
                                                         <>
                                                             <Store className="w-4 h-4 text-green-600" />
-                                                            <span className="text-sm">Recolección</span>
+                                                            <span className="text-sm">Recojo en Tienda</span>
                                                         </>
                                                     )}
                                                 </div>

@@ -377,22 +377,6 @@ export interface Abono {
   metodo_pago: string;
 }
 
-export interface Agenda {
-  id: number;
-  venta_id?: number;
-  cliente_id: number;
-  almacen_id: number;
-  empresa_id: number;
-  tipo_entrega: 'Delivery' | 'Recoleccion_Tienda';
-  fecha_programada: string;
-  hora_programada?: string;
-  direccion_entrega?: string;
-  notas_logistica?: string;
-  descripcion_paquete?: string;
-  estado_entrega: string;
-  created_at: string;
-}
-
 export interface AgendaCreate {
   venta_id?: number;
   cliente_id?: number;
@@ -402,6 +386,28 @@ export interface AgendaCreate {
   hora_programada?: string;
   direccion_entrega?: string;
   notas_logistica?: string;
+  // Encomienda
+  departamento?: string;
+  empresa_transporte?: string;
+}
+
+export interface Agenda {
+  id: number;
+  venta_id?: number;
+  cliente_id: number;
+  almacen_id: number;
+  empresa_id: number;
+  tipo_entrega: 'Delivery' | 'Recoleccion_Tienda' | 'Encomienda';
+  fecha_programada: string;
+  hora_programada?: string;
+  direccion_entrega?: string;
+  notas_logistica?: string;
+  descripcion_paquete?: string;
+  // Encomienda
+  departamento?: string;
+  empresa_transporte?: string;
+  estado_entrega: string;
+  created_at: string;
 }
 
 export const agendaApi = {
