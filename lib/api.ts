@@ -247,10 +247,15 @@ export const companiesApi = {
     const response = await apiClient.get<Almacen[]>('/companies/almacenes');
     return response.data;
   },
+  getNextAlmacenName: async (): Promise<{ suggested_name: string }> => {
+    const response = await apiClient.get<{ suggested_name: string }>('/companies/almacenes/next-name');
+    return response.data;
+  },
   createAlmacen: async (data: AlmacenCreate): Promise<Almacen> => {
     const response = await apiClient.post<Almacen>('/companies/almacenes', data);
     return response.data;
   },
+
   updateAlmacen: async (id: number, data: AlmacenUpdate): Promise<Almacen> => {
     const response = await apiClient.put<Almacen>(`/companies/almacenes/${id}`, data);
     return response.data;

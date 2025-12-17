@@ -123,6 +123,15 @@ export default function EmpresaPage() {
         }
     };
 
+    const loadSuggestedWarehouseName = async () => {
+        try {
+            const { suggested_name } = await companiesApi.getNextAlmacenName();
+            setNewWarehouseName(suggested_name);
+        } catch (error) {
+            console.error('Error loading suggested name:', error);
+        }
+    };
+
     const handleSaveEmpresa = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -428,13 +437,25 @@ export default function EmpresaPage() {
                                 <form onSubmit={handleCreateWarehouse} className="flex gap-4 items-end bg-secondary/20 p-4 rounded-lg border border-border">
                                     <div className="flex-1 space-y-2">
                                         <Label htmlFor="newWarehouse">Nuevo Almacén</Label>
-                                        <Input
-                                            id="newWarehouse"
-                                            placeholder="Ej. Sucursal Norte"
-                                            value={newWarehouseName}
-                                            onChange={(e) => setNewWarehouseName(e.target.value)}
-                                            disabled={isCreatingWarehouse}
-                                        />
+                                        <div className="flex gap-2">
+                                            <Input
+                                                id="newWarehouse"
+                                                placeholder="Ej. Sucursal Norte o Almacén 1"
+                                                value={newWarehouseName}
+                                                onChange={(e) => setNewWarehouseName(e.target.value)}
+                                                disabled={isCreatingWarehouse}
+                                                className="flex-1"
+                                            />
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={loadSuggestedWarehouseName}
+                                                disabled={isCreatingWarehouse}
+                                                title="Sugerir nombre automático"
+                                            >
+                                                Sugerir Nombre
+                                            </Button>
+                                        </div>
                                     </div>
                                     <Button type="submit" disabled={isCreatingWarehouse || !newWarehouseName}>
                                         <Plus className="h-4 w-4 mr-2" />
