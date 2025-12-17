@@ -379,7 +379,7 @@ export interface Abono {
 
 export interface Agenda {
   id: number;
-  venta_id: number;
+  venta_id?: number;
   cliente_id: number;
   almacen_id: number;
   empresa_id: number;
@@ -388,123 +388,24 @@ export interface Agenda {
   hora_programada?: string;
   direccion_entrega?: string;
   notas_logistica?: string;
+  descripcion_paquete?: string;
   estado_entrega: string;
   created_at: string;
 }
 
-export interface Venta {
-  id: number;
+export interface AgendaCreate {
+  venta_id?: number;
   cliente_id?: number;
-  almacen_id: number;
-  empresa_id: number;
-  fecha_venta: string;
-  monto_total: number;
-  estado_pago: string;
-  metodo_pago?: string;
-  cliente?: PotencialCliente;
-  detalles: DetalleVenta[];
-  abonos: Abono[];
-  agenda?: Agenda;
+  descripcion_paquete?: string;
+  tipo_entrega: string;
+  fecha_programada: string;
+  hora_programada?: string;
+  direccion_entrega?: string;
+  notas_logistica?: string;
 }
-export interface VentaCreate {
-  cliente_id?: number;
-  detalles: DetalleVentaCreate[];
-  abono_inicial?: AbonoCreate;
-  metodo_pago?: string;
-}
-
-export const ventasApi = {
-  crear: async (data: VentaCreate) => {
-    const response = await apiClient.post('/ventas/', data);
-    return response.data;
-  },
-  listar: async (filters?: { search?: string; cliente_id?: number; almacen_id?: number; categoria_id?: number }) => {
-    const response = await apiClient.get('/ventas/', { params: filters });
-    return response.data;
-  },
-  getDetalle: async (id: number) => {
-    const response = await apiClient.get(`/ventas/${id}/detalle`);
-    return response.data;
-  },
-  eliminar: async (id: number) => {
-    await apiClient.delete(`/ventas/${id}`);
-  },
-};
-
-export const abonosApi = {
-  crear: async (ventaId: number, data: AbonoCreate) => {
-    const response = await apiClient.post(`/abonos/?venta_id=${ventaId}`, data);
-    return response.data;
-  },
-  eliminar: async (id: number) => {
-    await apiClient.delete(`/abonos/${id}`);
-  },
-};
-
-// ---------- Categories & Upload ----------
-
-export interface Category {
-  id: number;
-  name: string;
-  almacen_id: number;
-}
-
-export interface CategoryCreate {
-  name: string;
-}
-
-export const categoriesApi = {
-  getAll: async (params?: { empresa_id?: number }): Promise<Category[]> => {
-    const response = await apiClient.get<Category[]>('/categories/', { params });
-    return response.data;
-  },
-  create: async (data: CategoryCreate): Promise<Category> => {
-    const response = await apiClient.post<Category>('/categories/', data);
-    return response.data;
-  },
-  delete: async (id: number): Promise<void> => {
-    await apiClient.delete(`/categories/${id}`);
-  }
-};
-
-export const uploadApi = {
-  uploadImage: async (file: File, folder?: string): Promise<{ url: string }> => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    // Add folder param if exists
-    let url = '/upload/image';
-    if (folder) {
-      url += `?folder=${folder}`;
-    }
-
-    const response = await apiClient.post<{ url: string }>(url, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  },
-  upload: async (formData: FormData) => {
-    const response = await apiClient.post<Item[]>('/items/bulk-upload', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    return response.data;
-  },
-};
-
 
 export const agendaApi = {
-  create: async (data: {
-    venta_id: number;
-    tipo_entrega: string;
-    fecha_programada: string;
-    hora_programada?: string;
-    direccion_entrega?: string;
-    notas_logistica?: string;
-  }) => {
+  create: async (data: AgendaCreate) => {
     const response = await apiClient.post<Agenda>('/agenda/', data);
     return response.data;
   },

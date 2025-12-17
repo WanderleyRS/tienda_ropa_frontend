@@ -320,7 +320,18 @@ export default function AgendaPage() {
                                 <TableBody>
                                     {agendas.map((agenda) => (
                                         <TableRow key={agenda.id} className="hover:bg-secondary/10 transition-colors">
-                                            <TableCell className="font-medium text-primary">#{agenda.venta_id}</TableCell>
+                                            <TableCell className="font-medium text-primary">
+                                                {agenda.venta_id ? `#${agenda.venta_id}` : (
+                                                    <span className="text-xs bg-secondary px-2 py-1 rounded text-muted-foreground" title={agenda.descripcion_paquete}>
+                                                        EXTERNO
+                                                    </span>
+                                                )}
+                                                {!agenda.venta_id && agenda.descripcion_paquete && (
+                                                    <div className="text-xs text-muted-foreground mt-1 max-w-[150px] truncate">
+                                                        {agenda.descripcion_paquete}
+                                                    </div>
+                                                )}
+                                            </TableCell>
                                             <TableCell className="font-medium">{getClienteName(agenda)}</TableCell>
                                             {user?.role === 'admin' && (
                                                 <TableCell className="text-muted-foreground">
