@@ -464,7 +464,7 @@ export default function EmpresaPage() {
                                 </form>
 
                                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-4">
-                                    {almacenes.map((almacen) => (
+                                    {almacenes.map((almacen, index) => (
                                         <div
                                             key={almacen.id}
                                             className="p-4 rounded-lg border bg-card shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow"
@@ -480,7 +480,7 @@ export default function EmpresaPage() {
                                                         <span className="text-xs bg-secondary text-secondary-foreground px-2 py-1 rounded-full">Inactivo</span>
                                                     )}
                                                 </div>
-                                                <p className="text-xs text-muted-foreground">ID: {almacen.id}</p>
+                                                <p className="text-xs text-muted-foreground">Almacén #{index + 1}</p>
                                             </div>
                                         </div>
                                     ))}
