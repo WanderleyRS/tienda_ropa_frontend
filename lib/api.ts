@@ -468,10 +468,17 @@ export const categoriesApi = {
 };
 
 export const uploadApi = {
-  uploadImage: async (file: File): Promise<{ url: string }> => {
+  uploadImage: async (file: File, folder?: string): Promise<{ url: string }> => {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await apiClient.post<{ url: string }>('/upload/image', formData, {
+
+    // Add folder param if exists
+    let url = '/upload/image';
+    if (folder) {
+      url += `?folder=${folder}`;
+    }
+
+    const response = await apiClient.post<{ url: string }>(url, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

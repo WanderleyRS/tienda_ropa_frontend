@@ -330,6 +330,7 @@ export default function EmpresaPage() {
                                                     onChange={(url) => setEmpresaData({ ...empresaData, navbar_icon_url: url })}
                                                     maxSize={128}
                                                     label="Subir Icono"
+                                                    folder="branding"
                                                 />
                                             </div>
                                         </div>
