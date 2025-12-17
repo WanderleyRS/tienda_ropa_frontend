@@ -357,7 +357,7 @@ export default function AgendaPage() {
                                                             </div>
                                                             {agenda.departamento && (
                                                                 <span className="text-xs text-muted-foreground ml-6">
-                                                                    {agenda.departamento} ({agenda.empresa_transporte})
+                                                                    {agenda.departamento} {agenda.provincia ? `- ${agenda.provincia}` : ''} ({agenda.empresa_transporte})
                                                                 </span>
                                                             )}
                                                         </div>

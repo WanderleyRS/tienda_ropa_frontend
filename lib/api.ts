@@ -388,6 +388,7 @@ export interface AgendaCreate {
   notas_logistica?: string;
   // Encomienda
   departamento?: string;
+  provincia?: string;
   empresa_transporte?: string;
 }
 
@@ -405,6 +406,7 @@ export interface Agenda {
   descripcion_paquete?: string;
   // Encomienda
   departamento?: string;
+  provincia?: string;
   empresa_transporte?: string;
   estado_entrega: string;
   created_at: string;

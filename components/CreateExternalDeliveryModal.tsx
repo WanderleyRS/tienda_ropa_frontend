@@ -33,6 +33,7 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
     const [notes, setNotes] = useState('');
     // Encomienda fields
     const [departamento, setDepartamento] = useState('');
+    const [provincia, setProvincia] = useState('');
     const [empresaTransporte, setEmpresaTransporte] = useState('');
 
     useEffect(() => {
@@ -93,6 +94,7 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                 direccion_entrega: address || undefined,
                 notas_logistica: notes || undefined,
                 departamento: deliveryType === 'Encomienda' ? departamento : undefined,
+                provincia: deliveryType === 'Encomienda' ? provincia : undefined,
                 empresa_transporte: deliveryType === 'Encomienda' ? empresaTransporte : undefined,
             };
 
@@ -120,6 +122,7 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
         setAddress('');
         setNotes('');
         setDepartamento('');
+        setProvincia('');
         setEmpresaTransporte('');
     };
 
@@ -234,6 +237,14 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                                 </Select>
                             </div>
                             <div className="space-y-2">
+                                <Label>Provincia / Localidad (Opcional)</Label>
+                                <Input
+                                    placeholder="Ej. Guarayos, Concepción..."
+                                    value={provincia}
+                                    onChange={(e) => setProvincia(e.target.value)}
+                                />
+                            </div>
+                            <div className="space-y-2 col-span-2">
                                 <Label>Empresa Transporte</Label>
                                 <Input
                                     placeholder="Ej. Bolivar, Copacabana..."
