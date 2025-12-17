@@ -20,10 +20,7 @@ export function ImageUploader({ value, onChange, maxSize = 128, aspectRatio = 1,
 
     // ... (omit resizeImage function as it didn't change) ...
 
-    // Upload to server
-    const formData = new FormData();
-    formData.append('file', resizedFile);
-    const response = await uploadApi.uploadImage(resizedFile, folder);
+
 
     const resizeImage = (file: File): Promise<File> => {
         return new Promise((resolve, reject) => {
