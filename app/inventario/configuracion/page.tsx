@@ -16,7 +16,7 @@ import {
     DialogTrigger,
     DialogFooter
 } from '@/components/ui/dialog';
-import { useToast } from '@/components/ui/use-toast';
+import { toast } from 'sonner';
 import {
     classificationsApi,
     categoriesApi,
@@ -48,7 +48,7 @@ function ClassificationManager() {
     const [categories, setCategories] = useState<Category[]>([]);
     const [selectedClassification, setSelectedClassification] = useState<Classification | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const { toast } = useToast();
+    // const { toast } = useToast(); // Using sonner directly
 
     // Load Data
     const loadData = async () => {
@@ -66,9 +66,7 @@ function ClassificationManager() {
                 setSelectedClassification(classData[0]);
             }
         } catch (error) {
-            toast({
-                variant: "destructive",
-                title: "Error al cargar datos",
+            toast.error("Error al cargar datos", {
                 description: "No se pudieron obtener las clasificaciones."
             });
         } finally {
@@ -89,10 +87,10 @@ function ClassificationManager() {
     const handleCreateClassification = async (name: string, desc: string) => {
         try {
             await classificationsApi.create({ nombre: name, descripcion: desc });
-            toast({ title: "Clasificación creada exitosamente" });
+            toast.success("Clasificación creada exitosamente");
             loadData();
         } catch (error) {
-            toast({ variant: "destructive", title: "Error al crear", description: "Verifica que el nombre no exista." });
+            toast.error("Error al crear", { description: "Verifica que el nombre no exista." });
         }
     };
 
@@ -100,11 +98,11 @@ function ClassificationManager() {
         if (!confirm("¿Estás seguro? Esto podría afectar a las categorías vinculadas.")) return;
         try {
             await classificationsApi.delete(id);
-            toast({ title: "Clasificación eliminada" });
+            toast.success("Clasificación eliminada");
             if (selectedClassification?.id === id) setSelectedClassification(null);
             loadData();
         } catch (error) {
-            toast({ variant: "destructive", title: "Error al eliminar" });
+            toast.error("Error al eliminar");
         }
     };
 
@@ -115,10 +113,10 @@ function ClassificationManager() {
                 name,
                 classification_id: selectedClassification.id
             });
-            toast({ title: "Categoría creada exitosamente" });
+            toast.success("Categoría creada exitosamente");
             loadData();
         } catch (error) {
-            toast({ variant: "destructive", title: "Error al crear categoría", description: "Verifica duplicados." });
+            toast.error("Error al crear categoría", { description: "Verifica duplicados." });
         }
     };
 
@@ -151,8 +149,8 @@ function ClassificationManager() {
                                 key={cls.id}
                                 onClick={() => setSelectedClassification(cls)}
                                 className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors ${selectedClassification?.id === cls.id
-                                        ? "bg-primary text-primary-foreground shadow-md"
-                                        : "hover:bg-muted text-gray-700"
+                                    ? "bg-primary text-primary-foreground shadow-md"
+                                    : "hover:bg-muted text-gray-700"
                                     }`}
                             >
                                 <div className="font-medium truncate">{cls.nombre}</div>
