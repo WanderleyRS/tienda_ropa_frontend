@@ -28,12 +28,12 @@ import {
 export default function InventoryConfigPage() {
     return (
         <ProtectedRoute>
-            <div className="min-h-screen bg-gray-50/50">
+            <div className="min-h-screen bg-background">
                 <Navbar />
                 <div className="max-w-7xl mx-auto px-4 py-8">
                     <div className="mb-8">
-                        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Configuración de Inventario</h1>
-                        <p className="text-gray-500 mt-2">Gestiona las clasificaciones y categorías de tus productos.</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Configuración de Inventario</h1>
+                        <p className="text-muted-foreground mt-2">Gestiona las clasificaciones y categorías de tus productos.</p>
                     </div>
 
                     <ClassificationManager />
@@ -138,9 +138,9 @@ function ClassificationManager() {
                 </CardHeader>
                 <CardContent className="p-2 space-y-1 max-h-[70vh] overflow-y-auto">
                     {isLoading ? (
-                        <div className="p-4 text-center text-sm text-gray-500">Cargando...</div>
+                        <div className="p-4 text-center text-sm text-muted-foreground">Cargando...</div>
                     ) : classifications.length === 0 ? (
-                        <div className="p-8 text-center text-gray-400 border-2 border-dashed rounded-lg m-2">
+                        <div className="p-8 text-center text-muted-foreground border-2 border-dashed border-border rounded-lg m-2">
                             <p className="text-sm">No hay clasificaciones</p>
                         </div>
                     ) : (
@@ -150,14 +150,14 @@ function ClassificationManager() {
                                 onClick={() => setSelectedClassification(cls)}
                                 className={`flex items-center justify-between p-3 rounded-md cursor-pointer transition-colors ${selectedClassification?.id === cls.id
                                     ? "bg-primary text-primary-foreground shadow-md"
-                                    : "hover:bg-muted text-gray-700"
+                                    : "hover:bg-muted text-foreground"
                                     }`}
                             >
                                 <div className="font-medium truncate">{cls.nombre}</div>
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className={`h-6 w-6 ${selectedClassification?.id === cls.id ? "text-primary-foreground hover:bg-white/20" : "text-gray-400 hover:text-red-500"}`}
+                                    className={`h-6 w-6 ${selectedClassification?.id === cls.id ? "text-primary-foreground hover:bg-white/20" : "text-muted-foreground hover:text-destructive"}`}
                                     onClick={(e) => { e.stopPropagation(); handleDeleteClassification(cls.id); }}
                                 >
                                     <Trash2 className="h-3 w-3" />
@@ -169,7 +169,7 @@ function ClassificationManager() {
             </Card>
 
             {/* Main: Categories */}
-            <Card className="md:col-span-8 bg-white shadow-sm border-gray-100">
+            <Card className="md:col-span-8 bg-card shadow-sm border-border">
                 <CardHeader className="border-b pb-4">
                     <div className="flex items-center justify-between">
                         <div className="space-y-1">
@@ -191,13 +191,13 @@ function ClassificationManager() {
                 </CardHeader>
                 <CardContent className="p-6">
                     {!selectedClassification ? (
-                        <div className="flex flex-col items-center justify-center py-16 text-gray-400">
+                        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
                             <FolderTree className="h-16 w-16 mb-4 opacity-20" />
                             <p className="text-lg">Selecciona una clasificación para ver sus categorías.</p>
                         </div>
                     ) : filteredCategories.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed rounded-xl bg-gray-50/50">
-                            <p className="text-sm text-gray-500 mb-2">Esta clasificación no tiene categorías aún.</p>
+                        <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed border-border rounded-xl bg-muted/20">
+                            <p className="text-sm text-muted-foreground mb-2">Esta clasificación no tiene categorías aún.</p>
                             <CreateCategoryDialog
                                 onCreate={handleCreateCategory}
                                 classificationName={selectedClassification.nombre}
@@ -207,12 +207,12 @@ function ClassificationManager() {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filteredCategories.map((cat) => (
-                                <div key={cat.id} className="group relative bg-white border rounded-lg p-4 transition-all hover:shadow-md hover:border-blue-200">
+                                <div key={cat.id} className="group relative bg-card border border-border rounded-lg p-4 transition-all hover:shadow-md hover:border-primary">
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className="font-semibold text-gray-800">{cat.name}</span>
+                                        <span className="font-semibold text-foreground">{cat.name}</span>
                                         <div className="h-2 w-2 rounded-full bg-green-500"></div>
                                     </div>
-                                    <p className="text-xs text-gray-400">ID: {cat.id}</p>
+                                    <p className="text-xs text-muted-foreground">ID: {cat.id}</p>
                                 </div>
                             ))}
                         </div>
