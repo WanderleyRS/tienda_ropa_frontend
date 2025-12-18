@@ -206,13 +206,13 @@ function ClassificationManager() {
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {filteredCategories.map((cat) => (
+                            {filteredCategories.map((cat, index) => (
                                 <div key={cat.id} className="group relative bg-card border border-border rounded-lg p-4 transition-all hover:shadow-md hover:border-primary">
                                     <div className="flex items-center justify-between mb-2">
                                         <span className="font-semibold text-foreground">{cat.name}</span>
                                         <div className="h-2 w-2 rounded-full bg-green-500"></div>
                                     </div>
-                                    <p className="text-xs text-muted-foreground">ID: {cat.id}</p>
+                                    <p className="text-xs text-muted-foreground">#{index + 1}</p>
                                 </div>
                             ))}
                         </div>
