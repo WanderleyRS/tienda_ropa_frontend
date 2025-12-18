@@ -445,6 +445,41 @@ export interface Agenda {
   created_at: string;
 }
 
+// Interfaces faltantes para Ventas
+export interface VentaCreate {
+  cliente_id?: number;
+  detalles: DetalleVentaCreate[];
+  abono_inicial?: AbonoCreate;
+  metodo_pago?: string;
+}
+
+export interface AbonoResponse {
+  id: number;
+  venta_id: number;
+  monto_abonado: number;
+  fecha_abono: string;
+  metodo_pago: string;
+}
+
+export interface VentaResponse {
+  id: number;
+  cliente_id?: number;
+  almacen_id: number;
+  empresa_id: number;
+  fecha_venta: string;
+  monto_total: number;
+  estado_pago: string;
+  metodo_pago?: string;
+  cliente?: {
+    nombre: string;
+    apellido_paterno: string;
+    apellido_materno?: string;
+  };
+  detalles: DetalleVenta[];
+  abonos: Abono[];
+  agenda?: Agenda;
+}
+
 export const agendaApi = {
   create: async (data: AgendaCreate) => {
     const response = await apiClient.post<Agenda>('/agenda/', data);
@@ -584,6 +619,42 @@ export const comprasApi = {
 
   asignarItems: (compraId: number, itemIds: number[]) =>
     apiClient.post(`/compras/${compraId}/asignar-items`, itemIds).then(res => res.data)
+};
+
+// ========================================
+// Ventas API
+// ========================================
+
+export const ventasApi = {
+  listar: async (filters?: { search?: string; cliente_id?: number; almacen_id?: number; categoria_id?: number }) => {
+    const response = await apiClient.get<VentaResponse[]>('/ventas/', { params: filters });
+    return response.data;
+  },
+
+  getDetalle: async (id: number) => {
+    const response = await apiClient.get<VentaResponse>(`/ventas/${id}/detalle`);
+    return response.data;
+  },
+
+  crear: async (data: VentaCreate) => {
+    const response = await apiClient.post<VentaResponse>('/ventas/', data);
+    return response.data;
+  },
+
+  eliminar: async (id: number) => {
+    await apiClient.delete(`/ventas/${id}`);
+  },
+
+  // Abonos
+  listAbonos: async (ventaId: number) => {
+    const response = await apiClient.get<AbonoResponse[]>(`/abonos/venta/${ventaId}`);
+    return response.data;
+  },
+
+  createAbono: async (data: { venta_id: number; monto_abonado: number; metodo_pago: string; fecha_abono?: string }) => {
+    const response = await apiClient.post<AbonoResponse>('/abonos/', data);
+    return response.data;
+  }
 };
 
 export default apiClient;
