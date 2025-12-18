@@ -26,6 +26,11 @@ const BOLIVIA_LOCATIONS: Record<string, string[]> = {
     "Pando": ["Nicolás Suárez", "Manuripi", "Madre de Dios", "Abuná", "Federico Román"]
 };
 
+const TRANSPORT_COMPANIES = [
+    "Flota Bolivar", "Trans Copacabana", "El Mexicano", "Trans Azul", "Flota Yungueña",
+    "Trans. San Francisco", "Trans. Illimani", "Trans. Dorado", "Trans. Bioceánico", "Flota Cosmos"
+];
+
 interface CreateExternalDeliveryModalProps {
     onDeliveryCreated?: () => void;
 }
@@ -49,6 +54,10 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
     const [empresaTransporte, setEmpresaTransporte] = useState('');
     const [showSuggestions, setShowSuggestions] = useState(false);
     const [filteredProvinces, setFilteredProvinces] = useState<string[]>([]);
+
+    // Transport Autocomplete State
+    const [showTransportSuggestions, setShowTransportSuggestions] = useState(false);
+    const [filteredTransports, setFilteredTransports] = useState<string[]>([]);
 
     useEffect(() => {
         if (open) {
@@ -77,6 +86,22 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
     const selectProvince = (value: string) => {
         setProvincia(value);
         setShowSuggestions(false);
+    };
+
+    const handleTransportChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setEmpresaTransporte(value);
+
+        const filtered = TRANSPORT_COMPANIES.filter(t =>
+            t.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredTransports(filtered);
+        setShowTransportSuggestions(true);
+    };
+
+    const selectTransport = (value: string) => {
+        setEmpresaTransporte(value);
+        setShowTransportSuggestions(false);
     };
 
     const loadClients = async () => {
@@ -306,13 +331,35 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                                     </div>
                                 )}
                             </div>
-                            <div className="space-y-2 col-span-2">
+                            <div className="space-y-2 col-span-2 relative">
                                 <Label>Empresa Transporte</Label>
                                 <Input
-                                    placeholder="Ej. Bolivar, Copacabana..."
+                                    placeholder="Ej. Bolivar, Copacabana... (Escriba o seleccione)"
                                     value={empresaTransporte}
-                                    onChange={(e) => setEmpresaTransporte(e.target.value)}
+                                    onChange={handleTransportChange}
+                                    onFocus={() => {
+                                        setFilteredTransports(TRANSPORT_COMPANIES);
+                                        setShowTransportSuggestions(true);
+                                    }}
+                                    onBlur={() => setTimeout(() => setShowTransportSuggestions(false), 200)}
+                                    autoComplete="off"
                                 />
+                                {showTransportSuggestions && filteredTransports.length > 0 && (
+                                    <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-md max-h-60 overflow-auto">
+                                        {filteredTransports.map((t) => (
+                                            <div
+                                                key={t}
+                                                className="px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                                                onMouseDown={(e) => {
+                                                    e.preventDefault();
+                                                    selectTransport(t);
+                                                }}
+                                            >
+                                                {t}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
