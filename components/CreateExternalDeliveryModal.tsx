@@ -14,6 +14,18 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { es } from 'date-fns/locale';
 
+const BOLIVIA_LOCATIONS: Record<string, string[]> = {
+    "La Paz": ["Murillo", "Pedro Domingo Murillo", "Aroma", "Nor Yungas", "Sud Yungas", "Omasuyos", "Pacajes", "Larecaja", "Inquisivi", "Abel Iturralde", "Caranavi", "Sud Yungas", "Franz Tamayo", "Muñecas", "Camacho", "Loayza", "Gualberto Villarroel", "Gral. José Manuel Pando", "José Manuel Pando"],
+    "Cochabamba": ["Cercado", "Chapare", "Quillacollo", "Punata", "Esteban Arce", "Carrasco", "Germán Jordán", "Mizque", "Campero", "Ayopaya", "Capinota", "Arani", "Arque", "Tapacarí", "Bolívar", "Tiraque"],
+    "Santa Cruz": ["Andrés Ibáñez", "Warnes", "Obispo Santistevan", "Sara", "Cordillera", "Chiquitos", "Ñuflo de Chávez", "Guarayos", "Ichilo", "Velasco", "Germán Busch", "Florida", "Caballero", "Ignacio Warnes", "José Miguel de Velasco"],
+    "Oruro": ["Cercado", "Pantaleón Dalence", "Saucarí", "Poopó", "Abaroa", "Sebastián Pagador", "Ladislao Cabrera", "San Pedro de Totora", "Nor Carangas", "Sud Carangas", "Sajama", "Litoral", "Tomás Barrón", "Sabaya", "Carangas", "Mejillones"],
+    "Potosí": ["Tomás Frías", "Rafael Bustillo", "Sud Chichas", "Nor Chichas", "Modesto Omiste", "Cornelio Saavedra", "Linares", "Alonzo de Ibáñez", "Daniel Campos", "Nor Lípez", "Sud Lípez", "Enrique Baldivieso", "Bernardino Bilbao", "Antonio Quijarro", "Charcas", "Chayanta"],
+    "Chuquisaca": ["Oropeza", "Zudáñez", "Yamparáez", "Nor Cinti", "Sud Cinti", "Hernando Siles", "Tomina", "Azurduy", "Belisario Boeto", "Luis Calvo"],
+    "Tarija": ["Cercado", "Gran Chaco", "Arce", "Avilés", "Méndez", "Burnet O'Connor"],
+    "Beni": ["Cercado", "Vaca Díez", "Ballivián", "Yacuma", "Moxos", "Marbán", "Mamoré", "Iténez"],
+    "Pando": ["Nicolás Suárez", "Manuripi", "Madre de Dios", "Abuná", "Federico Román"]
+};
+
 interface CreateExternalDeliveryModalProps {
     onDeliveryCreated?: () => void;
 }
@@ -41,6 +53,10 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
             loadClients();
         }
     }, [open]);
+
+    useEffect(() => {
+        setProvincia('');
+    }, [departamento]);
 
     const loadClients = async () => {
         try {
@@ -237,12 +253,34 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                                 </Select>
                             </div>
                             <div className="space-y-2">
-                                <Label>Provincia / Localidad (Opcional)</Label>
-                                <Input
-                                    placeholder="Ej. Guarayos, Concepción..."
-                                    value={provincia}
-                                    onChange={(e) => setProvincia(e.target.value)}
-                                />
+                                <Label>Provincia / Localidad</Label>
+                                <Select value={provincia} onValueChange={setProvincia} disabled={!departamento}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={departamento ? "Seleccionar provincia..." : "Primero elija Dpto."} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {departamento && BOLIVIA_LOCATIONS[departamento]?.map((prov) => (
+                                            <SelectItem key={prov} value={prov}>
+                                                {prov}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Provincia / Localidad</Label>
+                                <Select value={provincia} onValueChange={setProvincia} disabled={!departamento}>
+                                    <SelectTrigger>
+                                        <SelectValue placeholder={departamento ? "Seleccionar provincia..." : "Primero elija Dpto."} />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {departamento && BOLIVIA_LOCATIONS[departamento]?.map((prov) => (
+                                            <SelectItem key={prov} value={prov}>
+                                                {prov}
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
                             </div>
                             <div className="space-y-2 col-span-2">
                                 <Label>Empresa Transporte</Label>
