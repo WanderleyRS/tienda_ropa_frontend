@@ -390,6 +390,9 @@ export interface DetalleVenta {
   producto_id: number;
   cantidad: number;
   precio_unitario: number;
+  producto?: {
+    title: string;
+  };
 }
 
 export interface DetalleVentaCreate {
@@ -474,6 +477,7 @@ export interface VentaResponse {
     nombre: string;
     apellido_paterno: string;
     apellido_materno?: string;
+    celular: string;
   };
   detalles: DetalleVenta[];
   abonos: Abono[];
@@ -654,6 +658,17 @@ export const ventasApi = {
   createAbono: async (data: { venta_id: number; monto_abonado: number; metodo_pago: string; fecha_abono?: string }) => {
     const response = await apiClient.post<AbonoResponse>('/abonos/', data);
     return response.data;
+  }
+};
+
+export const abonosApi = {
+  crear: async (ventaId: number, data: AbonoCreate) => {
+    const response = await apiClient.post<AbonoResponse>(`/abonos/?venta_id=${ventaId}`, data);
+    return response.data;
+  },
+
+  eliminar: async (id: number) => {
+    await apiClient.delete(`/abonos/${id}`);
   }
 };
 
