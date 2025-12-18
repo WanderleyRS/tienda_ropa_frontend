@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { itemsApi, Item, categoriesApi, companiesApi } from '@/lib/api';
+import { apiClient, itemsApi, categoriesApi, companiesApi, classificationsApi, Item, Category, Empresa } from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
 import { Navbar } from '@/components/Navbar';
 import { Search } from 'lucide-react';
@@ -28,6 +28,9 @@ function TiendaContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedCategory, setSelectedCategory] = useState<string>('all');
+    const [selectedClassificationId, setSelectedClassificationId] = useState<string>('all');
+    const [selectedSize, setSelectedSize] = useState<string>('all');
+    const [classifications, setClassifications] = useState<any[]>([]); // Add classifications state
 
     // Branding State
     const [branding, setBranding] = useState({
@@ -37,7 +40,6 @@ function TiendaContent() {
     });
 
     useEffect(() => {
-        loadCategories();
         loadBranding();
     }, [user, publicEmpresaId]);
 
@@ -66,53 +68,50 @@ function TiendaContent() {
     };
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            loadProducts();
-        }, 500); // Debounce search
+        loadData();
+    }, [searchQuery, selectedCategory, selectedClassificationId, selectedSize, publicEmpresaId]);
 
-        return () => clearTimeout(timer);
-    }, [searchQuery, selectedCategory, publicEmpresaId]);
-
-    const loadCategories = async () => {
-        try {
-            const params: any = {};
-            if (publicEmpresaId) {
-                params.empresa_id = Number(publicEmpresaId);
-            }
-            const data = await categoriesApi.getAll(params);
-            setCategories(data);
-        } catch (error) {
-            console.error('Error loading categories:', error);
-        }
-    };
-
-    const loadProducts = async () => {
+    const loadData = async () => {
         try {
             setIsLoading(true);
-            const params: any = { is_sold: false };
+            const empresaIdParam = publicEmpresaId ? parseInt(publicEmpresaId) : undefined;
 
-            if (searchQuery.trim()) {
-                params.search = searchQuery;
-            }
+            const [productsData, categoriesData, classificationsData] = await Promise.all([
+                itemsApi.getAll({ is_sold: false, empresa_id: empresaIdParam }),
+                categoriesApi.getAll(empresaIdParam ? { empresa_id: empresaIdParam } : undefined),
+                classificationsApi.getAll(empresaIdParam ? { empresa_id: empresaIdParam } : undefined)
+            ]);
 
-            if (selectedCategory !== 'all') {
-                params.category_id = Number(selectedCategory);
-            }
-
-            // Si hay empresa_id en la URL (tienda pública)
-            if (publicEmpresaId) {
-                params.empresa_id = Number(publicEmpresaId);
-            }
-
-            const data = await itemsApi.getAll(params);
-            setProducts(data);
-
+            setProducts(productsData);
+            setCategories(categoriesData);
+            setClassifications(classificationsData);
         } catch (error) {
-            console.error('Error loading products:', error);
+            console.error('Error loading data:', error);
         } finally {
             setIsLoading(false);
         }
     };
+
+    const filteredProducts = products.filter(product => {
+        // Filter by Category
+        const matchesCategory = selectedCategory === 'all' || product.category_id === Number(selectedCategory);
+
+        // Filter by Classification (using category relationship)
+        // Ensure category has classification_id matched
+        let matchesClassification = true;
+        if (selectedClassificationId !== 'all') {
+            const cat = categories.find(c => c.id === product.category_id);
+            matchesClassification = cat?.classification_id === Number(selectedClassificationId);
+        }
+
+        // Filter by Size
+        const matchesSize = selectedSize === 'all' || product.talla === selectedSize;
+
+        const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
+
+        return matchesCategory && matchesSearch && matchesClassification && matchesSize;
+    });
 
     return (
         <div className="min-h-screen bg-background font-sans selection:bg-primary/20">
@@ -152,7 +151,43 @@ function TiendaContent() {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             </div>
-                            <div className="w-full sm:w-48">
+                            <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2">
+                                {/* Classification Filter */}
+                                <Select
+                                    value={selectedClassificationId}
+                                    onValueChange={(val) => {
+                                        setSelectedClassificationId(val);
+                                        setSelectedCategory('all'); // Reset category
+                                    }}
+                                >
+                                    <SelectTrigger className="w-full sm:w-[180px] h-12 border-0 bg-secondary/50 hover:bg-secondary focus:ring-0 rounded-xl text-foreground font-medium transition-colors">
+                                        <SelectValue placeholder="Clasificación" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Todas</SelectItem>
+                                        {classifications.map((c) => (
+                                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+
+                                {/* Size Filter */}
+                                <Select
+                                    value={selectedSize}
+                                    onValueChange={setSelectedSize}
+                                >
+                                    <SelectTrigger className="w-full sm:w-[100px] h-12 border-0 bg-secondary/50 hover:bg-secondary focus:ring-0 rounded-xl text-foreground font-medium transition-colors">
+                                        <SelectValue placeholder="Talla" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">Todas</SelectItem>
+                                        {['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Única'].map((size) => (
+                                            <SelectItem key={size} value={size}>{size}</SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+
+                                {/* Category Filter */}
                                 <Select
                                     value={selectedCategory}
                                     onValueChange={setSelectedCategory}
@@ -162,11 +197,13 @@ function TiendaContent() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">Todas</SelectItem>
-                                        {categories.map((cat) => (
-                                            <SelectItem key={cat.id} value={String(cat.id)}>
-                                                {cat.name}
-                                            </SelectItem>
-                                        ))}
+                                        {categories
+                                            .filter(cat => selectedClassificationId === 'all' || cat.classification_id === Number(selectedClassificationId))
+                                            .map((category) => (
+                                                <SelectItem key={category.id} value={String(category.id)}>
+                                                    {category.name}
+                                                </SelectItem>
+                                            ))}
                                     </SelectContent>
                                 </Select>
                             </div>

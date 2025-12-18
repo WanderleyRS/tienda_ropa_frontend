@@ -3,7 +3,7 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { apiClient, categoriesApi, companiesApi } from '@/lib/api'; // Direct import to avoid circular dependency issues if any
+import { apiClient, categoriesApi, companiesApi, classificationsApi } from '@/lib/api'; // Direct import to avoid circular dependency issues if any
 import { Item, Category, Empresa } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,8 +21,11 @@ function TiendaSlugContent() {
     const [empresa, setEmpresa] = useState<Empresa | null>(null);
     const [items, setItems] = useState<Item[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [classifications, setClassifications] = useState<any[]>([]); // Add classifications state
     const [loading, setLoading] = useState(true);
-    const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+    const [selectedCategory, setSelectedCategory] = useState<string>('all');
+    const [selectedClassificationId, setSelectedClassificationId] = useState<string>('all');
+    const [selectedSize, setSelectedSize] = useState<string>('all');
     const [searchQuery, setSearchQuery] = useState('');
     const [error, setError] = useState<string | null>(null);
 
@@ -37,10 +40,13 @@ function TiendaSlugContent() {
                 const empresaData = await companiesApi.getPublicEmpresaBySlug(slug);
                 setEmpresa(empresaData);
 
-                // 2. Fetch Categories for this company
-                // Note: we might need to adjust getAll to accept just empresa_id, assuming backend handles filtering
-                const categoriesData = await categoriesApi.getAll({ empresa_id: empresaData.id });
+                // 2. Fetch Categories and Classifications for this company
+                const [categoriesData, classificationsData] = await Promise.all([
+                    categoriesApi.getAll({ empresa_id: empresaData.id }),
+                    classificationsApi.list(empresaData.id)
+                ]);
                 setCategories(categoriesData);
+                setClassifications(classificationsData);
 
                 // 3. Fetch Items for this company
                 // Explicitly pass empresa_id to list endpoint
@@ -69,22 +75,31 @@ function TiendaSlugContent() {
             initPublicStore();
         }
 
-    }, [slug]);
+    }, [slug, selectedCategory, selectedClassificationId, selectedSize]);
 
 
-    // Filtering logic (same as main TiendaPage)
+    // Filtering logic
     const filteredItems = items.filter(item => {
-        const matchesCategory = selectedCategory ? item.category_id === selectedCategory : true;
+        // Filter by Category
+        const matchesCategory = selectedCategory === 'all' || item.category_id === Number(selectedCategory);
+
+        // Filter by Classification (using category relationship)
+        let matchesClassification = true;
+        if (selectedClassificationId !== 'all') {
+            const cat = categories.find(c => c.id === item.category_id);
+            matchesClassification = cat?.classification_id === Number(selectedClassificationId);
+        }
+
+        // Filter by Size
+        const matchesSize = selectedSize === 'all' || item.talla === selectedSize;
+
         const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
-        // Ensure we only show unsold items for public view unless authenticated logic says otherwise
-        // But the requirement is specific to public store view, ideally backend filters sold items.
-        // For now, let's trust the backend or add client-side filter if needed.
-        // Assuming public view should hide sold items:
+        // Ensure we only show unsold items for public view
         const isAvailable = !item.is_sold;
 
-        return matchesCategory && matchesSearch && isAvailable;
+        return matchesCategory && matchesSearch && matchesClassification && matchesSize && isAvailable;
     });
 
     if (loading) {
@@ -152,26 +167,65 @@ function TiendaSlugContent() {
                         />
                     </div>
 
-                    <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar items-center">
+                    <div className="flex flex-col sm:flex-row gap-2 overflow-x-auto pb-2 md:pb-0 no-scrollbar items-center">
+
+                        {/* Classification Filter */}
+                        <div className="w-full sm:w-auto">
+                            {/* Simplified Select for mobile friendliness just using standard HTML select if needed or maintain UI lib */}
+                        </div>
+
+                        {/* Classification Filter */}
+                        <div className="min-w-[140px]">
+                            <select
+                                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                value={selectedClassificationId}
+                                onChange={(e) => {
+                                    setSelectedClassificationId(e.target.value);
+                                    setSelectedCategory('all'); // Reset category
+                                }}
+                            >
+                                <option value="all">Clasificación</option>
+                                {classifications.map((c) => (
+                                    <option key={c.id} value={String(c.id)}>{c.nombre}</option>
+                                ))}
+                            </select>
+                        </div>
+
+                        {/* Size Filter */}
+                        <div className="min-w-[100px]">
+                            <select
+                                className="w-full h-9 rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                value={selectedSize}
+                                onChange={(e) => setSelectedSize(e.target.value)}
+                            >
+                                <option value="all">Talla</option>
+                                {['XS', 'S', 'M', 'L', 'XL', 'XXL', 'Única'].map((size) => (
+                                    <option key={size} value={size}>{size}</option>
+                                ))}
+                            </select>
+                        </div>
+
                         <Button
-                            variant={selectedCategory === null ? "default" : "outline"}
+                            variant={selectedCategory === 'all' ? "default" : "outline"}
                             size="sm"
-                            onClick={() => setSelectedCategory(null)}
+                            onClick={() => setSelectedCategory('all')}
                             className="whitespace-nowrap rounded-full"
                         >
                             Todos
                         </Button>
-                        {categories.map((category) => (
-                            <Button
-                                key={category.id}
-                                variant={selectedCategory === category.id ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => setSelectedCategory(category.id)}
-                                className="whitespace-nowrap rounded-full"
-                            >
-                                {category.name}
-                            </Button>
-                        ))}
+                        {categories
+                            .filter(cat => selectedClassificationId === 'all' || cat.classification_id === Number(selectedClassificationId))
+                            .map((category) => (
+                                <Button
+                                    key={category.id}
+                                    variant={selectedCategory === String(category.id) ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => setSelectedCategory(String(category.id))}
+                                    className="whitespace-nowrap rounded-full"
+                                >
+                                    {category.name}
+                                </Button>
+                            ))}
                     </div>
                 </div>
 
@@ -181,8 +235,12 @@ function TiendaSlugContent() {
                         <ShoppingBag className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
                         <h3 className="text-lg font-medium text-foreground">No se encontraron productos</h3>
                         <p className="text-muted-foreground">Intenta cambiar los filtros o busca con otro término.</p>
-                        {selectedCategory && (
-                            <Button variant="link" onClick={() => setSelectedCategory(null)} className="mt-2">
+                        {(selectedCategory !== 'all' || selectedClassificationId !== 'all' || selectedSize !== 'all') && (
+                            <Button variant="link" onClick={() => {
+                                setSelectedCategory('all');
+                                setSelectedClassificationId('all');
+                                setSelectedSize('all');
+                            }} className="mt-2">
                                 Ver todos los productos
                             </Button>
                         )}

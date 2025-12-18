@@ -89,25 +89,28 @@ export interface User {
 
 export interface Item {
   id: number;
-  local_id?: number;
+  local_id?: number; // Added local_id
   title: string;
   description: string | null;
   price: number | null;
   stock: number;
   photo_url: string;
-  category_id: number | null;
+  category_id?: number; // Optional until backend fully enforces it
   is_sold: boolean;
   almacen_id: number;
   almacen_nombre?: string;
+  talla?: string | null; // Added talla
 }
 
 export interface ItemCreate {
   title: string;
   description?: string;
   price?: number;
-  stock?: number;
+  stock: number;
   photo_url: string;
   category_id?: number;
+  almacen_id?: number;
+  talla?: string;
 }
 
 export interface ItemUpdate {
@@ -171,8 +174,8 @@ export interface AlmacenUpdate {
 
 // Categories API
 export const categoriesApi = {
-  getAll: async (): Promise<Category[]> => {
-    const response = await apiClient.get<Category[]>('/categories/');
+  getAll: async (params?: any) => {
+    const response = await apiClient.get<Item[]>('/items/', { params });
     return response.data;
   },
   getById: async (id: number): Promise<Category> => {
@@ -690,8 +693,13 @@ export interface ClassificationUpdate {
 }
 
 export const classificationsApi = {
-  list: async (): Promise<Classification[]> => {
-    const response = await apiClient.get<Classification[]>('/classifications/');
+  list: async (empresa_id?: number) => {
+    const params = empresa_id ? { empresa_id } : {};
+    const response = await apiClient.get<Classification[]>('/classifications/', { params });
+    return response.data;
+  },
+  getAll: async (params?: any) => {
+    const response = await apiClient.get<Classification[]>('/classifications/', { params });
     return response.data;
   },
 

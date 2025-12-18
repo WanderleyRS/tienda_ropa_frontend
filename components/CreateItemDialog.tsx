@@ -36,9 +36,10 @@ const itemSchema = z.object({
   title: z.string().min(1, 'El título es requerido'),
   description: z.string().optional(),
   price: z.string().optional(),
-  stock: z.coerce.number().int().min(0, 'El stock no puede ser negativo').default(1),
+  stock: z.string().min(1, 'El stock es requerido'),
   photo_url: z.string().optional(),
   category_id: z.string().optional(),
+  talla: z.string().optional(), // Nueva validación
 });
 
 type ItemFormValues = z.infer<typeof itemSchema>;
@@ -68,9 +69,10 @@ export function CreateItemDialog({
       title: '',
       description: '',
       price: '',
-      stock: 1,
+      stock: '1',
       photo_url: '',
       category_id: '',
+      talla: '', // Valor inicial
     },
   });
 
@@ -148,6 +150,14 @@ export function CreateItemDialog({
         priceValue = parsed;
       }
 
+      // Validar stock
+      const stockValue = parseInt(data.stock);
+      if (isNaN(stockValue) || stockValue < 0) {
+        form.setError('stock', { message: 'El stock debe ser un número entero positivo' });
+        setIsSubmitting(false);
+        return;
+      }
+
       // Validar URL si existe
       if (data.photo_url && data.photo_url.trim() !== '') {
         try {
@@ -163,9 +173,10 @@ export function CreateItemDialog({
         title: data.title,
         description: data.description || undefined,
         price: priceValue,
-        stock: data.stock || 1,
+        stock: stockValue,
         photo_url: data.photo_url || 'https://via.placeholder.com/300',
         category_id: data.category_id ? Number(data.category_id) : undefined,
+        talla: data.talla || undefined, // Enviar talla
       };
 
       await itemsApi.create(itemData);
@@ -230,6 +241,20 @@ export function CreateItemDialog({
               />
 
               <div className="grid grid-cols-2 gap-5">
+                <FormField
+                  control={form.control}
+                  name="talla"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-foreground font-medium">Talla</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Ej: M" {...field} className="bg-secondary/20 border-border/50" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="price"
