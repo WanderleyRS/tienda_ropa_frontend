@@ -175,7 +175,7 @@ export interface AlmacenUpdate {
 // Categories API
 export const categoriesApi = {
   getAll: async (params?: any) => {
-    const response = await apiClient.get<Item[]>('/items/', { params });
+    const response = await apiClient.get<Category[]>('/categories/', { params });
     return response.data;
   },
   getById: async (id: number): Promise<Category> => {
