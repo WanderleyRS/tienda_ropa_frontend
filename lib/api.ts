@@ -146,6 +146,19 @@ export interface Empresa {
   store_subtitle?: string;
 }
 
+// Updated Category interfaces
+export interface Category {
+  id: number;
+  name: string;
+  classification_id?: number;
+  clasificacion?: Classification;
+}
+
+export interface CategoryCreate {
+  name: string;
+  classification_id?: number | null;
+}
+
 export interface AlmacenCreate {
   nombre: string;
 }
@@ -637,6 +650,48 @@ export interface MetricasInventario {
     items_sin_precio_compra: number;
   };
 }
+
+// ========================================
+// Clasificaciones API
+// ========================================
+
+export interface Classification {
+  id: number;
+  nombre: string;
+  descripcion?: string;
+  almacen_id: number;
+}
+
+export interface ClassificationCreate {
+  nombre: string;
+  descripcion?: string;
+}
+
+export interface ClassificationUpdate {
+  nombre?: string;
+  descripcion?: string;
+}
+
+export const classificationsApi = {
+  list: async (): Promise<Classification[]> => {
+    const response = await apiClient.get<Classification[]>('/classifications/');
+    return response.data;
+  },
+
+  create: async (data: ClassificationCreate): Promise<Classification> => {
+    const response = await apiClient.post<Classification>('/classifications/', data);
+    return response.data;
+  },
+
+  update: async (id: number, data: ClassificationUpdate): Promise<Classification> => {
+    const response = await apiClient.put<Classification>(`/classifications/${id}`, data);
+    return response.data;
+  },
+
+  delete: async (id: number): Promise<void> => {
+    await apiClient.delete(`/classifications/${id}`);
+  }
+};
 
 export interface TopProducto {
   id: number;
