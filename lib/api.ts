@@ -160,6 +160,16 @@ export interface CategoryCreate {
 }
 
 // Categories API
+export interface AlmacenCreate {
+  nombre: string;
+}
+
+export interface AlmacenUpdate {
+  nombre?: string;
+  activo?: boolean;
+}
+
+// Categories API
 export const categoriesApi = {
   getAll: async (): Promise<Category[]> => {
     const response = await apiClient.get<Category[]>('/categories/');
