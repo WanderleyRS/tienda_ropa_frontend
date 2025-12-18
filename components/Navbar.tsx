@@ -247,6 +247,33 @@ function NavbarContent() {
                                     <Building2 className="h-3 w-3" /> {user.empresa_nombre}
                                 </div>
                             )}
+
+                            {/* Share Store Action Mobile */}
+                            <button
+                                onClick={() => {
+                                    if (user) {
+                                        const empresaId = user.empresa_id || (user.almacenes && user.almacenes.length > 0 ? user.almacenes[0].empresa_id : null);
+                                        const empresaSlug = user.empresa_slug;
+
+                                        if (empresaSlug) {
+                                            const link = `${window.location.origin}/tienda/${empresaSlug}`;
+                                            navigator.clipboard.writeText(link);
+                                            toast.success(`Enlace copiado: ${link}`);
+                                        } else if (empresaId) {
+                                            const link = `${window.location.origin}/tienda?empresa_id=${empresaId}`;
+                                            navigator.clipboard.writeText(link);
+                                            toast.success('Enlace de tienda copiado al portapapeles');
+                                        } else {
+                                            toast.error('No se pudo identificar tu empresa');
+                                        }
+                                        setMobileMenuOpen(false);
+                                    }
+                                }}
+                                className="mt-3 flex items-center w-full px-3 py-2 text-sm text-primary bg-primary/10 rounded-md hover:bg-primary/20 transition-colors"
+                            >
+                                <Share2 className="h-4 w-4 mr-2" />
+                                Compartir Tienda
+                            </button>
                         </div>
 
                         {/* Public links */}

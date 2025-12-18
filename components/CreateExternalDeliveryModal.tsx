@@ -236,7 +236,7 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                         />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div className="space-y-2">
                             <Label>Tipo de Entrega</Label>
                             <Select value={deliveryType} onValueChange={setDeliveryType}>
@@ -278,7 +278,7 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                     </div>
 
                     {deliveryType === 'Encomienda' && (
-                        <div className="grid grid-cols-2 gap-4 bg-muted/30 p-3 rounded-lg border border-border/50">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-muted/30 p-3 rounded-lg border border-border/50">
                             <div className="space-y-2">
                                 <Label>Departamento Destino</Label>
                                 <Select value={departamento} onValueChange={setDepartamento}>
@@ -331,7 +331,7 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                                     </div>
                                 )}
                             </div>
-                            <div className="space-y-2 col-span-2 relative">
+                            <div className="space-y-2 col-span-1 sm:col-span-2 relative">
                                 <Label>Empresa Transporte</Label>
                                 <Input
                                     placeholder="Ej. Bolivar, Copacabana... (Escriba o seleccione)"
