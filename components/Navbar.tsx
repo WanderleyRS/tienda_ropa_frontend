@@ -59,12 +59,12 @@ function NavbarContent() {
     const authNavItems = [
         { href: '/dashboard', label: 'Dashboard' },
         { href: '/ventas', label: 'Ventas' },
-        { href: '/compras', label: '🛒 Compras' },
-        { href: '/agenda', label: '📦 Agenda' },
-        { href: '/clientes', label: '👥 Clientes' },
-        { href: '/reportes', label: '📊 Reportes' },
+        { href: '/compras', label: 'Compras' },
+        { href: '/agenda', label: 'Agenda' },
+        { href: '/clientes', label: 'Clientes' },
+        { href: '/reportes', label: 'Reportes' },
         { href: '/items/bulk-upload', label: 'Carga Masiva' },
-        { href: '/inventario/configuracion', label: '🛠️ Config' },
+        { href: '/inventario/configuracion', label: 'Config' },
         ...(user?.role === 'admin' ? [{ href: '/usuarios', label: 'Usuarios' }] : []),
     ];
 
