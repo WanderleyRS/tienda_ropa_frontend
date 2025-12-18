@@ -47,6 +47,8 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
     const [departamento, setDepartamento] = useState('');
     const [provincia, setProvincia] = useState('');
     const [empresaTransporte, setEmpresaTransporte] = useState('');
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [filteredProvinces, setFilteredProvinces] = useState<string[]>([]);
 
     useEffect(() => {
         if (open) {
@@ -56,7 +58,26 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
 
     useEffect(() => {
         setProvincia('');
+        setFilteredProvinces([]);
     }, [departamento]);
+
+    const handleProvinceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        setProvincia(value);
+
+        if (departamento && BOLIVIA_LOCATIONS[departamento]) {
+            const filtered = BOLIVIA_LOCATIONS[departamento].filter(p =>
+                p.toLowerCase().includes(value.toLowerCase())
+            );
+            setFilteredProvinces(filtered);
+            setShowSuggestions(true);
+        }
+    };
+
+    const selectProvince = (value: string) => {
+        setProvincia(value);
+        setShowSuggestions(false);
+    };
 
     const loadClients = async () => {
         try {
