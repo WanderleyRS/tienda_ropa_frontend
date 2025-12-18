@@ -747,3 +747,23 @@ export const reportesApi = {
     }).then(res => res.data)
 };
 
+
+// ========================================
+// Upload API
+// ========================================
+export const uploadApi = {
+  uploadImage: async (file: File, folder: string = 'items'): Promise<{ url: string }> => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // folder is sent as query param in backend: folder: str = "items"
+    const response = await apiClient.post<{ url: string }>('/upload/image', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+      params: { folder }
+    });
+    return response.data;
+  }
+};
+

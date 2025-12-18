@@ -74,11 +74,7 @@ export function CreateItemDialog({
     },
   });
 
-  useEffect(() => {
-    if (open) {
-      loadCategories();
-    }
-  }, [open]);
+
 
   const loadData = async () => {
     try {
@@ -358,109 +354,109 @@ export function CreateItemDialog({
                       <SelectValue placeholder="Seleccionar clasificación (Opcional)" />
                     </SelectTrigger>
                   </FormControl>
-                  <SelectContent max-h-[200px]>
-                  {classifications.map((cls) => (
-                    <SelectItem key={cls.id} value={String(cls.id)}>
-                      {cls.nombre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
+                  <SelectContent className="max-h-[200px]">
+                    {classifications.map((cls) => (
+                      <SelectItem key={cls.id} value={String(cls.id)}>
+                        {cls.nombre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
 
-            {/* Category Selection Section */}
-            <FormField
-              control={form.control}
-              name="category_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground font-medium">Categoría</FormLabel>
-                  <div className="flex gap-2">
-                    {isCreatingCategory ? (
-                      <div className="flex-1 flex gap-2 animate-in fade-in slide-in-from-left-2">
-                        <Input
-                          placeholder="Nombre nueva categoría"
-                          value={newCategoryName}
-                          onChange={(e) => setNewCategoryName(e.target.value)}
-                          autoFocus
-                          className="bg-secondary/20 border-border/50"
-                        />
-                        <Button type="button" size="sm" onClick={handleCreateCategory}>
-                          Guardar
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setIsCreatingCategory(false)}
-                        >
-                          ✕
-                        </Button>
-                      </div>
-                    ) : (
-                      <>
-                        <Select
-                          onValueChange={field.onChange}
-                          defaultValue={field.value}
-                          value={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="flex-1 bg-secondary/20 border-border/50">
-                              <SelectValue placeholder="Seleccionar categoría" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {categories
-                              .filter(cat => !selectedClassificationId || cat.classification_id === Number(selectedClassificationId))
-                              .map((cat) => (
-                                <SelectItem key={cat.id} value={String(cat.id)}>
-                                  {cat.name}
-                                </SelectItem>
-                              ))}
-                            {categories.length === 0 && (
-                              <div className="p-2 text-sm text-muted-foreground text-center">
-                                No hay categorías
-                              </div>
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="icon"
-                          onClick={() => setIsCreatingCategory(true)}
-                          title="Crear nueva categoría"
-                          className="border-border/50 bg-secondary/20 hover:bg-secondary/40"
-                        >
-                          <span className="text-xl leading-none">+</span>
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+              {/* Category Selection Section */}
+              <FormField
+                control={form.control}
+                name="category_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground font-medium">Categoría</FormLabel>
+                    <div className="flex gap-2">
+                      {isCreatingCategory ? (
+                        <div className="flex-1 flex gap-2 animate-in fade-in slide-in-from-left-2">
+                          <Input
+                            placeholder="Nombre nueva categoría"
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            autoFocus
+                            className="bg-secondary/20 border-border/50"
+                          />
+                          <Button type="button" size="sm" onClick={handleCreateCategory}>
+                            Guardar
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsCreatingCategory(false)}
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <Select
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            value={field.value}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="flex-1 bg-secondary/20 border-border/50">
+                                <SelectValue placeholder="Seleccionar categoría" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {categories
+                                .filter(cat => !selectedClassificationId || cat.classification_id === Number(selectedClassificationId))
+                                .map((cat) => (
+                                  <SelectItem key={cat.id} value={String(cat.id)}>
+                                    {cat.name}
+                                  </SelectItem>
+                                ))}
+                              {categories.length === 0 && (
+                                <div className="p-2 text-sm text-muted-foreground text-center">
+                                  No hay categorías
+                                </div>
+                              )}
+                            </SelectContent>
+                          </Select>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            onClick={() => setIsCreatingCategory(true)}
+                            title="Crear nueva categoría"
+                            className="border-border/50 bg-secondary/20 hover:bg-secondary/40"
+                          >
+                            <span className="text-xl leading-none">+</span>
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <div className="flex justify-end gap-3 pt-6 border-t border-border/50">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isSubmitting}
-                className="border-border/50"
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={isSubmitting || isUploading} className="shadow-lg shadow-primary/20">
-                {isSubmitting ? 'Creando...' : 'Crear Ítem'}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
-    </DialogContent>
+              <div className="flex justify-end gap-3 pt-6 border-t border-border/50">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => onOpenChange(false)}
+                  disabled={isSubmitting}
+                  className="border-border/50"
+                >
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isSubmitting || isUploading} className="shadow-lg shadow-primary/20">
+                  {isSubmitting ? 'Creando...' : 'Crear Ítem'}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </div>
+      </DialogContent>
     </Dialog >
   );
 }
