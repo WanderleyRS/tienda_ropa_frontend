@@ -273,35 +273,38 @@ export function CreateExternalDeliveryModal({ onDeliveryCreated }: CreateExterna
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="space-y-2">
+                            <div className="space-y-2 relative">
                                 <Label>Provincia / Localidad</Label>
-                                <Select value={provincia} onValueChange={setProvincia} disabled={!departamento}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder={departamento ? "Seleccionar provincia..." : "Primero elija Dpto."} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {departamento && BOLIVIA_LOCATIONS[departamento]?.map((prov) => (
-                                            <SelectItem key={prov} value={prov}>
+                                <Input
+                                    placeholder={departamento ? "Escriba o seleccione..." : "Primero elija Dpto."}
+                                    value={provincia}
+                                    onChange={handleProvinceChange}
+                                    onFocus={() => {
+                                        if (departamento && BOLIVIA_LOCATIONS[departamento]) {
+                                            setFilteredProvinces(BOLIVIA_LOCATIONS[departamento]);
+                                            setShowSuggestions(true);
+                                        }
+                                    }}
+                                    onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+                                    disabled={!departamento}
+                                    autoComplete="off"
+                                />
+                                {showSuggestions && filteredProvinces.length > 0 && (
+                                    <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-md max-h-60 overflow-auto">
+                                        {filteredProvinces.map((prov) => (
+                                            <div
+                                                key={prov}
+                                                className="px-4 py-2 text-sm hover:bg-accent hover:text-accent-foreground cursor-pointer"
+                                                onMouseDown={(e) => {
+                                                    e.preventDefault(); // Prevent blur
+                                                    selectProvince(prov);
+                                                }}
+                                            >
                                                 {prov}
-                                            </SelectItem>
+                                            </div>
                                         ))}
-                                    </SelectContent>
-                                </Select>
-                            </div>
-                            <div className="space-y-2">
-                                <Label>Provincia / Localidad</Label>
-                                <Select value={provincia} onValueChange={setProvincia} disabled={!departamento}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder={departamento ? "Seleccionar provincia..." : "Primero elija Dpto."} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {departamento && BOLIVIA_LOCATIONS[departamento]?.map((prov) => (
-                                            <SelectItem key={prov} value={prov}>
-                                                {prov}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                    </div>
+                                )}
                             </div>
                             <div className="space-y-2 col-span-2">
                                 <Label>Empresa Transporte</Label>
