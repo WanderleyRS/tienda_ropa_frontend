@@ -159,14 +159,21 @@ export interface CategoryCreate {
   classification_id?: number | null;
 }
 
-export interface AlmacenCreate {
-  nombre: string;
-}
-
-export interface AlmacenUpdate {
-  nombre?: string;
-  activo?: boolean;
-}
+// Categories API
+export const categoriesApi = {
+  getAll: async (): Promise<Category[]> => {
+    const response = await apiClient.get<Category[]>('/categories/');
+    return response.data;
+  },
+  getById: async (id: number): Promise<Category> => {
+    const response = await apiClient.get<Category>(`/categories/${id}`);
+    return response.data;
+  },
+  create: async (data: CategoryCreate): Promise<Category> => {
+    const response = await apiClient.post<Category>('/categories/', data);
+    return response.data;
+  }
+};
 
 // ---------- API objects ----------
 export const authApi = {
