@@ -296,7 +296,7 @@ export const companiesApi = {
 };
 
 export const itemsApi = {
-  getAll: async (params?: { skip?: number; limit?: number; is_sold?: boolean; category_id?: number; almacen_id?: number; search?: string }): Promise<Item[]> => {
+  getAll: async (params?: { skip?: number; limit?: number; is_sold?: boolean; category_id?: number; almacen_id?: number; search?: string; empresa_id?: number }): Promise<Item[]> => {
     try {
       const response = await apiClient.get<Item[]>('/items/', { params });
       return response.data;

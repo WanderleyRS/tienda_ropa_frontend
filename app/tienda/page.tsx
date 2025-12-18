@@ -165,8 +165,8 @@ function TiendaContent() {
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectItem value="all">Todas</SelectItem>
-                                        {classifications.map((c) => (
-                                            <SelectItem key={c.id} value={String(c.id)}>{c.name}</SelectItem>
+                                        {classifications.map((c: any) => (
+                                            <SelectItem key={c.id} value={String(c.id)}>{c.nombre}</SelectItem>
                                         ))}
                                     </SelectContent>
                                 </Select>
