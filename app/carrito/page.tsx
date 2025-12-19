@@ -12,6 +12,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { LeadCaptureModal } from '@/components/LeadCaptureModal';
 import { companiesApi, Empresa } from '@/lib/api';
+import { useAuth } from '@/contexts/AuthContext';
 
 
 export default function CarritoPage() {
@@ -19,22 +20,36 @@ export default function CarritoPage() {
     const [isLeadModalOpen, setIsLeadModalOpen] = useState(false);
     const [empresa, setEmpresa] = useState<Empresa | null>(null);
     const router = useRouter();
+    const { user } = useAuth();
 
     // Load empresa data to get WhatsApp number
     useEffect(() => {
         const loadEmpresa = async () => {
             try {
-                const empresaId = localStorage.getItem('publicEmpresaId');
+                // Try to get empresaId from authenticated user first, then from localStorage
+                let empresaId: number | null = null;
+
+                if (user?.empresa_id) {
+                    empresaId = user.empresa_id;
+                } else {
+                    const storedId = localStorage.getItem('publicEmpresaId');
+                    if (storedId) {
+                        empresaId = parseInt(storedId);
+                    }
+                }
+
                 if (empresaId) {
-                    const empresaData = await companiesApi.getPublicEmpresa(parseInt(empresaId));
+                    const empresaData = await companiesApi.getPublicEmpresa(empresaId);
                     setEmpresa(empresaData);
+                } else {
+                    console.warn('No empresa_id found in user or localStorage');
                 }
             } catch (error) {
                 console.error('Error loading empresa:', error);
             }
         };
         loadEmpresa();
-    }, []);
+    }, [user]);
 
     const handleSendToWhatsApp = () => {
         if (items.length === 0) {
