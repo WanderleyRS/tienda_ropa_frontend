@@ -42,10 +42,6 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
   const canEdit = userRole === 'admin' || userRole === 'vendedor';
 
   const handleEditClick = (item: Item) => {
-    console.log('=== EDITING ITEM ===');
-    console.log('Item data:', item);
-    console.log('additional_images:', item.additional_images);
-    console.log('====================');
     setItemToEdit(item);
     setIsEditDialogOpen(true);
   };
