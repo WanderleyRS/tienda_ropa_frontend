@@ -198,7 +198,7 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 group">
-                      <span className="font-medium tabular-nums">${item.price?.toFixed(2) || '-'}</span>
+                      <span className="font-medium tabular-nums">{item.price?.toFixed(2) || '-'} Bs</span>
                       {canEdit && (
                         <Button
                           size="icon"
@@ -349,7 +349,7 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
                 <div className="flex flex-col">
                   <span className="text-muted-foreground text-xs">Precio</span>
                   <div className="font-medium flex items-center gap-1">
-                    ${item.price?.toFixed(2) || '-'}
+                    {item.price?.toFixed(2) || '-'} Bs
                     {canEdit && (
                       <button onClick={() => startEditing(item, 'price')} className="text-muted-foreground hover:text-primary"><Edit2 className="h-3 w-3" /></button>
                     )}

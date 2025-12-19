@@ -153,7 +153,7 @@ export function VentaDetailModal({ isOpen, onClose, ventaId, onUpdate }: VentaDe
 
         const saldoPendiente = (venta?.monto_total || 0) - totalAbonado;
         if (monto > saldoPendiente) {
-            toast.error(`El monto no puede ser mayor al saldo pendiente ($${saldoPendiente.toFixed(2)})`);
+            toast.error(`El monto no puede ser mayor al saldo pendiente (${saldoPendiente.toFixed(2)} Bs)`);
             return;
         }
 
@@ -270,16 +270,16 @@ export function VentaDetailModal({ isOpen, onClose, ventaId, onUpdate }: VentaDe
                                                 <TableRow key={detalle.id} className="hover:bg-secondary/10">
                                                     <TableCell className="font-medium">{detalle.producto?.title || `Producto #${detalle.producto_id}`}</TableCell>
                                                     <TableCell className="text-right text-muted-foreground">{detalle.cantidad}</TableCell>
-                                                    <TableCell className="text-right text-muted-foreground">${detalle.precio_unitario.toFixed(2)}</TableCell>
+                                                    <TableCell className="text-right text-muted-foreground">{detalle.precio_unitario.toFixed(2)} Bs</TableCell>
                                                     <TableCell className="text-right font-bold text-foreground">
-                                                        ${(detalle.cantidad * detalle.precio_unitario).toFixed(2)}
+                                                        {(detalle.cantidad * detalle.precio_unitario).toFixed(2)} Bs
                                                     </TableCell>
                                                 </TableRow>
                                             ))}
                                             <TableRow className="bg-secondary/10 font-bold">
                                                 <TableCell colSpan={3} className="text-right text-muted-foreground">Total:</TableCell>
                                                 <TableCell className="text-right text-lg text-primary">
-                                                    ${venta.monto_total.toFixed(2)}
+                                                    {venta.monto_total.toFixed(2)} Bs
                                                 </TableCell>
                                             </TableRow>
                                         </TableBody>
@@ -334,7 +334,7 @@ export function VentaDetailModal({ isOpen, onClose, ventaId, onUpdate }: VentaDe
                                                     />
                                                 </div>
                                                 <p className="text-xs text-muted-foreground mt-1.5">
-                                                    Saldo pendiente: <span className="font-medium text-foreground">${saldoPendiente.toFixed(2)}</span>
+                                                    Saldo pendiente: <span className="font-medium text-foreground">{saldoPendiente.toFixed(2)} Bs</span>
                                                 </p>
                                             </div>
                                             <div>
@@ -396,7 +396,7 @@ export function VentaDetailModal({ isOpen, onClose, ventaId, onUpdate }: VentaDe
                                                         </TableCell>
                                                         <TableCell className="font-medium">{abono.metodo_pago}</TableCell>
                                                         <TableCell className="text-right font-bold text-green-600">
-                                                            ${abono.monto_abonado.toFixed(2)}
+                                                            {abono.monto_abonado.toFixed(2)} Bs
                                                         </TableCell>
                                                         <TableCell className="text-right">
                                                             <Button
@@ -419,16 +419,16 @@ export function VentaDetailModal({ isOpen, onClose, ventaId, onUpdate }: VentaDe
                                 <div className="mt-6 p-5 bg-gradient-to-br from-secondary/30 to-background rounded-xl border border-border/50 space-y-3">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Total de la venta:</span>
-                                        <span className="font-medium text-foreground">${venta.monto_total.toFixed(2)}</span>
+                                        <span className="font-medium text-foreground">{venta.monto_total.toFixed(2)} Bs</span>
                                     </div>
                                     <div className="flex justify-between text-sm">
                                         <span className="text-muted-foreground">Total abonado:</span>
-                                        <span className="font-medium text-green-600">${totalAbonado.toFixed(2)}</span>
+                                        <span className="font-medium text-green-600">{totalAbonado.toFixed(2)} Bs</span>
                                     </div>
                                     <div className="flex justify-between text-lg font-bold border-t border-border/50 pt-3 mt-2">
                                         <span>Saldo pendiente:</span>
                                         <span className={saldoPendiente > 0 ? 'text-destructive' : 'text-green-600'}>
-                                            ${saldoPendiente.toFixed(2)}
+                                            {saldoPendiente.toFixed(2)} Bs
                                         </span>
                                     </div>
                                 </div>

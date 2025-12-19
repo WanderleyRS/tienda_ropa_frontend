@@ -122,7 +122,7 @@ export default function CarritoPage() {
                                                     {item.title} <span className="text-xs text-muted-foreground">x{item.quantity}</span>
                                                 </span>
                                                 <span className="font-medium tabular-nums">
-                                                    ${(item.price * item.quantity).toFixed(2)}
+                                                    {(item.price * item.quantity).toFixed(2)} Bs
                                                 </span>
                                             </div>
                                         ))}
@@ -132,7 +132,7 @@ export default function CarritoPage() {
                                         <div className="flex justify-between items-end mb-6">
                                             <span className="text-lg font-medium text-muted-foreground">Total a Pagar</span>
                                             <span className="text-3xl font-bold text-primary tabular-nums">
-                                                ${subtotal.toFixed(2)}
+                                                {subtotal.toFixed(2)} Bs
                                             </span>
                                         </div>
 

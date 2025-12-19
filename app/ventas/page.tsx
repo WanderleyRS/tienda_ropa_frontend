@@ -286,7 +286,7 @@ export default function VentasPage() {
                                                 </TableCell>
                                                 <TableCell className="font-medium">{getClienteName(venta)}</TableCell>
                                                 <TableCell className="font-bold text-primary">
-                                                    ${venta.monto_total.toFixed(2)}
+                                                    {venta.monto_total.toFixed(2)} Bs
                                                 </TableCell>
                                                 <TableCell>
                                                     <span
@@ -360,7 +360,7 @@ export default function VentasPage() {
                                             <div className="text-right">
                                                 <p className="text-sm text-muted-foreground">Total</p>
                                                 <p className="text-lg font-bold text-primary">
-                                                    ${venta.monto_total.toFixed(2)}
+                                                    {venta.monto_total.toFixed(2)} Bs
                                                 </p>
                                             </div>
                                         </div>

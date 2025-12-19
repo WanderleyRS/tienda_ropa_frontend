@@ -29,7 +29,7 @@ export function buildWhatsAppMessage(cartItems: CartItem[], subtotal: number, cl
         message += `${index + 1}. *${item.title}*\n`;
 
         // Add price and quantity
-        message += `   💰 $${item.price.toFixed(2)} x ${item.quantity} = $${(item.price * item.quantity).toFixed(2)}\n`;
+        message += `   💰 ${item.price.toFixed(2)} Bs x ${item.quantity} = ${(item.price * item.quantity).toFixed(2)} Bs\n`;
 
         // Add image URL - WhatsApp will auto-generate preview if URL is public
         const imageUrl = getValidImageUrl(item.photo_url);
@@ -38,7 +38,7 @@ export function buildWhatsAppMessage(cartItems: CartItem[], subtotal: number, cl
         message += `   ${imageUrl}\n\n`;
     });
 
-    message += `💰 *TOTAL: $${subtotal.toFixed(2)}*\n\n`;
+    message += `💰 *TOTAL: ${subtotal.toFixed(2)} Bs*\n\n`;
 
     if (!clienteNombre) {
         message += "Por favor, confírmenme la disponibilidad. ¡Gracias!";

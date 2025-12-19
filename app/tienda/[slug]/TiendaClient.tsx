@@ -75,7 +75,7 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
             initPublicStore();
         }
 
-    }, [slug, selectedCategory, selectedClassificationId, selectedSize]);
+    }, [slug]); // Only reload when slug changes, not when filters change
 
 
     // Filtering logic

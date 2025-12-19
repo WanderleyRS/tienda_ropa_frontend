@@ -130,7 +130,7 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">Registrar Venta</DialogTitle>
                     <DialogDescription>
-                        Producto: <span className="font-semibold">{itemTitle}</span> - Precio: <span className="font-semibold">${itemPrice.toFixed(2)}</span>
+                        Producto: <span className="font-semibold">{itemTitle}</span> - Precio: <span className="font-semibold">{itemPrice.toFixed(2)} Bs</span>
                     </DialogDescription>
                 </DialogHeader>
 
@@ -228,7 +228,7 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
                                         onChange={(e) => setMontoAbono(e.target.value)}
                                     />
                                     <p className="text-xs text-gray-500 mt-1">
-                                        Máximo: ${itemPrice.toFixed(2)}
+                                        Máximo: {itemPrice.toFixed(2)} Bs
                                     </p>
                                 </div>
 

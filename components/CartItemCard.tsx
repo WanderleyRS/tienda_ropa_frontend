@@ -32,7 +32,7 @@ export function CartItemCard({ item, onUpdateQuantity, onRemove }: CartItemCardP
             <div className="flex-1 flex flex-col justify-between">
                 <div>
                     <h3 className="font-semibold text-lg">{item.title}</h3>
-                    <p className="text-sm text-gray-500">Precio unitario: ${item.price.toFixed(2)}</p>
+                    <p className="text-sm text-gray-500">Precio unitario: {item.price.toFixed(2)} Bs</p>
                 </div>
 
                 {/* Quantity Controls */}
@@ -71,7 +71,7 @@ export function CartItemCard({ item, onUpdateQuantity, onRemove }: CartItemCardP
             <div className="flex flex-col items-end justify-between">
                 <div className="text-right">
                     <p className="text-sm text-gray-500">Subtotal</p>
-                    <p className="text-xl font-bold">${itemSubtotal.toFixed(2)}</p>
+                    <p className="text-xl font-bold">{itemSubtotal.toFixed(2)} Bs</p>
                 </div>
             </div>
         </div>

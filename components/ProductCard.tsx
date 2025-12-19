@@ -151,7 +151,7 @@ export function ProductCard({ product }: ProductCardProps) {
                     </h3>
                     <div className="flex items-center justify-between mt-1">
                         <p className="text-lg font-bold text-foreground">
-                            ${product.price?.toFixed(2) || '0.00'}
+                            {product.price?.toFixed(2) || '0.00'} Bs
                         </p>
                     </div>
                 </div>
