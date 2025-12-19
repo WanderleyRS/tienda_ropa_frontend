@@ -370,6 +370,33 @@ export function CreateItemDialog({
 
               <FormField
                 control={form.control}
+                name="talla"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-foreground font-medium">Talla</FormLabel>
+                    <FormControl>
+                      <select
+                        {...field}
+                        value={field.value || ''}
+                        className="w-full h-10 px-3 rounded-md border border-border/50 bg-secondary/20 focus:bg-background transition-colors text-sm"
+                      >
+                        <option value="">Sin talla</option>
+                        <option value="XS">XS</option>
+                        <option value="S">S</option>
+                        <option value="M">M</option>
+                        <option value="L">L</option>
+                        <option value="XL">XL</option>
+                        <option value="XXL">XXL</option>
+                        <option value="Única">Única</option>
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
                 name="photo_url"
                 render={() => (
                   <FormItem>
