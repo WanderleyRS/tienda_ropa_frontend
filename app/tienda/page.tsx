@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { apiClient, itemsApi, categoriesApi, companiesApi, classificationsApi, Item, Category, Empresa } from '@/lib/api';
 import { ProductCard } from '@/components/ProductCard';
 import { Navbar } from '@/components/Navbar';
+import { CartButton } from '@/components/CartButton';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
@@ -119,6 +120,11 @@ function TiendaContent() {
     return (
         <div className="min-h-screen bg-background font-sans selection:bg-primary/20">
             <Navbar />
+
+            {/* Floating Cart Button for Public Store */}
+            <div className="fixed bottom-6 right-6 z-50">
+                <CartButton />
+            </div>
 
             {/* Hero Section */}
             <div className="relative pt-20 pb-32 sm:pt-32 sm:pb-40 overflow-hidden">
