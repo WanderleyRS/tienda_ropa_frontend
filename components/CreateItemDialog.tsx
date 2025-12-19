@@ -452,31 +452,20 @@ export function CreateItemDialog({
                 )}
               />
 
-              {/* Classification Selection Section */}
-              <FormItem>
-                <FormLabel className="text-foreground font-medium">Clasificación</FormLabel>
-                <Select
-                  value={selectedClassificationId}
-                  onValueChange={(val) => {
-                    setSelectedClassificationId(val);
-                    form.setValue('category_id', ''); // Reset category when classification changes
-                  }}
-                >
-                  <FormControl>
-                    <SelectTrigger className="bg-secondary/20 border-border/50">
-                      <SelectValue placeholder="Seleccionar clasificación (Opcional)" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent className="max-h-[200px]">
-                    {classifications.map((cls) => (
-                      <SelectItem key={cls.id} value={String(cls.id)}>
-                        {cls.nombre}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
+              {/* Classification - Auto-populated from selected category */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Clasificación</label>
+                <input
+                  type="text"
+                  value={
+                    form.watch('category_id')
+                      ? categories.find(c => c.id.toString() === form.watch('category_id'))?.clasificacion?.nombre || 'Sin clasificación'
+                      : 'Selecciona una categoría primero'
+                  }
+                  disabled
+                  className="w-full h-10 px-3 rounded-md border border-border/50 bg-secondary/10 text-muted-foreground cursor-not-allowed text-sm"
+                />
+              </div>
 
               {/* Category Selection Section */}
               <FormField
