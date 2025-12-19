@@ -28,7 +28,7 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { itemsApi, ItemCreate, categoriesApi, uploadApi, classificationsApi, Classification } from '@/lib/api';
+import { itemsApi, ItemCreate, ItemUpdate, Item, categoriesApi, uploadApi, classificationsApi, Classification } from '@/lib/api';
 import { toast } from 'sonner';
 import { getValidImageUrl } from '@/lib/utils';
 
@@ -48,12 +48,14 @@ interface CreateItemDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onItemCreated: () => void;
+  initialData?: Item | null; // Optional data for editing
 }
 
 export function CreateItemDialog({
   open,
   onOpenChange,
   onItemCreated,
+  initialData,
 }: CreateItemDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
@@ -95,25 +97,86 @@ export function CreateItemDialog({
   useEffect(() => {
     if (open) {
       loadData();
+      if (initialData) {
+        // Edit Mode: Pre-fill data
+        form.reset({
+          title: initialData.title,
+          description: initialData.description || '',
+          price: initialData.price?.toString() || '',
+          stock: initialData.stock.toString(),
+          photo_url: initialData.photo_url,
+          category_id: initialData.category_id?.toString() || '',
+          talla: initialData.talla || '',
+        });
+
+        // Pre-fill images
+        const existingImages = [
+          initialData.photo_url,
+          ...(initialData.additional_images || [])
+        ].filter(Boolean);
+        setImages(existingImages);
+      } else {
+        // Create Mode: Reset to defaults
+        form.reset({
+          title: '',
+          description: '',
+          price: '',
+          stock: '1',
+          photo_url: '',
+          category_id: '',
+          talla: '',
+        });
+        setImages([]);
+      }
     }
-  }, [open]);
+  }, [open, initialData]); // Add initialData dependency
+
+  // State for multiple images
+  const [images, setImages] = useState<string[]>([]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    if (images.length + files.length > 3) {
+      toast.error('Máximo 3 imágenes permitidas');
+      return;
+    }
 
     setIsUploading(true);
     try {
-      const { url } = await uploadApi.uploadImage(file);
-      const fullUrl = getValidImageUrl(url);
+      const uploadPromises = Array.from(files).map(file => uploadApi.uploadImage(file));
+      const results = await Promise.all(uploadPromises);
 
-      form.setValue('photo_url', fullUrl);
-      toast.success('Imagen subida correctamente');
+      const newImages = results.map(res => getValidImageUrl(res.url));
+      const updatedImages = [...images, ...newImages];
+
+      setImages(updatedImages);
+      // Set the first image as the main photo_url
+      if (updatedImages.length > 0) {
+        form.setValue('photo_url', updatedImages[0]);
+      }
+
+      toast.success(`${newImages.length} imagen(es) subida(s) correctamente`);
     } catch (error) {
       console.error('Upload error:', error);
-      toast.error('Error al subir la imagen');
+      toast.error('Error al subir las imágenes');
     } finally {
       setIsUploading(false);
+      // Reset input value to allow selecting same file again if needed
+      e.target.value = '';
+    }
+  };
+
+  const removeImage = (index: number) => {
+    const newImages = images.filter((_, i) => i !== index);
+    setImages(newImages);
+
+    // Update photo_url based on remaining images
+    if (newImages.length > 0) {
+      form.setValue('photo_url', newImages[0]);
+    } else {
+      form.setValue('photo_url', '');
     }
   };
 
@@ -169,24 +232,31 @@ export function CreateItemDialog({
         }
       }
 
-      const itemData: ItemCreate = {
+      const itemData: any = { // Use any temporarily to handle diff between Create/Update types easier or define union
         title: data.title,
         description: data.description || undefined,
         price: priceValue,
         stock: stockValue,
-        photo_url: data.photo_url || 'https://via.placeholder.com/300',
+        photo_url: images.length > 0 ? images[0] : (data.photo_url || 'https://via.placeholder.com/300'),
+        additional_images: images.slice(1),
         category_id: data.category_id ? Number(data.category_id) : undefined,
-        talla: data.talla || undefined, // Enviar talla
+        talla: data.talla || undefined,
       };
 
-      await itemsApi.create(itemData);
-      toast.success('Ítem creado correctamente');
+      if (initialData) {
+        await itemsApi.update(initialData.id, itemData);
+        toast.success('Ítem actualizado correctamente');
+      } else {
+        await itemsApi.create(itemData as ItemCreate);
+        toast.success('Ítem creado correctamente');
+      }
+
       form.reset();
       onItemCreated();
       onOpenChange(false);
     } catch (error: any) {
       toast.error(
-        error.response?.data?.detail || 'Error al crear el ítem'
+        error.response?.data?.detail || (initialData ? 'Error al actualizar' : 'Error al crear el ítem')
       );
     } finally {
       setIsSubmitting(false);
@@ -198,10 +268,10 @@ export function CreateItemDialog({
       <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto p-0 gap-0 bg-card border-border/50 shadow-2xl">
         <DialogHeader className="p-6 pb-4 border-b border-border/50 bg-secondary/10">
           <DialogTitle className="text-2xl font-bold text-foreground">
-            Crear Nuevo Ítem
+            {initialData ? 'Editar producto' : 'Crear nuevo producto'}
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Completa el formulario para agregar un nuevo ítem al inventario
+            {initialData ? 'Modifica los detalles del producto' : 'Completa los detalles para añadir un ítem al inventario'}
           </DialogDescription>
         </DialogHeader>
 
@@ -298,67 +368,72 @@ export function CreateItemDialog({
                 />
               </div>
 
-              {/* Image Upload Section */}
               <FormField
                 control={form.control}
                 name="photo_url"
-                render={({ field }) => (
+                render={() => (
                   <FormItem>
-                    <FormLabel className="text-foreground font-medium">Imagen</FormLabel>
-                    <div className="flex flex-col gap-4 p-4 border border-border/50 rounded-xl bg-secondary/10">
-                      <div className="flex gap-3 items-center">
-                        <Input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          id="image-upload"
-                          onChange={handleFileUpload}
-                          disabled={isUploading}
-                        />
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => document.getElementById('image-upload')?.click()}
-                          disabled={isUploading}
-                          className="w-full bg-white hover:bg-gray-50 text-foreground shadow-sm border border-border/50"
-                        >
-                          {isUploading ? 'Subiendo...' : '📷 Subir desde dispositivo'}
-                        </Button>
+                    <FormLabel className="text-foreground font-medium">Fotos del Producto (Máx 3)</FormLabel>
+                    <FormControl>
+                      <div className="flex flex-col gap-4 p-4 border border-border/50 rounded-xl bg-secondary/10">
+                        <div className="flex flex-col gap-3">
+                          {/* Upload Button */}
+                          <div className="relative">
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              onChange={handleFileUpload}
+                              disabled={isUploading || images.length >= 3}
+                              className="hidden"
+                              id="multi-image-upload"
+                            />
+                            <Button
+                              type="button"
+                              onClick={() => document.getElementById('multi-image-upload')?.click()}
+                              disabled={isUploading || images.length >= 3}
+                              variant="outline"
+                              className="w-full bg-background border-dashed border-2 hover:bg-secondary/50 h-24 flex flex-col items-center justify-center gap-2"
+                            >
+                              <span className="text-2xl">📷</span>
+                              <span className="text-sm font-medium">
+                                {isUploading ? 'Subiendo...' : images.length >= 3 ? 'Límite alcanzado' : 'Click para subir fotos'}
+                              </span>
+                              <span className="text-xs text-muted-foreground">Soporta múltiples archivos</span>
+                            </Button>
+                          </div>
+
+                          {/* Image Preview Grid */}
+                          {images.length > 0 && (
+                            <div className="grid grid-cols-3 gap-3 mt-2">
+                              {images.map((imgUrl, index) => (
+                                <div key={index} className="relative aspect-square rounded-lg overflow-hidden border border-border/50 group bg-background">
+                                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                                  <img
+                                    src={imgUrl}
+                                    alt={`Preview ${index + 1}`}
+                                    className="object-cover w-full h-full"
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => removeImage(index)}
+                                    className="absolute top-1 right-1 bg-destructive text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110 shadow-md transform"
+                                    title="Eliminar foto"
+                                  >
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                                  </button>
+                                  {index === 0 && (
+                                    <div className="absolute bottom-0 left-0 right-0 bg-black/60 backdrop-blur-[2px] text-white text-[10px] uppercase font-bold text-center py-1">
+                                      Principal
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
-
-                      <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                          <span className="w-full border-t border-border/50" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                          <span className="bg-secondary/10 px-2 text-muted-foreground">
-                            O ingresa URL
-                          </span>
-                        </div>
-                      </div>
-
-                      <FormControl>
-                        <Input
-                          placeholder="https://ejemplo.com/imagen.jpg"
-                          {...field}
-                          className="bg-white border-border/50"
-                        />
-                      </FormControl>
-
-                      {field.value && (
-                        <div className="relative aspect-video w-full overflow-hidden rounded-lg border border-border/50 bg-white">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={field.value}
-                            alt="Preview"
-                            className="object-contain w-full h-full"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = 'https://via.placeholder.com/300?text=Error+loading+image';
-                            }}
-                          />
-                        </div>
-                      )}
-                    </div>
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -475,7 +550,7 @@ export function CreateItemDialog({
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={isSubmitting || isUploading} className="shadow-lg shadow-primary/20">
-                  {isSubmitting ? 'Creando...' : 'Crear Ítem'}
+                  {isSubmitting ? (initialData ? 'Guardando...' : 'Creando...') : (initialData ? 'Guardar Cambios' : 'Crear Ítem')}
                 </Button>
               </div>
             </form>

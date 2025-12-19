@@ -17,6 +17,8 @@ import { toast } from 'sonner';
 import { getValidImageUrl } from '@/lib/utils';
 import { LeadConversionModal } from '@/components/LeadConversionModal';
 
+import { CreateItemDialog } from '@/components/CreateItemDialog';
+
 interface ItemsTableProps {
   items: Item[];
   onItemUpdated: () => void;
@@ -29,11 +31,20 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
   const [editValue, setEditValue] = useState<string>('');
   const [isSaving, setIsSaving] = useState(false);
 
+  // Edit Dialog State
+  const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
   // Estado para el modal de conversión
   const [conversionModalOpen, setConversionModalOpen] = useState(false);
   const [selectedItemForConversion, setSelectedItemForConversion] = useState<{ id: number, title: string, price: number } | null>(null);
 
   const canEdit = userRole === 'admin' || userRole === 'vendedor';
+
+  const handleEditClick = (item: Item) => {
+    setItemToEdit(item);
+    setIsEditDialogOpen(true);
+  };
 
   const startEditing = (item: Item, field: 'stock' | 'price') => {
     setEditingId(item.id);
@@ -259,16 +270,27 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
                 </TableCell>
                 {canEdit && (
                   <TableCell className="text-right">
-                    <Button
-                      size="sm"
-                      variant={item.is_sold ? "outline" : "default"}
-                      onClick={() => handleSoldClick(item)}
-                      className={item.is_sold
-                        ? "text-muted-foreground hover:text-foreground"
-                        : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm"}
-                    >
-                      {item.is_sold ? 'Marcar Disponible' : 'Marcar Vendido'}
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleEditClick(item)}
+                        title="Editar detalles completo"
+                        className="h-8 w-8 p-0"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant={item.is_sold ? "outline" : "default"}
+                        onClick={() => handleSoldClick(item)}
+                        className={item.is_sold
+                          ? "text-muted-foreground hover:text-foreground h-8 text-xs"
+                          : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm h-8 text-xs"}
+                      >
+                        {item.is_sold ? 'Hacer Disponible' : 'Marcar Vendido'}
+                      </Button>
+                    </div>
                   </TableCell>
                 )}
               </TableRow>
@@ -385,6 +407,17 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
           onSuccess={onItemUpdated}
         />
       )}
+
+      {/* Edit Item Dialog */}
+      <CreateItemDialog
+        open={isEditDialogOpen}
+        onOpenChange={(open) => {
+          setIsEditDialogOpen(open);
+          if (!open) setItemToEdit(null);
+        }}
+        onItemCreated={onItemUpdated}
+        initialData={itemToEdit}
+      />
     </div>
   );
 }

@@ -95,6 +95,7 @@ export interface Item {
   price: number | null;
   stock: number;
   photo_url: string;
+  additional_images?: string[]; // Added support for multiple images
   category_id?: number; // Optional until backend fully enforces it
   is_sold: boolean;
   almacen_id: number;
@@ -108,6 +109,7 @@ export interface ItemCreate {
   price?: number;
   stock: number;
   photo_url: string;
+  additional_images?: string[];
   category_id?: number;
   almacen_id?: number;
   talla?: string;
@@ -119,6 +121,7 @@ export interface ItemUpdate {
   price?: number;
   stock?: number;
   photo_url?: string;
+  additional_images?: string[];
   category_id?: number;
   is_sold?: boolean;
 }
