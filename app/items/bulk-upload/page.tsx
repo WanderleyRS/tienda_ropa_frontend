@@ -130,7 +130,8 @@ export default function BulkUploadPage() {
                 category_id: categories.length > 0 ? categories[0].id : 1,
                 almacen_id: selectedAlmacenId,
                 // Try to map image 1-to-1 if counts match, else default to -1 (none) or 0
-                image_index: index < files.length ? index : -1
+                image_index: index < files.length ? index : -1,
+                size: item.size || undefined // Preserve size from Gemini/Regex
             }));
 
             setItemsToReview(structured);
