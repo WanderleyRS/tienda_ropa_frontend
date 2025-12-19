@@ -79,13 +79,13 @@ export function LeadCaptureModal({ isOpen, onClose, onSuccess, empresaId }: Lead
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px] bg-white border-black text-black">
+            <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold flex items-center gap-2">
                         <Send className="w-6 h-6" />
                         Finalizar Pedido
                     </DialogTitle>
-                    <DialogDescription className="text-gray-600">
+                    <DialogDescription className="text-muted-foreground">
                         Ingresa tus datos para contactarte y coordinar la entrega.
                     </DialogDescription>
                 </DialogHeader>
@@ -94,11 +94,11 @@ export function LeadCaptureModal({ isOpen, onClose, onSuccess, empresaId }: Lead
                     <div className="space-y-2">
                         <Label htmlFor="nombre" className="font-semibold">Nombre *</Label>
                         <div className="relative">
-                            <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                             <Input
                                 id="nombre"
                                 placeholder="Tu nombre"
-                                className="pl-9 border-gray-300 focus:border-black focus:ring-black"
+                                className="pl-9"
                                 value={formData.nombre}
                                 onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                                 required
@@ -112,7 +112,7 @@ export function LeadCaptureModal({ isOpen, onClose, onSuccess, empresaId }: Lead
                             <Input
                                 id="apellido_paterno"
                                 placeholder="Paterno"
-                                className="border-gray-300 focus:border-black focus:ring-black"
+                                className=""
                                 value={formData.apellido_paterno}
                                 onChange={(e) => setFormData({ ...formData, apellido_paterno: e.target.value })}
                                 required
@@ -123,7 +123,7 @@ export function LeadCaptureModal({ isOpen, onClose, onSuccess, empresaId }: Lead
                             <Input
                                 id="apellido_materno"
                                 placeholder="Materno"
-                                className="border-gray-300 focus:border-black focus:ring-black"
+                                className=""
                                 value={formData.apellido_materno}
                                 onChange={(e) => setFormData({ ...formData, apellido_materno: e.target.value })}
                             />
@@ -137,7 +137,7 @@ export function LeadCaptureModal({ isOpen, onClose, onSuccess, empresaId }: Lead
                                 value={formData.prefijo}
                                 onValueChange={(value) => setFormData({ ...formData, prefijo: value })}
                             >
-                                <SelectTrigger className="w-[110px] border-gray-300 focus:ring-black">
+                                <SelectTrigger className="w-[110px]">
                                     <SelectValue placeholder="País" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -150,12 +150,12 @@ export function LeadCaptureModal({ isOpen, onClose, onSuccess, empresaId }: Lead
                                 </SelectContent>
                             </Select>
                             <div className="relative flex-1">
-                                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="celular"
                                     type="tel"
                                     placeholder="Número"
-                                    className="pl-9 border-gray-300 focus:border-black focus:ring-black"
+                                    className="pl-9"
                                     value={formData.celular}
                                     onChange={(e) => setFormData({ ...formData, celular: e.target.value })}
                                     required
@@ -166,7 +166,7 @@ export function LeadCaptureModal({ isOpen, onClose, onSuccess, empresaId }: Lead
 
                     <Button
                         type="submit"
-                        className="w-full bg-black text-white hover:bg-gray-800 transition-colors h-12 text-lg font-medium mt-6"
+                        className="w-full bg-green-600 hover:bg-green-700 text-white h-12 text-lg font-medium mt-6"
                         disabled={isLoading}
                     >
                         {isLoading ? (
