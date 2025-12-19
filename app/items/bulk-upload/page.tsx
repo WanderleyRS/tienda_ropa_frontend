@@ -26,6 +26,7 @@ interface ParsedItem {
     title: string;
     description: string;
     price: number;
+    size?: string; // Talla extraída por Gemini/Regex
 }
 
 interface StructuredItem extends ParsedItem {
@@ -33,6 +34,7 @@ interface StructuredItem extends ParsedItem {
     category_id: number;
     almacen_id: number;
     image_index: number; // Index in the files array
+    size?: string; // Talla (inherited from ParsedItem but explicitly shown)
 }
 
 export default function BulkUploadPage() {
@@ -393,6 +395,15 @@ export default function BulkUploadPage() {
                                                         type="number"
                                                         value={item.stock}
                                                         onChange={(e) => updateItem(idx, 'stock', Number(e.target.value))}
+                                                    />
+                                                </div>
+                                                <div className="space-y-2">
+                                                    <Label>Talla</Label>
+                                                    <Input
+                                                        type="text"
+                                                        placeholder="XS, S, M, L..."
+                                                        value={item.size || ''}
+                                                        onChange={(e) => updateItem(idx, 'size', e.target.value)}
                                                     />
                                                 </div>
                                             </div>
