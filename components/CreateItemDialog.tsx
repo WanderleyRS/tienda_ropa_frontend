@@ -454,8 +454,9 @@ export function CreateItemDialog({
 
               {/* Classification - Auto-populated from selected category */}
               <div className="space-y-2">
-                <label className="text-sm font-medium text-foreground">Clasificación</label>
+                <label htmlFor="classification-field" className="text-sm font-medium text-foreground">Clasificación</label>
                 <input
+                  id="classification-field"
                   type="text"
                   value={
                     form.watch('category_id')
