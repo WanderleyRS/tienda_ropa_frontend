@@ -109,12 +109,14 @@ export default function CarritoPage() {
                         <h1 className="text-2xl font-bold text-foreground">
                             🛒 Carrito de Compras
                         </h1>
-                        <Link href="/tienda">
-                            <Button variant="outline" size="sm">
-                                <ArrowLeft className="mr-2 h-4 w-4" />
-                                Volver a la tienda
-                            </Button>
-                        </Link>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => window.location.href = '/tienda'}
+                        >
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Volver a la tienda
+                        </Button>
                     </div>
                 </div>
             </header>
