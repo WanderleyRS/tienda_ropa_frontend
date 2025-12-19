@@ -9,6 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Loader2, Search, ShoppingBag, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { ProductCard } from '@/components/ProductCard';
+import { CartButton } from '@/components/CartButton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import axios from 'axios';
 
 interface TiendaSlugContentProps {
@@ -128,6 +130,11 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
 
     return (
         <div className="min-h-screen bg-background">
+            {/* Floating Cart Button */}
+            <div className="fixed bottom-6 right-6 z-50">
+                <CartButton />
+            </div>
+
             {/* Hero Section with Company Branding */}
             <div className="bg-secondary/20 border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12 text-center">
@@ -205,27 +212,25 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
                             </select>
                         </div>
 
-                        <Button
-                            variant={selectedCategory === 'all' ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setSelectedCategory('all')}
-                            className="whitespace-nowrap rounded-full"
+                        {/* Category Filter as Select */}
+                        <Select
+                            value={selectedCategory}
+                            onValueChange={setSelectedCategory}
                         >
-                            Todos
-                        </Button>
-                        {categories
-                            .filter(cat => selectedClassificationId === 'all' || cat.classification_id === Number(selectedClassificationId))
-                            .map((category) => (
-                                <Button
-                                    key={category.id}
-                                    variant={selectedCategory === String(category.id) ? "default" : "outline"}
-                                    size="sm"
-                                    onClick={() => setSelectedCategory(String(category.id))}
-                                    className="whitespace-nowrap rounded-full"
-                                >
-                                    {category.name}
-                                </Button>
-                            ))}
+                            <SelectTrigger className="w-full h-12 border-0 bg-secondary/50 hover:bg-secondary focus:ring-0 rounded-xl text-foreground font-medium transition-colors">
+                                <SelectValue placeholder="Categoría" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">Todas</SelectItem>
+                                {categories
+                                    .filter(cat => selectedClassificationId === 'all' || cat.classification_id === Number(selectedClassificationId))
+                                    .map((category) => (
+                                        <SelectItem key={category.id} value={String(category.id)}>
+                                            {category.name}
+                                        </SelectItem>
+                                    ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
 
