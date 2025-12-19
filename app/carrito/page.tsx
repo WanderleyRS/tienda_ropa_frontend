@@ -47,8 +47,15 @@ export default function CarritoPage() {
 
 
     const handleLeadCaptureSuccess = (clienteId: number, nombreCompleto: string, celularCompleto: string) => {
-        // Usar el número de WhatsApp de la empresa si está configurado
-        const whatsappNumber = empresa?.whatsapp_numero;
+        // Verificar que la empresa y su número de WhatsApp estén cargados
+        if (!empresa || !empresa.whatsapp_numero) {
+            toast.error('Error: No se pudo cargar el número de WhatsApp de la tienda');
+            console.error('Empresa data:', empresa);
+            return;
+        }
+
+        const whatsappNumber = empresa.whatsapp_numero;
+        console.log('Enviando pedido a WhatsApp:', whatsappNumber);
         sendToWhatsApp(items, subtotal, nombreCompleto, celularCompleto, whatsappNumber);
         toast.success('Redirigiendo a WhatsApp...');
 
