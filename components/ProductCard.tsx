@@ -14,8 +14,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-    const { addToCart } = useCart();
+    const { addToCart, items } = useCart();
     const isSold = product.is_sold;
+    const isInCart = items.some(item => item.id === product.id);
 
     // Combine main photo and additional images
     const allImages = [
@@ -27,6 +28,10 @@ export function ProductCard({ product }: ProductCardProps) {
     const touchStartX = useRef<number | null>(null);
 
     const handleAddToCart = () => {
+        if (isInCart) {
+            toast.info(`${product.title} ya está en el carrito`);
+            return;
+        }
         addToCart(product);
         toast.success(`${product.title} añadido al carrito`);
     };
@@ -161,10 +166,14 @@ export function ProductCard({ product }: ProductCardProps) {
                     <Button
                         onClick={handleAddToCart}
                         size="sm"
-                        className="w-full md:hidden bg-primary text-primary-foreground shadow-sm"
+                        disabled={isInCart}
+                        className={cn(
+                            "w-full md:hidden shadow-sm",
+                            isInCart ? "bg-green-600 hover:bg-green-600 text-white" : "bg-primary text-primary-foreground"
+                        )}
                     >
                         <ShoppingCart className="mr-2 h-4 w-4" />
-                        Añadir al Carrito
+                        {isInCart ? 'En Carrito' : 'Añadir al Carrito'}
                     </Button>
                 )}
             </div>
