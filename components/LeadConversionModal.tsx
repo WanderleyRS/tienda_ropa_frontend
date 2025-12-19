@@ -126,7 +126,7 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle className="text-2xl font-bold">Registrar Venta</DialogTitle>
                     <DialogDescription>
@@ -139,7 +139,7 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
                     <div>
                         <Label className="text-sm font-medium mb-2 block">Seleccionar Cliente</Label>
                         <div className="relative mb-3">
-                            <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                            <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Buscar por nombre o celular..."
                                 className="pl-9"
@@ -156,8 +156,8 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
                                     Cargando clientes...
                                 </div>
                             ) : filteredLeads.length === 0 ? (
-                                <div className="text-center py-8 text-gray-500">
-                                    <AlertCircle className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                                <div className="text-center py-8 text-muted-foreground">
+                                    <AlertCircle className="w-8 h-8 mx-auto mb-2 text-muted-foreground" />
                                     No se encontraron clientes potenciales
                                 </div>
                             ) : (
@@ -165,24 +165,24 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
                                     {filteredLeads.map((lead) => (
                                         <div
                                             key={lead.id}
-                                            className={`p-3 cursor-pointer hover:bg-gray-50 transition-colors ${selectedLeadId === lead.id ? 'bg-blue-50 border-l-4 border-blue-500' : ''
+                                            className={`p-3 cursor-pointer hover:bg-accent transition-colors ${selectedLeadId === lead.id ? 'bg-primary/10 border-l-4 border-primary' : ''
                                                 }`}
                                             onClick={() => setSelectedLeadId(lead.id)}
                                         >
                                             <div className="flex items-start justify-between">
                                                 <div className="flex-1">
                                                     <div className="flex items-center gap-2">
-                                                        <User className="w-4 h-4 text-gray-500" />
-                                                        <span className="font-medium">{getLeadFullName(lead)}</span>
+                                                        <User className="w-4 h-4 text-muted-foreground" />
+                                                        <span className="font-medium text-foreground">{getLeadFullName(lead)}</span>
                                                         {selectedLeadId === lead.id && (
-                                                            <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                                                            <CheckCircle2 className="w-4 h-4 text-primary" />
                                                         )}
                                                     </div>
-                                                    <div className="flex items-center gap-2 mt-1 text-sm text-gray-600">
+                                                    <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
                                                         <Phone className="w-3 h-3" />
                                                         {lead.celular}
                                                     </div>
-                                                    <div className="text-xs text-gray-500 mt-1">
+                                                    <div className="text-xs text-muted-foreground mt-1">
                                                         Registrado: {format(new Date(lead.fecha_insercion), 'd MMM yyyy', { locale: es })}
                                                     </div>
                                                 </div>
@@ -211,7 +211,7 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
                         </div>
 
                         {registrarAbono && (
-                            <div className="space-y-4 pl-6 border-l-2 border-blue-200">
+                            <div className="space-y-4 pl-6 border-l-2 border-primary/30">
                                 <div>
                                     <Label htmlFor="monto-abono" className="text-sm font-medium mb-2 block">
                                         <DollarSign className="w-4 h-4 inline mr-1" />
@@ -227,7 +227,7 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
                                         value={montoAbono}
                                         onChange={(e) => setMontoAbono(e.target.value)}
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">
+                                    <p className="text-xs text-muted-foreground mt-1">
                                         Máximo: {itemPrice.toFixed(2)} Bs
                                     </p>
                                 </div>

@@ -36,7 +36,7 @@ function DashboardContent() {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
 
   // Filtros
-  const [filterSold, setFilterSold] = useState<boolean | undefined>(undefined);
+  const [filterSold, setFilterSold] = useState<boolean | string | undefined>(undefined);
   const [filterCategory, setFilterCategory] = useState('ALL');
   const [filterAlmacen, setFilterAlmacen] = useState('ALL');
 
@@ -62,9 +62,14 @@ function DashboardContent() {
   const loadItems = async () => {
     try {
       setIsLoading(true);
-      const filters: any = {
-        is_sold: filterSold
-      };
+      const filters: any = {};
+
+      // Handle status filter
+      if (filterSold === 'pendiente') {
+        filters.status = 'pendiente';
+      } else if (filterSold !== undefined) {
+        filters.is_sold = filterSold;
+      }
 
       if (filterCategory && filterCategory !== 'ALL') {
         filters.category_id = parseInt(filterCategory);
@@ -172,6 +177,14 @@ function DashboardContent() {
           </Card>
           <Card className="border-border shadow-sm hover:shadow-md transition-all bg-card">
             <CardHeader className="pb-2">
+              <CardDescription className="text-muted-foreground font-medium">Pendientes</CardDescription>
+              <CardTitle className="text-4xl font-bold text-orange-600 dark:text-orange-400">
+                {items.filter(item => item.status === 'pendiente').length}
+              </CardTitle>
+            </CardHeader>
+          </Card>
+          <Card className="border-border shadow-sm hover:shadow-md transition-all bg-card">
+            <CardHeader className="pb-2">
               <CardDescription className="text-muted-foreground font-medium">Vendidos</CardDescription>
               <CardTitle className="text-4xl font-bold text-foreground">
                 {items.filter(item => item.is_sold).length}
@@ -201,6 +214,14 @@ function DashboardContent() {
                   className="rounded-md"
                 >
                   Disponibles
+                </Button>
+                <Button
+                  variant={filterSold === 'pendiente' ? "default" : "ghost"}
+                  onClick={() => setFilterSold('pendiente' as any)}
+                  size="sm"
+                  className="rounded-md"
+                >
+                  Pendientes
                 </Button>
                 <Button
                   variant={filterSold === true ? "default" : "ghost"}

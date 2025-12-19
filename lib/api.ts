@@ -98,6 +98,7 @@ export interface Item {
   additional_images?: string[]; // Added support for multiple images
   category_id?: number; // Optional until backend fully enforces it
   is_sold: boolean;
+  status?: string; // disponible, pendiente, vendido
   almacen_id: number;
   almacen_nombre?: string;
   talla?: string | null; // Added talla
