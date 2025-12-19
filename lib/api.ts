@@ -337,6 +337,14 @@ export const itemsApi = {
   getSinCompra: async (): Promise<Item[]> => {
     const response = await apiClient.get<Item[]>('/items/sin-compra');
     return response.data;
+  },
+  markPending: async (itemIds: number[]): Promise<{ message: string; item_ids: number[] }> => {
+    const response = await apiClient.post('/items/mark-pending', itemIds);
+    return response.data;
+  },
+  markSold: async (itemId: number): Promise<{ message: string; item_id: number }> => {
+    const response = await apiClient.post(`/items/${itemId}/mark-sold`);
+    return response.data;
   }
 };
 

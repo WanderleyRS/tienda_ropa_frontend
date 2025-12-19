@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { LeadCaptureModal } from '@/components/LeadCaptureModal';
-import { companiesApi, Empresa } from '@/lib/api';
+import { companiesApi, Empresa, itemsApi } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 
@@ -61,7 +61,7 @@ export default function CarritoPage() {
 
 
 
-    const handleLeadCaptureSuccess = (clienteId: number, nombreCompleto: string, celularCompleto: string) => {
+    const handleLeadCaptureSuccess = async (clienteId: number, nombreCompleto: string, celularCompleto: string) => {
         // Verificar que la empresa y su número de WhatsApp estén cargados
         if (!empresa || !empresa.whatsapp_numero) {
             toast.error('Error: No se pudo cargar el número de WhatsApp de la tienda');
@@ -71,8 +71,20 @@ export default function CarritoPage() {
 
         const whatsappNumber = empresa.whatsapp_numero;
         console.log('Enviando pedido a WhatsApp:', whatsappNumber);
+
+        // Send WhatsApp message
         sendToWhatsApp(items, subtotal, nombreCompleto, celularCompleto, whatsappNumber);
-        toast.success('Redirigiendo a WhatsApp...');
+
+        // Mark items as pending
+        try {
+            const itemIds = items.map(item => item.id);
+            await itemsApi.markPending(itemIds);
+            console.log('Items marked as pending:', itemIds);
+            toast.success('Pedido enviado y productos reservados');
+        } catch (error) {
+            console.error('Error marking items as pending:', error);
+            toast.warning('Pedido enviado pero no se pudieron reservar los productos');
+        }
 
         // Limpiar carrito y redirigir a la tienda
         setTimeout(() => {
