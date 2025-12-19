@@ -20,8 +20,21 @@ export default function CarritoPage() {
     const [empresa, setEmpresa] = useState<Empresa | null>(null);
     const router = useRouter();
 
-    // No cargar empresa aquí - el número de WhatsApp se puede obtener de otra forma
-    // o dejarlo vacío para usuarios no autenticados
+    // Load empresa data to get WhatsApp number
+    useEffect(() => {
+        const loadEmpresa = async () => {
+            try {
+                const empresaId = localStorage.getItem('publicEmpresaId');
+                if (empresaId) {
+                    const empresaData = await companiesApi.getPublicEmpresa(parseInt(empresaId));
+                    setEmpresa(empresaData);
+                }
+            } catch (error) {
+                console.error('Error loading empresa:', error);
+            }
+        };
+        loadEmpresa();
+    }, []);
 
     const handleSendToWhatsApp = () => {
         if (items.length === 0) {
