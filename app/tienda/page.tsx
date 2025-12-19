@@ -69,7 +69,7 @@ function TiendaContent() {
 
     useEffect(() => {
         loadData();
-    }, [searchQuery, selectedCategory, selectedClassificationId, selectedSize, publicEmpresaId]);
+    }, [publicEmpresaId]); // Only reload when empresa changes, not when filters change
 
     const loadData = async () => {
         try {
