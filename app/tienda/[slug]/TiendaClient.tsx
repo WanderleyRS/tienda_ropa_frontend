@@ -78,6 +78,19 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
     }, [slug]); // Only reload when slug changes, not when filters change
 
 
+    // Debug: Log filter states and data BEFORE filtering
+    console.log('=== FILTER DEBUG START ===');
+    console.log('Filter States:', {
+        selectedCategory,
+        selectedClassificationId,
+        selectedSize,
+        searchQuery
+    });
+    console.log('Total items:', items.length);
+    console.log('Sample item (first):', items[0]);
+    console.log('Categories available:', categories.map(c => ({ id: c.id, name: c.name, classification_id: c.classification_id })));
+    console.log('=== STARTING FILTER ===');
+
     // Filtering logic
     const filteredItems = items.filter(item => {
         // Debug logging
@@ -119,6 +132,10 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
 
         return result;
     });
+
+    console.log('=== FILTER COMPLETE ===');
+    console.log('Filtered items count:', filteredItems.length);
+    console.log('=== FILTER DEBUG END ===');
 
     if (loading) {
         return (
