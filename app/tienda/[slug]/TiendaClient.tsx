@@ -118,8 +118,8 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
             });
         }
 
-        // Filter by Size
-        const matchesSize = selectedSize === 'all' || item.talla === selectedSize;
+        // Filter by Size - if item has no size (null), show it in all size filters
+        const matchesSize = selectedSize === 'all' || !item.talla || item.talla === selectedSize;
 
         const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));

@@ -118,8 +118,8 @@ function TiendaContent() {
             });
         }
 
-        // Filter by Size
-        const matchesSize = selectedSize === 'all' || product.talla === selectedSize;
+        // Filter by Size - if product has no size (null), show it in all size filters
+        const matchesSize = selectedSize === 'all' || !product.talla || product.talla === selectedSize;
 
         const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
