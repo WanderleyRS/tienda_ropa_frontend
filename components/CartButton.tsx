@@ -10,10 +10,13 @@ export function CartButton() {
 
     return (
         <Link href="/carrito">
-            <Button variant="outline" size="sm" className="relative">
-                <ShoppingCart className="h-4 w-4" />
+            <Button
+                size="lg"
+                className="relative h-14 w-14 rounded-full shadow-2xl hover:shadow-primary/50 transition-all hover:scale-110 bg-primary hover:bg-primary/90"
+            >
+                <ShoppingCart className="h-6 w-6" />
                 {itemCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground text-xs font-bold rounded-full h-6 w-6 flex items-center justify-center animate-pulse">
                         {itemCount}
                     </span>
                 )}
