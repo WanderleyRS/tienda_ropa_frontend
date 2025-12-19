@@ -41,6 +41,10 @@ function TiendaContent() {
 
     useEffect(() => {
         loadBranding();
+        // Save empresa_id to localStorage for cart to use
+        if (publicEmpresaId) {
+            localStorage.setItem('publicEmpresaId', publicEmpresaId);
+        }
     }, [user, publicEmpresaId]);
 
     const loadBranding = async () => {
