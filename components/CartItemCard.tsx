@@ -15,7 +15,7 @@ export function CartItemCard({ item, onUpdateQuantity, onRemove }: CartItemCardP
     const itemSubtotal = item.price * item.quantity;
 
     return (
-        <div className="flex gap-4 p-4 bg-white rounded-lg border">
+        <div className="flex gap-4 p-4 bg-card rounded-lg border border-border">
             {/* Product Image */}
             <div className="w-24 h-24 flex-shrink-0">
                 <img
@@ -32,7 +32,7 @@ export function CartItemCard({ item, onUpdateQuantity, onRemove }: CartItemCardP
             <div className="flex-1 flex flex-col justify-between">
                 <div>
                     <h3 className="font-semibold text-lg">{item.title}</h3>
-                    <p className="text-sm text-gray-500">Precio unitario: {item.price.toFixed(2)} Bs</p>
+                    <p className="text-sm text-muted-foreground">Precio unitario: {item.price.toFixed(2)} Bs</p>
                 </div>
 
                 {/* Quantity Controls */}
@@ -60,7 +60,7 @@ export function CartItemCard({ item, onUpdateQuantity, onRemove }: CartItemCardP
                         variant="ghost"
                         size="sm"
                         onClick={() => onRemove(item.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                     >
                         <Trash2 className="h-4 w-4" />
                     </Button>
@@ -70,7 +70,7 @@ export function CartItemCard({ item, onUpdateQuantity, onRemove }: CartItemCardP
             {/* Subtotal */}
             <div className="flex flex-col items-end justify-between">
                 <div className="text-right">
-                    <p className="text-sm text-gray-500">Subtotal</p>
+                    <p className="text-sm text-muted-foreground">Subtotal</p>
                     <p className="text-xl font-bold">{itemSubtotal.toFixed(2)} Bs</p>
                 </div>
             </div>
