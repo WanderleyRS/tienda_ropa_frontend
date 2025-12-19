@@ -48,9 +48,11 @@ export default function CarritoPage() {
                     setEmpresa(empresaData);
                 } else {
                     console.warn('No empresa_id found in user or localStorage');
+                    toast.error('No se pudo cargar la información de la tienda. Por favor, accede desde el enlace compartido.');
                 }
             } catch (error) {
                 console.error('Error loading empresa:', error);
+                toast.error('Error al cargar información de la tienda');
             }
         };
         loadEmpresa();

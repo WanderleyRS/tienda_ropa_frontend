@@ -24,6 +24,12 @@ function TiendaContent() {
     const searchParams = useSearchParams();
     const publicEmpresaId = searchParams.get('empresa_id');
 
+    // CRITICAL: Save empresa_id to localStorage IMMEDIATELY
+    if (typeof window !== 'undefined' && publicEmpresaId) {
+        localStorage.setItem('publicEmpresaId', publicEmpresaId);
+        console.log('Saved publicEmpresaId to localStorage:', publicEmpresaId);
+    }
+
     const [products, setProducts] = useState<Item[]>([]);
     const [categories, setCategories] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -42,10 +48,6 @@ function TiendaContent() {
 
     useEffect(() => {
         loadBranding();
-        // Save empresa_id to localStorage for cart to use
-        if (publicEmpresaId) {
-            localStorage.setItem('publicEmpresaId', publicEmpresaId);
-        }
     }, [user, publicEmpresaId]);
 
     const loadBranding = async () => {
