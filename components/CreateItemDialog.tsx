@@ -313,20 +313,6 @@ export function CreateItemDialog({
               <div className="grid grid-cols-2 gap-5">
                 <FormField
                   control={form.control}
-                  name="talla"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-foreground font-medium">Talla</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Ej: M" {...field} className="bg-secondary/20 border-border/50" />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
                   name="price"
                   render={({ field }) => (
                     <FormItem>
