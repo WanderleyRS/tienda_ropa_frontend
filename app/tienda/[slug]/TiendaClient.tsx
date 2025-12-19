@@ -80,6 +80,16 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
 
     // Filtering logic
     const filteredItems = items.filter(item => {
+        // Debug logging
+        console.log('Filtering item:', {
+            title: item.title,
+            category_id: item.category_id,
+            talla: item.talla,
+            selectedCategory,
+            selectedSize,
+            selectedClassificationId
+        });
+
         // Filter by Category
         const matchesCategory = selectedCategory === 'all' || item.category_id === Number(selectedCategory);
 
@@ -88,6 +98,11 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
         if (selectedClassificationId !== 'all') {
             const cat = categories.find(c => c.id === item.category_id);
             matchesClassification = cat?.classification_id === Number(selectedClassificationId);
+            console.log('Classification check:', {
+                itemCategory: cat,
+                expectedClassificationId: Number(selectedClassificationId),
+                matches: matchesClassification
+            });
         }
 
         // Filter by Size
@@ -99,7 +114,10 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
         // Ensure we only show unsold items for public view
         const isAvailable = !item.is_sold;
 
-        return matchesCategory && matchesSearch && matchesClassification && matchesSize && isAvailable;
+        const result = matchesCategory && matchesSearch && matchesClassification && matchesSize && isAvailable;
+        console.log('Filter result:', { matchesCategory, matchesClassification, matchesSize, matchesSearch, isAvailable, finalResult: result });
+
+        return result;
     });
 
     if (loading) {
