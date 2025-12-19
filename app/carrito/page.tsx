@@ -31,15 +31,20 @@ export default function CarritoPage() {
 
                 if (user?.empresa_id) {
                     empresaId = user.empresa_id;
+                    console.log('Using empresa_id from user:', empresaId);
                 } else {
                     const storedId = localStorage.getItem('publicEmpresaId');
+                    console.log('publicEmpresaId from localStorage:', storedId);
                     if (storedId) {
                         empresaId = parseInt(storedId);
+                        console.log('Parsed empresaId:', empresaId);
                     }
                 }
 
                 if (empresaId) {
+                    console.log('Loading empresa data for ID:', empresaId);
                     const empresaData = await companiesApi.getPublicEmpresa(empresaId);
+                    console.log('Empresa data loaded:', empresaData);
                     setEmpresa(empresaData);
                 } else {
                     console.warn('No empresa_id found in user or localStorage');
