@@ -42,6 +42,12 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
                 const empresaData = await companiesApi.getPublicEmpresaBySlug(slug);
                 setEmpresa(empresaData);
 
+                // CRITICAL: Save empresa_id to localStorage for cart to use
+                if (empresaData?.id) {
+                    localStorage.setItem('publicEmpresaId', empresaData.id.toString());
+                    console.log('Saved publicEmpresaId to localStorage from slug:', empresaData.id);
+                }
+
                 // 2. Fetch Categories and Classifications for this company
                 const [categoriesData, classificationsData] = await Promise.all([
                     categoriesApi.getAll({ empresa_id: empresaData.id }),
