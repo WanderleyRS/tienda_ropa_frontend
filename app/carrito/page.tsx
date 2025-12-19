@@ -47,12 +47,12 @@ export default function CarritoPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50">
+        <div className="min-h-screen bg-background">
             {/* Header */}
-            <header className="bg-white border-b border-gray-200">
+            <header className="bg-card border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex items-center justify-between">
-                        <h1 className="text-2xl font-bold text-gray-900">
+                        <h1 className="text-2xl font-bold text-foreground">
                             🛒 Carrito de Compras
                         </h1>
                         <Link href="/tienda">
@@ -69,7 +69,7 @@ export default function CarritoPage() {
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {items.length === 0 ? (
                     /* Empty Cart State */
-                    <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-border">
+                    <div className="text-center py-24 bg-card rounded-3xl border border-dashed border-border">
                         <div className="bg-secondary/50 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-6">
                             <ShoppingCart className="h-10 w-10 text-primary" />
                         </div>
