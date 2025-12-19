@@ -139,10 +139,14 @@ export function ProductCard({ product }: ProductCardProps) {
                     <div className="hidden md:block absolute bottom-12 left-4 right-4 translate-y-4 opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100 z-10">
                         <Button
                             onClick={handleAddToCart}
-                            className="w-full bg-white/90 text-black hover:bg-white shadow-lg backdrop-blur-sm font-medium"
+                            disabled={isInCart}
+                            className={cn(
+                                "w-full shadow-lg backdrop-blur-sm font-medium",
+                                isInCart ? "bg-green-600 hover:bg-green-600 text-white" : "bg-white/90 text-black hover:bg-white"
+                            )}
                         >
                             <ShoppingCart className="mr-2 h-4 w-4" />
-                            Añadir
+                            {isInCart ? 'En Carrito' : 'Añadir'}
                         </Button>
                     </div>
                 )}
