@@ -78,31 +78,8 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
     }, [slug]); // Only reload when slug changes, not when filters change
 
 
-    // Debug: Log filter states and data BEFORE filtering
-    console.log('=== FILTER DEBUG START ===');
-    console.log('Filter States:', {
-        selectedCategory,
-        selectedClassificationId,
-        selectedSize,
-        searchQuery
-    });
-    console.log('Total items:', items.length);
-    console.log('Sample item (first):', items[0]);
-    console.log('Categories available:', categories.map(c => ({ id: c.id, name: c.name, classification_id: c.classification_id })));
-    console.log('=== STARTING FILTER ===');
-
     // Filtering logic
     const filteredItems = items.filter(item => {
-        // Debug logging
-        console.log('Filtering item:', {
-            title: item.title,
-            category_id: item.category_id,
-            talla: item.talla,
-            selectedCategory,
-            selectedSize,
-            selectedClassificationId
-        });
-
         // Filter by Category
         const matchesCategory = selectedCategory === 'all' || item.category_id === Number(selectedCategory);
 
@@ -111,11 +88,6 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
         if (selectedClassificationId !== 'all') {
             const cat = categories.find(c => c.id === item.category_id);
             matchesClassification = cat?.classification_id === Number(selectedClassificationId);
-            console.log('Classification check:', {
-                itemCategory: cat,
-                expectedClassificationId: Number(selectedClassificationId),
-                matches: matchesClassification
-            });
         }
 
         // Filter by Size - if item has no size (null), show it in all size filters
@@ -127,15 +99,8 @@ function TiendaSlugContent({ slug }: TiendaSlugContentProps) {
         // Ensure we only show unsold items for public view
         const isAvailable = !item.is_sold;
 
-        const result = matchesCategory && matchesSearch && matchesClassification && matchesSize && isAvailable;
-        console.log('Filter result:', { matchesCategory, matchesClassification, matchesSize, matchesSearch, isAvailable, finalResult: result });
-
-        return result;
+        return matchesCategory && matchesSearch && matchesClassification && matchesSize && isAvailable;
     });
-
-    console.log('=== FILTER COMPLETE ===');
-    console.log('Filtered items count:', filteredItems.length);
-    console.log('=== FILTER DEBUG END ===');
 
     if (loading) {
         return (

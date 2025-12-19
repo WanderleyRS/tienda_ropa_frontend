@@ -93,16 +93,6 @@ function TiendaContent() {
     };
 
     const filteredProducts = products.filter(product => {
-        // Debug logging
-        console.log('Filtering product:', {
-            title: product.title,
-            category_id: product.category_id,
-            talla: product.talla,
-            selectedCategory,
-            selectedSize,
-            selectedClassificationId
-        });
-
         // Filter by Category
         const matchesCategory = selectedCategory === 'all' || product.category_id === Number(selectedCategory);
 
@@ -111,11 +101,6 @@ function TiendaContent() {
         if (selectedClassificationId !== 'all') {
             const cat = categories.find(c => c.id === product.category_id);
             matchesClassification = cat?.classification_id === Number(selectedClassificationId);
-            console.log('Classification check:', {
-                productCategory: cat,
-                expectedClassificationId: Number(selectedClassificationId),
-                matches: matchesClassification
-            });
         }
 
         // Filter by Size - if product has no size (null), show it in all size filters
@@ -124,10 +109,7 @@ function TiendaContent() {
         const matchesSearch = product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (product.description && product.description.toLowerCase().includes(searchQuery.toLowerCase()));
 
-        const result = matchesCategory && matchesSearch && matchesClassification && matchesSize;
-        console.log('Filter result:', { matchesCategory, matchesClassification, matchesSize, matchesSearch, finalResult: result });
-
-        return result;
+        return matchesCategory && matchesSearch && matchesClassification && matchesSize;
     });
 
     return (
