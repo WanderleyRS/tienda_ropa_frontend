@@ -293,16 +293,27 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
                       >
                         <Edit2 className="h-4 w-4" />
                       </Button>
-                      <Button
-                        size="sm"
-                        variant={item.is_sold ? "outline" : "default"}
-                        onClick={() => handleSoldClick(item)}
-                        className={item.is_sold
-                          ? "text-muted-foreground hover:text-foreground h-8 text-xs"
-                          : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm h-8 text-xs"}
-                      >
-                        {item.is_sold ? 'Hacer Disponible' : 'Marcar Vendido'}
-                      </Button>
+                      {item.status === 'pendiente' ? (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleRevertClick(item)}
+                          className="h-8 text-xs"
+                        >
+                          Volver a disponible
+                        </Button>
+                      ) : (
+                        <Button
+                          size="sm"
+                          variant={item.is_sold ? "outline" : "default"}
+                          onClick={() => handleSoldClick(item)}
+                          className={item.is_sold
+                            ? "text-muted-foreground hover:text-foreground h-8 text-xs"
+                            : "bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm h-8 text-xs"}
+                        >
+                          {item.is_sold ? 'Hacer Disponible' : 'Marcar Vendido'}
+                        </Button>
+                      )}
                     </div>
                   </TableCell>
                 )}
