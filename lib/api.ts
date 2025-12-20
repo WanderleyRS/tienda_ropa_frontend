@@ -346,6 +346,10 @@ export const itemsApi = {
   markSold: async (itemId: number): Promise<{ message: string; item_id: number }> => {
     const response = await apiClient.post(`/items/${itemId}/mark-sold`);
     return response.data;
+  },
+  markAvailable: async (itemId: number): Promise<{ message: string; item_id: number }> => {
+    const response = await apiClient.post(`/items/${itemId}/mark-available`);
+    return response.data;
   }
 };
 

@@ -111,6 +111,19 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
     }
   };
 
+  const handleRevertClick = (item: Item) => {
+    // Revert pending item back to available
+    itemsApi
+      .markAvailable(item.id)
+      .then(() => {
+        toast.success('Ítem devuelto a disponible');
+        onItemUpdated();
+      })
+      .catch((error) => {
+        toast.error('Error al revertir estado');
+      });
+  };
+
   if (items.length === 0) {
     return (
       <div className="text-center py-16 text-muted-foreground bg-secondary/10 rounded-lg border border-dashed border-border">
