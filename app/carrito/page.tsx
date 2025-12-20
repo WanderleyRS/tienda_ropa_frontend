@@ -226,6 +226,7 @@ export default function CarritoPage() {
                 isOpen={isLeadModalOpen}
                 onClose={() => setIsLeadModalOpen(false)}
                 onSuccess={handleLeadCaptureSuccess}
+                empresaId={empresa?.id}
             />
         </div>
     );
