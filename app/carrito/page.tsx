@@ -112,7 +112,10 @@ export default function CarritoPage() {
                         <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => window.location.href = '/tienda'}
+                            onClick={() => {
+                                const empresaId = localStorage.getItem('publicEmpresaId');
+                                window.location.href = empresaId ? `/tienda?empresa_id=${empresaId}` : '/tienda';
+                            }}
                         >
                             <ArrowLeft className="mr-2 h-4 w-4" />
                             Volver a la tienda
