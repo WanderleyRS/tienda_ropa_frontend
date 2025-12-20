@@ -53,7 +53,9 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
         setIsLoading(true);
         try {
             // Cargar TODOS los clientes activos (PENDIENTE primero, luego CONVERTIDO)
+            console.log('Fetching leads...');
             const data = await clientesApi.listarTodos();
+            console.log('Leads fetched:', data);
             setLeads(data);
         } catch (error) {
             console.error('Error loading leads:', error);
