@@ -171,7 +171,7 @@ function DashboardContent() {
             <CardHeader className="pb-2">
               <CardDescription className="text-muted-foreground font-medium">Disponibles</CardDescription>
               <CardTitle className="text-4xl font-bold text-foreground">
-                {items.filter(item => !item.is_sold).length}
+                {items.filter(item => !item.is_sold && item.status !== 'pendiente').length}
               </CardTitle>
             </CardHeader>
           </Card>

@@ -89,6 +89,7 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
   };
 
   const handleSoldClick = (item: Item) => {
+    console.log('Debug Item Data:', { id: item.id, status: item.status, is_sold: item.is_sold });
     if (item.is_sold) {
       // Si ya está vendido, lo marcamos como disponible directamente
       itemsApi
@@ -274,10 +275,10 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
                 <TableCell>
                   <span
                     className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.status === 'vendido'
-                        ? 'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800'
-                        : item.status === 'pendiente'
-                          ? 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
-                          : 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
+                      ? 'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800'
+                      : item.status === 'pendiente'
+                        ? 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
+                        : 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
                       }`}
                   >
                     {item.status === 'vendido' ? 'Vendido' : item.status === 'pendiente' ? 'Pendiente' : 'Disponible'}
@@ -296,14 +297,23 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
                         <Edit2 className="h-4 w-4" />
                       </Button>
                       {item.status === 'pendiente' ? (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleRevertClick(item)}
-                          className="h-8 text-xs"
-                        >
-                          Volver a disponible
-                        </Button>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleRevertClick(item)}
+                            className="h-8 text-xs whitespace-nowrap"
+                          >
+                            Volver a disponible
+                          </Button>
+                          <Button
+                            size="sm"
+                            className="h-8 bg-primary hover:bg-primary/90 text-primary-foreground shadow-sm text-xs whitespace-nowrap"
+                            onClick={() => handleSoldClick(item)}
+                          >
+                            Marcar Vendido
+                          </Button>
+                        </div>
                       ) : (
                         <Button
                           size="sm"
