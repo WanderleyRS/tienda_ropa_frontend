@@ -273,12 +273,14 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
                 </TableCell>
                 <TableCell>
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.is_sold
-                      ? 'bg-orange-50 text-orange-700 border-orange-100'
-                      : 'bg-green-50 text-green-700 border-green-100'
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${item.status === 'vendido'
+                        ? 'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-900/20 dark:text-orange-400 dark:border-orange-800'
+                        : item.status === 'pendiente'
+                          ? 'bg-yellow-50 text-yellow-700 border-yellow-100 dark:bg-yellow-900/20 dark:text-yellow-400 dark:border-yellow-800'
+                          : 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800'
                       }`}
                   >
-                    {item.is_sold ? 'Vendido' : 'Disponible'}
+                    {item.status === 'vendido' ? 'Vendido' : item.status === 'pendiente' ? 'Pendiente' : 'Disponible'}
                   </span>
                 </TableCell>
                 {canEdit && (
