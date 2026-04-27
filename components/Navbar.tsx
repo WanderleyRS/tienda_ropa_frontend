@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { CartButton } from '@/components/CartButton';
-import { LogOut, Building2, Menu, X, Moon, Sun, Share2 } from 'lucide-react';
+import { LogOut, Building2, Menu, X, Moon, Sun, Share2, ChevronDown, LayoutDashboard, ShoppingBag, Settings, Briefcase, Users, Package, FileText, Calendar, UserCheck, ClipboardList, Database } from 'lucide-react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -56,18 +56,12 @@ function NavbarContent() {
         { href: isPublicStore ? `/tienda?empresa_id=${publicEmpresaId}` : '/tienda', label: 'Tienda' },
     ];
 
-    // Authenticated-only navigation items
-    const authNavItems = [
-        { href: '/dashboard', label: 'Dashboard' },
-        { href: '/ventas', label: 'Ventas' },
-        { href: '/compras', label: 'Compras' },
-        { href: '/agenda', label: 'Agenda' },
-        { href: '/clientes', label: 'Clientes' },
-        { href: '/reportes', label: 'Reportes' },
-        { href: '/items/bulk-upload', label: 'Carga Masiva' },
-        { href: '/inventario/configuracion', label: 'Config' },
-        ...(user?.role === 'admin' ? [{ href: '/usuarios', label: 'Usuarios' }] : []),
-    ];
+    const isAdmin = user?.role === 'admin' || user?.role === 'super_admin';
+    const isSuperAdmin = user?.role === 'super_admin';
+
+    // Dropdown states
+    const [gestionOpen, setGestionOpen] = useState(false);
+    const [configOpen, setConfigOpen] = useState(false);
 
     // Determine Logo Link
     const logoLink = isAuthenticated
@@ -108,52 +102,111 @@ function NavbarContent() {
                         )}
 
                         {/* Desktop Navigation */}
-                        <nav className="hidden md:flex gap-1">
-                            {/* Public links */}
-                            {publicNavItems.map((item) => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={cn(
-                                        "px-4 py-2 rounded-full text-sm font-medium transition-all",
-                                        pathname === item.href || (isPublicStore && pathname === '/tienda')
-                                            ? "bg-primary/10 text-primary font-bold"
-                                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                                    )}
-                                >
-                                    {item.label}
-                                </Link>
-                            ))}
+                        <nav className="hidden md:flex items-center gap-1">
+                            {/* Tienda (Public/Private) */}
+                            <Link
+                                href={isPublicStore ? `/tienda?empresa_id=${publicEmpresaId}` : '/tienda'}
+                                className={cn(
+                                    "px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
+                                    pathname === '/tienda' || (isPublicStore && pathname === '/tienda')
+                                        ? "bg-primary/10 text-primary font-bold shadow-sm"
+                                        : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                )}
+                            >
+                                <ShoppingBag className="h-4 w-4" />
+                                <span>Tienda</span>
+                            </Link>
 
-                            {/* Authenticated links */}
-                            {isAuthenticated && authNavItems.map((item) => (
-                                <Link
-                                    key={item.href}
-                                    href={item.href}
-                                    className={cn(
-                                        "px-4 py-2 rounded-full text-sm font-medium transition-all",
-                                        pathname === item.href
-                                            ? "bg-primary/10 text-primary font-bold"
-                                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                                    )}
-                                >
-                                    {item.label}
-                                </Link>
-                            ))}
+                            {isAuthenticated && (
+                                <>
+                                    {/* Dashboard */}
+                                    <Link
+                                        href="/dashboard"
+                                        className={cn(
+                                            "px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
+                                            pathname === '/dashboard'
+                                                ? "bg-primary/10 text-primary font-bold shadow-sm"
+                                                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                        )}
+                                    >
+                                        <LayoutDashboard className="h-4 w-4" />
+                                        <span>Dashboard</span>
+                                    </Link>
 
-                            {/* Enlace a Empresa - Solo para Admins */}
-                            {user?.role === 'admin' && (
-                                <Link
-                                    href="/empresa"
-                                    className={cn(
-                                        "px-4 py-2 rounded-full text-sm font-medium transition-all",
-                                        pathname === '/empresa'
-                                            ? "bg-primary/10 text-primary font-bold"
-                                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-                                    )}
-                                >
-                                    Empresa
-                                </Link>
+                                    {/* Gestión Dropdown */}
+                                    <div className="relative group" onMouseEnter={() => setGestionOpen(true)} onMouseLeave={() => setGestionOpen(false)}>
+                                        <button
+                                            className={cn(
+                                                "px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
+                                                ['/ventas', '/compras', '/agenda', '/clientes', '/reportes'].includes(pathname)
+                                                    ? "bg-primary/10 text-primary font-bold"
+                                                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                            )}
+                                        >
+                                            <Briefcase className="h-4 w-4" />
+                                            <span>Gestión</span>
+                                            <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", gestionOpen && "rotate-180")} />
+                                        </button>
+                                        
+                                        {gestionOpen && (
+                                            <div className="absolute top-full left-0 w-48 mt-1 bg-popover border border-border rounded-xl shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200 z-50">
+                                                <Link href="/ventas" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                                                    <ClipboardList className="h-4 w-4" /> Ventas
+                                                </Link>
+                                                <Link href="/compras" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                                                    <Package className="h-4 w-4" /> Compras
+                                                </Link>
+                                                <Link href="/agenda" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                                                    <Calendar className="h-4 w-4" /> Agenda
+                                                </Link>
+                                                <Link href="/clientes" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                                                    <Users className="h-4 w-4" /> Clientes
+                                                </Link>
+                                                <Link href="/reportes" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                                                    <FileText className="h-4 w-4" /> Reportes
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Configuración Dropdown */}
+                                    <div className="relative group" onMouseEnter={() => setConfigOpen(true)} onMouseLeave={() => setConfigOpen(false)}>
+                                        <button
+                                            className={cn(
+                                                "px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
+                                                ['/items/bulk-upload', '/inventario/configuracion', '/empresa', '/usuarios'].includes(pathname)
+                                                    ? "bg-primary/10 text-primary font-bold"
+                                                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                            )}
+                                        >
+                                            <Settings className="h-4 w-4" />
+                                            <span>Configuración</span>
+                                            <ChevronDown className={cn("h-3 w-3 transition-transform duration-200", configOpen && "rotate-180")} />
+                                        </button>
+                                        
+                                        {configOpen && (
+                                            <div className="absolute top-full right-0 lg:left-0 w-52 mt-1 bg-popover border border-border rounded-xl shadow-2xl p-2 animate-in fade-in zoom-in-95 duration-200 z-50">
+                                                <Link href="/inventario/configuracion" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                                                    <Database className="h-4 w-4" /> Inventario
+                                                </Link>
+                                                <Link href="/items/bulk-upload" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                                                    <Share2 className="h-4 w-4" /> Carga Masiva
+                                                </Link>
+                                                {isAdmin && (
+                                                    <>
+                                                        <div className="h-px bg-border my-1" />
+                                                        <Link href="/empresa" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                                                            <Building2 className="h-4 w-4" /> Datos Empresa
+                                                        </Link>
+                                                        <Link href="/usuarios" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors">
+                                                            <UserCheck className="h-4 w-4" /> Usuarios
+                                                        </Link>
+                                                    </>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </>
                             )}
                         </nav>
                     </div>
@@ -286,61 +339,54 @@ function NavbarContent() {
                         </div>
 
                         {/* Public links */}
-                        {publicNavItems.map((item) => (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={cn(
-                                    "block px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                                    pathname === item.href
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                                )}
-                            >
-                                {item.label}
-                            </Link>
-                        ))}
+                        <Link
+                            href={isPublicStore ? `/tienda?empresa_id=${publicEmpresaId}` : '/tienda'}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={cn(
+                                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                                pathname === '/tienda' ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary"
+                            )}
+                        >
+                            <ShoppingBag className="h-5 w-5" /> Tienda
+                        </Link>
 
                         {/* Authenticated links */}
-                        {authNavItems.map((item) => (
-                            <Link
-                                key={item.href}
-                                href={item.href}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={cn(
-                                    "block px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                                    pathname === item.href
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                                )}
-                            >
-                                {item.label}
-                            </Link>
-                        ))}
+                        <Link
+                            href="/dashboard"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={cn(
+                                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                                pathname === '/dashboard' ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary"
+                            )}
+                        >
+                            <LayoutDashboard className="h-5 w-5" /> Dashboard
+                        </Link>
 
-                        {/* Empresa link for admins */}
-                        {user?.role === 'admin' && (
-                            <Link
-                                href="/empresa"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={cn(
-                                    "block px-4 py-3 rounded-lg text-sm font-medium transition-all",
-                                    pathname === '/empresa'
-                                        ? "bg-primary/10 text-primary"
-                                        : "text-muted-foreground hover:bg-secondary hover:text-foreground"
-                                )}
-                            >
-                                Empresa
-                            </Link>
+                        <div className="pt-2 pb-1 px-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Gestión</div>
+                        <Link href="/ventas" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground"><ClipboardList className="h-4 w-4" /> Ventas</Link>
+                        <Link href="/compras" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground"><Package className="h-4 w-4" /> Compras</Link>
+                        <Link href="/agenda" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground"><Calendar className="h-4 w-4" /> Agenda</Link>
+                        <Link href="/clientes" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground"><Users className="h-4 w-4" /> Clientes</Link>
+                        <Link href="/reportes" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground"><FileText className="h-4 w-4" /> Reportes</Link>
+
+                        <div className="pt-4 pb-1 px-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Configuración</div>
+                        <Link href="/inventario/configuracion" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground"><Database className="h-4 w-4" /> Inventario</Link>
+                        <Link href="/items/bulk-upload" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground"><Share2 className="h-4 w-4" /> Carga Masiva</Link>
+                        
+                        {isAdmin && (
+                            <>
+                                <Link href="/empresa" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground"><Building2 className="h-4 w-4" /> Datos Empresa</Link>
+                                <Link href="/usuarios" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 px-4 py-2 rounded-lg text-sm text-muted-foreground"><UserCheck className="h-4 w-4" /> Usuarios</Link>
+                            </>
                         )}
 
+                        <div className="pt-4" />
                         {/* Logout button */}
                         <button
                             onClick={handleLogout}
-                            className="w-full text-left px-4 py-3 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-all"
+                            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-destructive hover:bg-destructive/10 transition-all"
                         >
-                            <LogOut className="h-4 w-4 inline mr-2" />
+                            <LogOut className="h-5 w-5" />
                             Cerrar sesión
                         </button>
                     </nav>
