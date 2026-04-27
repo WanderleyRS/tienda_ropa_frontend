@@ -11,15 +11,28 @@ import { Navbar } from '@/components/Navbar';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { UserPlus, Users } from 'lucide-react';
+import { Almacen, companiesApi } from '@/lib/api';
+import { useEffect } from 'react';
 
 export default function UsersManagementPage() {
     const { user, isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
-    const [role, setRole] = useState<'admin' | 'vendedor'>('vendedor');
+    const [role, setRole] = useState<'super_admin' | 'admin' | 'vendedor'>('vendedor');
     const [selectedAlmacenes, setSelectedAlmacenes] = useState<number[]>([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [almacenes, setAlmacenes] = useState<Almacen[]>([]);
+
+    useEffect(() => {
+        if (user) {
+            if (user.role === 'super_admin') {
+                companiesApi.getAlmacenes().then(setAlmacenes);
+            } else {
+                setAlmacenes(user.almacenes || []);
+            }
+        }
+    }, [user]);
 
     // Initialize selectedAlmacenes when user loads
     // Default to all available almacenes for convenience
@@ -127,7 +140,7 @@ export default function UsersManagementPage() {
                                 <select
                                     id="role"
                                     value={role}
-                                    onChange={(e) => setRole(e.target.value as 'admin' | 'vendedor')}
+                                    onChange={(e) => setRole(e.target.value as 'super_admin' | 'admin' | 'vendedor')}
                                     disabled={isSubmitting}
                                     className="w-full px-3 py-2 border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring bg-transparent text-foreground"
                                 >
@@ -139,8 +152,8 @@ export default function UsersManagementPage() {
                             <div className="space-y-2">
                                 <Label>Asignar Almacenes</Label>
                                 <div className="border border-input rounded-md p-3 space-y-2 bg-card">
-                                    {user?.almacenes && user.almacenes.length > 0 ? (
-                                        user.almacenes.map((almacen) => (
+                                    {almacenes && almacenes.length > 0 ? (
+                                        almacenes.map((almacen) => (
                                             <div key={almacen.id} className="flex items-center space-x-2">
                                                 <input
                                                     type="checkbox"

@@ -12,6 +12,7 @@ import { useState, Suspense, useEffect } from 'react';
 import { toast } from 'sonner';
 
 import { companiesApi } from '@/lib/api';
+import { TenantSwitcher } from '@/components/TenantSwitcher';
 
 function NavbarContent() {
     const { user, logout, isAuthenticated } = useAuth();
@@ -98,6 +99,13 @@ function NavbarContent() {
                                 {displayTitle}
                             </span>
                         </Link>
+
+                        {/* Tenant Switcher for Super Admins */}
+                        {user?.role === 'super_admin' && (
+                            <div className="hidden lg:block">
+                                <TenantSwitcher />
+                            </div>
+                        )}
 
                         {/* Desktop Navigation */}
                         <nav className="hidden md:flex gap-1">

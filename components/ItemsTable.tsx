@@ -22,7 +22,7 @@ import { CreateItemDialog } from '@/components/CreateItemDialog';
 interface ItemsTableProps {
   items: Item[];
   onItemUpdated: () => void;
-  userRole?: 'admin' | 'vendedor';
+  userRole?: 'super_admin' | 'admin' | 'vendedor';
 }
 
 export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) {
@@ -39,7 +39,7 @@ export function ItemsTable({ items, onItemUpdated, userRole }: ItemsTableProps) 
   const [conversionModalOpen, setConversionModalOpen] = useState(false);
   const [selectedItemForConversion, setSelectedItemForConversion] = useState<{ id: number, title: string, price: number } | null>(null);
 
-  const canEdit = userRole === 'admin' || userRole === 'vendedor';
+  const canEdit = userRole === 'super_admin' || userRole === 'admin' || userRole === 'vendedor';
 
   const handleEditClick = (item: Item) => {
     setItemToEdit(item);

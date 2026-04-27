@@ -46,12 +46,13 @@ function DashboardContent() {
 
   const loadInitialData = async () => {
     try {
+      const isStaff = user?.role === 'admin' || user?.role === 'super_admin';
       const [catsData, almacenesData] = await Promise.all([
         categoriesApi.getAll(),
-        user?.role === 'admin' ? companiesApi.getAlmacenes() : Promise.resolve([])
+        isStaff ? companiesApi.getAlmacenes() : Promise.resolve([])
       ]);
       setCategories(catsData);
-      if (user?.role === 'admin') {
+      if (isStaff) {
         setAlmacenes(almacenesData);
       }
     } catch (err) {
@@ -95,7 +96,16 @@ function DashboardContent() {
     // Si el usuario es admin y no tiene almacenes configurados, no cargamos items
     // Mostramos el prompt de configuración en su lugar
     const hasAlmacenes = user?.almacenes && user.almacenes.length > 0;
+    const isSuperAdmin = user?.role === 'super_admin';
+    
     if (user?.role === 'admin' && !hasAlmacenes) {
+      setIsLoading(false);
+      return;
+    }
+
+    // Para super_admin, si no hay empresa seleccionada, no cargamos nada
+    const activeEmpresaId = typeof window !== 'undefined' ? localStorage.getItem('active_empresa_id') : null;
+    if (isSuperAdmin && !activeEmpresaId) {
       setIsLoading(false);
       return;
     }
@@ -121,6 +131,9 @@ function DashboardContent() {
 
   // VISTA: Admin sin empresa configurada
   const hasAlmacenes = user?.almacenes && user.almacenes.length > 0;
+  const isSuperAdmin = user?.role === 'super_admin';
+  const activeEmpresaId = typeof window !== 'undefined' ? localStorage.getItem('active_empresa_id') : null;
+
   if (user?.role === 'admin' && !hasAlmacenes) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -146,6 +159,28 @@ function DashboardContent() {
                 </Button>
               </Link>
             </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // VISTA: Super Admin sin empresa seleccionada
+  if (isSuperAdmin && !activeEmpresaId) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="max-w-4xl mx-auto px-4 py-12">
+          <Card className="border-primary/20 bg-primary/5">
+            <CardHeader className="text-center">
+              <div className="mx-auto bg-primary/10 w-16 h-16 rounded-full flex items-center justify-center mb-4">
+                <Building2 className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-2xl font-bold">Panel de Super Admin</CardTitle>
+              <CardDescription className="text-lg">
+                Selecciona una empresa en la barra superior para gestionar sus inventarios, ventas y reportes.
+              </CardDescription>
+            </CardHeader>
           </Card>
         </div>
       </div>
@@ -248,8 +283,8 @@ function DashboardContent() {
                 </SelectContent>
               </Select>
 
-              {/* Filtro Almacén (Admin) */}
-              {user?.role === 'admin' && (
+              {/* Filtro Almacén (Admin/SuperAdmin) */}
+              {(user?.role === 'admin' || user?.role === 'super_admin') && (
                 <Select value={filterAlmacen} onValueChange={setFilterAlmacen}>
                   <SelectTrigger className="w-[180px] bg-background">
                     <SelectValue placeholder="Almacén" />

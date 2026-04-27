@@ -1,4 +1,4 @@
-﻿import axios from 'axios';
+import axios from 'axios';
 
 // Base URL for the API
 import { API_BASE_URL } from '@/lib/config';
@@ -19,10 +19,19 @@ apiClient.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+      const activeEmpresaId = localStorage.getItem('active_empresa_id');
+      if (activeEmpresaId) {
+        config.params = {
+          ...config.params,
+          empresa_id: activeEmpresaId
+        };
+      }
+
       if (process.env.NODE_ENV === 'development') {
-        console.log('ðŸŒ API request:', {
+        console.log('🌐 API request:', {
           method: config.method?.toUpperCase(),
           url: config.url,
+          params: config.params,
           baseURL: config.baseURL,
           fullURL: `${config.baseURL}${config.url}`,
           hasToken: !!token,
@@ -78,7 +87,7 @@ export interface Almacen {
 export interface User {
   id: number;
   username: string;
-  role: 'admin' | 'vendedor';
+  role: 'super_admin' | 'admin' | 'vendedor';
   almacenes?: Almacen[];
   empresa_id?: number;
   empresa_nombre?: string;
@@ -235,7 +244,7 @@ export const authApi = {
   createUserByAdmin: async (
     username: string,
     password: string,
-    role: 'admin' | 'vendedor',
+    role: 'super_admin' | 'admin' | 'vendedor',
     almacen_ids: number[]
   ): Promise<User> => {
     const token = localStorage.getItem('auth_token');
@@ -260,6 +269,10 @@ export const authApi = {
 };
 
 export const companiesApi = {
+  getAll: async (): Promise<Empresa[]> => {
+    const response = await apiClient.get<Empresa[]>('/companies/');
+    return response.data;
+  },
   setup: async (data: EmpresaCreate): Promise<any> => {
     const response = await apiClient.post<any>('/companies/setup', data);
     return response.data;
