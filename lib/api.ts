@@ -146,6 +146,8 @@ export interface EmpresaCreate {
   store_title_1?: string;
   store_title_2?: string;
   store_subtitle?: string;
+  // Jarvis
+  telegram_token?: string;
 }
 
 export interface Empresa {
@@ -160,6 +162,8 @@ export interface Empresa {
   store_title_1?: string;
   store_title_2?: string;
   store_subtitle?: string;
+  // Jarvis
+  telegram_token?: string;
 }
 
 // Updated Category interfaces

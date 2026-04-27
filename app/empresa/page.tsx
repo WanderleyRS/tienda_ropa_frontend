@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { companiesApi, Almacen } from '@/lib/api';
+import { companiesApi, Almacen, Empresa } from '@/lib/api';
 import { toast } from 'sonner';
-import { Building2, Warehouse, Plus, CheckCircle2, Phone, Edit } from 'lucide-react';
+import { Building2, Warehouse, Plus, CheckCircle2, Phone, Edit, Bot, ShieldAlert } from 'lucide-react';
 import { ImageUploader } from '@/components/ImageUploader';
 import { useRouter } from 'next/navigation';
 
@@ -21,6 +21,7 @@ export default function EmpresaPage() {
     const [companyName, setCompanyName] = useState('');
     const [whatsappNumber, setWhatsappNumber] = useState('');
     const [initialWarehouse, setInitialWarehouse] = useState('');
+    const [telegramToken, setTelegramToken] = useState('');
     const [isSettingUp, setIsSettingUp] = useState(false);
 
     // State for Warehouse Management
@@ -54,11 +55,12 @@ export default function EmpresaPage() {
     };
 
     // State for Company Info
-    const [empresaData, setEmpresaData] = useState<any>(null);
+    const [empresaData, setEmpresaData] = useState<Empresa | null>(null);
     const [isLoadingEmpresa, setIsLoadingEmpresa] = useState(false);
     const [isEditingEmpresa, setIsEditingEmpresa] = useState(false);
     const [editedEmpresaName, setEditedEmpresaName] = useState('');
     const [editedWhatsApp, setEditedWhatsApp] = useState('');
+    const [editedTelegramToken, setEditedTelegramToken] = useState('');
     const [isSavingEmpresa, setIsSavingEmpresa] = useState(false);
 
     const loadEmpresaData = async () => {
@@ -66,11 +68,11 @@ export default function EmpresaPage() {
         try {
             const data = await companiesApi.getEmpresa();
             setEmpresaData(data);
-            setEmpresaData(data);
             setEditedEmpresaName(data.nombre);
             // Remove +591 prefix if present for display
             const rawPhone = data.whatsapp_numero || '';
             setEditedWhatsApp(rawPhone.replace(/^(\+?591)?\s*/, ''));
+            setEditedTelegramToken(data.telegram_token || '');
         } catch (error) {
             console.error('Error loading empresa:', error);
             toast.error('Error al cargar datos de empresa');
@@ -88,7 +90,8 @@ export default function EmpresaPage() {
             await companiesApi.setup({
                 nombre: companyName,
                 whatsapp_numero: whatsappNumber ? `+591${whatsappNumber.trim()}` : undefined,
-                nombre_almacen_inicial: initialWarehouse || undefined
+                nombre_almacen_inicial: initialWarehouse || undefined,
+                telegram_token: telegramToken || undefined
             });
             toast.success('Empresa configurada. Inicia sesión nuevamente para continuar.');
 
@@ -150,7 +153,8 @@ export default function EmpresaPage() {
                 navbar_icon_url: empresaData.navbar_icon_url,
                 store_title_1: empresaData.store_title_1,
                 store_title_2: empresaData.store_title_2,
-                store_subtitle: empresaData.store_subtitle
+                store_subtitle: empresaData.store_subtitle,
+                telegram_token: editedTelegramToken || undefined
             });
             toast.success('Datos de empresa actualizados');
             setIsEditingEmpresa(false);
@@ -226,6 +230,25 @@ export default function EmpresaPage() {
                                         Crearemos un primer almacén automáticamente para ti.
                                     </p>
                                 </div>
+
+                                {user?.role === 'super_admin' && (
+                                    <div className="space-y-2 border-t pt-4">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <ShieldAlert className="h-4 w-4 text-amber-500" />
+                                            <Label htmlFor="telegramToken">Token de Telegram (Jarvis)</Label>
+                                        </div>
+                                        <Input
+                                            id="telegramToken"
+                                            type="password"
+                                            placeholder="7123456789:AAF..."
+                                            value={telegramToken}
+                                            onChange={(e) => setTelegramToken(e.target.value)}
+                                        />
+                                        <p className="text-xs text-muted-foreground">
+                                            Solo visible para Súper Administradores. Este token vincula el bot de Jarvis a esta empresa.
+                                        </p>
+                                    </div>
+                                )}
                                 <Button type="submit" className="w-full" disabled={isSettingUp}>
                                     {isSettingUp ? 'Configurando...' : 'Guardar y Continuar'}
                                 </Button>
@@ -362,6 +385,27 @@ export default function EmpresaPage() {
                                                 onChange={(e) => setEmpresaData({ ...empresaData, store_subtitle: e.target.value })}
                                             />
                                         </div>
+
+                                        {user?.role === 'super_admin' && (
+                                            <div className="space-y-2 border-t pt-4 bg-amber-500/5 p-4 rounded-lg border border-amber-500/20">
+                                                <div className="flex items-center gap-2 mb-2">
+                                                    <ShieldAlert className="h-4 w-4 text-amber-500" />
+                                                    <Label htmlFor="editTelegramToken" className="text-amber-700 dark:text-amber-400 font-bold">
+                                                        Token de Telegram (Jarvis) - Seguridad Crítica
+                                                    </Label>
+                                                </div>
+                                                <Input
+                                                    id="editTelegramToken"
+                                                    type="password"
+                                                    value={editedTelegramToken}
+                                                    onChange={(e) => setEditedTelegramToken(e.target.value)}
+                                                    className="bg-background border-amber-500/30 focus-visible:ring-amber-500"
+                                                />
+                                                <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mt-1">
+                                                    Este campo solo es visible y editable para Súper Administradores.
+                                                </p>
+                                            </div>
+                                        )}
                                     </div>
 
                                     <div className="flex gap-2 justify-end">
@@ -415,6 +459,31 @@ export default function EmpresaPage() {
                                             <p className="text-sm"><span className="font-semibold">Título 2:</span> {empresaData?.store_title_2 || 'Default'}</p>
                                         </div>
                                     </div>
+
+                                    {user?.role === 'super_admin' && (
+                                        <div className="border-t pt-4">
+                                            <h3 className="text-sm font-medium text-amber-600 dark:text-amber-400 mb-3 flex items-center gap-2">
+                                                <ShieldAlert className="h-4 w-4" />
+                                                Integración Jarvis (Solo Super Admin)
+                                            </h3>
+                                            <div className="bg-amber-500/5 p-4 rounded-lg border border-amber-500/20 flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <Bot className="h-5 w-5 text-amber-500" />
+                                                    <div>
+                                                        <p className="text-sm font-medium">Token de Telegram</p>
+                                                        <p className="text-xs font-mono text-muted-foreground">
+                                                            {empresaData?.telegram_token ? '••••••••••••••••••••' : 'No configurado'}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                {empresaData?.telegram_token && (
+                                                    <span className="text-[10px] bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full border border-green-500/20">
+                                                        VINCULADO
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </CardContent>
