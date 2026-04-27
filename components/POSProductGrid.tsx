@@ -26,7 +26,7 @@ export function POSProductGrid({ items, onAdd, isLoading }: POSProductGridProps)
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-dashed">
+      <div className="flex flex-col items-center justify-center py-20 bg-card rounded-2xl border border-dashed border-border">
         <ImageIcon className="h-12 w-12 text-muted-foreground/50 mb-4" />
         <p className="text-muted-foreground">No se encontraron productos disponibles</p>
       </div>
@@ -38,7 +38,7 @@ export function POSProductGrid({ items, onAdd, isLoading }: POSProductGridProps)
       {items.map((item) => (
         <Card 
           key={item.id} 
-          className="group border-none shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden bg-white dark:bg-slate-900 cursor-pointer flex flex-col"
+          className="group border-border shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden bg-card cursor-pointer flex flex-col"
           onClick={() => onAdd(item)}
         >
           <div className="relative aspect-[3/4] overflow-hidden">

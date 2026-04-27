@@ -38,8 +38,8 @@ export function POSPendingOrders({ items, onAddAll, onRefresh }: POSPendingOrder
 
   if (items.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 bg-white dark:bg-slate-900 rounded-2xl border border-dashed">
-        <div className="bg-slate-100 dark:bg-slate-800 p-4 rounded-full mb-4">
+      <div className="flex flex-col items-center justify-center py-20 bg-card rounded-2xl border border-dashed border-border">
+        <div className="bg-muted p-4 rounded-full mb-4">
           <Clock className="h-8 w-8 text-muted-foreground" />
         </div>
         <p className="text-muted-foreground font-medium">No hay pedidos pendientes de WhatsApp</p>
@@ -67,9 +67,9 @@ export function POSPendingOrders({ items, onAddAll, onRefresh }: POSPendingOrder
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {items.map((item) => (
-          <Card key={item.id} className="overflow-hidden border-none shadow-sm bg-white dark:bg-slate-900 group">
+          <Card key={item.id} className="overflow-hidden border border-border shadow-sm bg-card group">
             <CardContent className="p-0 flex h-24">
-              <div className="w-24 flex-shrink-0 bg-slate-100 dark:bg-slate-800">
+              <div className="w-24 flex-shrink-0 bg-muted">
                 {item.photo_url ? (
                   <img src={item.photo_url} alt={item.title} className="h-full w-full object-cover" />
                 ) : (

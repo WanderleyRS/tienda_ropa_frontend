@@ -109,7 +109,7 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
   return (
     <div className="flex flex-col h-full gap-4">
       {/* Client Section */}
-      <Card className="border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden rounded-2xl">
+      <Card className="border-border shadow-sm bg-card overflow-hidden rounded-2xl">
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cliente</Label>
@@ -125,7 +125,7 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
                 <UserIcon className="h-4 w-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-[13px] font-black truncate">{selectedClient.nombre} {selectedClient.apellido_paterno}</p>
+                <p className="text-[13px] font-black truncate text-foreground">{selectedClient.nombre} {selectedClient.apellido_paterno}</p>
                 <p className="text-[11px] text-muted-foreground">{selectedClient.celular}</p>
               </div>
               <Check className="h-4 w-4 text-green-500" />
@@ -133,7 +133,7 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
           ) : (
             <Button 
               variant="outline" 
-              className="w-full h-12 justify-start gap-3 border-dashed rounded-xl border-slate-200 dark:border-slate-800"
+              className="w-full h-12 justify-start gap-3 border-dashed rounded-xl border-border"
               onClick={() => setIsClientSelectorOpen(true)}
             >
               <Plus className="h-4 w-4 text-muted-foreground" />
@@ -144,12 +144,12 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
       </Card>
 
       {/* Payment & Settings */}
-      <Card className="border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden rounded-2xl flex-1 flex flex-col">
+      <Card className="border-border shadow-sm bg-card overflow-hidden rounded-2xl flex-1 flex flex-col">
         <div className="p-4 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
           <div className="space-y-2">
             <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Método de Pago</Label>
             <Select value={metodoPago} onValueChange={setMetodoPago}>
-              <SelectTrigger className="h-11 rounded-xl bg-slate-50 dark:bg-slate-800/50 border-none">
+              <SelectTrigger className="h-11 rounded-xl bg-muted/50 border-none">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -166,14 +166,14 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
               className={cn(
                 "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all",
                 registrarAbono 
-                  ? "bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800 shadow-sm" 
-                  : "bg-slate-50 dark:bg-slate-800/50 border-transparent"
+                  ? "bg-green-500/10 border-green-500/30 shadow-sm" 
+                  : "bg-muted/50 border-transparent"
               )}
               onClick={() => setRegistrarAbono(!registrarAbono)}
             >
               <div className="flex items-center gap-2">
-                <DollarSign className={cn("h-4 w-4", registrarAbono ? "text-green-600" : "text-muted-foreground")} />
-                <span className={cn("text-xs font-black", registrarAbono ? "text-green-700 dark:text-green-400" : "text-muted-foreground")}>Abono</span>
+                <DollarSign className={cn("h-4 w-4", registrarAbono ? "text-green-500" : "text-muted-foreground")} />
+                <span className={cn("text-xs font-black", registrarAbono ? "text-green-600 dark:text-green-400" : "text-muted-foreground")}>Abono</span>
               </div>
             </div>
             
@@ -181,14 +181,14 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
               className={cn(
                 "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all",
                 agendarEntrega 
-                  ? "bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800 shadow-sm" 
-                  : "bg-slate-50 dark:bg-slate-800/50 border-transparent"
+                  ? "bg-blue-500/10 border-blue-500/30 shadow-sm" 
+                  : "bg-muted/50 border-transparent"
               )}
               onClick={() => setAgendarEntrega(!agendarEntrega)}
             >
               <div className="flex items-center gap-2">
-                <Truck className={cn("h-4 w-4", agendarEntrega ? "text-blue-600" : "text-muted-foreground")} />
-                <span className={cn("text-xs font-black", agendarEntrega ? "text-blue-700 dark:text-blue-400" : "text-muted-foreground")}>Entrega</span>
+                <Truck className={cn("h-4 w-4", agendarEntrega ? "text-blue-500" : "text-muted-foreground")} />
+                <span className={cn("text-xs font-black", agendarEntrega ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground")}>Entrega</span>
               </div>
             </div>
           </div>
@@ -250,7 +250,7 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
         </div>
 
         {/* Totals Section */}
-        <div className="p-5 border-t bg-slate-50/50 dark:bg-slate-800/30">
+        <div className="p-5 border-t border-border bg-muted/20">
           <div className="space-y-1 mb-4">
             <div className="flex justify-between items-center text-muted-foreground text-xs font-bold">
               <span>Subtotal ({cart.length} ítems)</span>
@@ -259,7 +259,7 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
             <div className="flex justify-between items-center text-primary">
               <span className="text-[11px] font-black uppercase tracking-wider">Total Final</span>
               <div className="flex items-baseline gap-1">
-                <span className="text-3xl font-black">{total.toFixed(0)}</span>
+                <span className="text-3xl font-black text-foreground">{total.toFixed(0)}</span>
                 <span className="text-sm font-bold opacity-70">Bs</span>
               </div>
             </div>

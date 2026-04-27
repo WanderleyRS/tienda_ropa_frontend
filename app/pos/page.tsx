@@ -108,43 +108,42 @@ function POSContent() {
     return matchesSearch && matchesCategory;
   });
 
-  return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] font-sans transition-colors duration-500 overflow-hidden">
+  return (    <div className="min-h-screen bg-background flex flex-col transition-colors duration-300">
       <Navbar />
       
-      <main className="max-w-[1900px] mx-auto px-2 sm:px-4 py-2 sm:py-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-80px)]">
+      <main className="flex-1 overflow-hidden p-2 sm:p-4">
+        <div className="max-w-[1600px] mx-auto h-[calc(100vh-100px)] grid grid-cols-1 lg:grid-cols-12 gap-4">
           
-          {/* LEFT SIDEBAR: Catalog & Search (3/12) */}
-          <div className="lg:col-span-3 flex flex-col gap-3 overflow-hidden h-full">
-            <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 backdrop-blur-md">
-              <CardContent className="p-3">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          {/* LEFT: Search & Categories (3/12) */}
+          <div className="lg:col-span-3 flex flex-col gap-4 overflow-hidden h-full">
+            <Card className="border-border shadow-sm bg-card overflow-hidden rounded-2xl">
+              <CardContent className="p-4 space-y-4">
+                <div className="relative group">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   <Input 
-                    placeholder="Buscar..." 
-                    className="pl-9 h-9 bg-slate-50 dark:bg-slate-800/50 border-none ring-offset-transparent focus-visible:ring-primary text-sm"
+                    placeholder="Buscar producto..." 
+                    className="pl-10 h-11 bg-background/50 border-border focus:ring-primary rounded-xl"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                   />
                 </div>
                 
-                <div className="flex flex-wrap items-center gap-1.5 mt-3">
+                <div className="flex flex-wrap gap-1.5 max-h-[120px] overflow-y-auto no-scrollbar">
                   <Button 
-                    variant={selectedCategory === 'ALL' ? 'default' : 'secondary'} 
-                    size="sm"
+                    variant={selectedCategory === 'ALL' ? 'default' : 'outline'} 
+                    size="sm" 
+                    className="h-7 text-[10px] font-black uppercase rounded-lg"
                     onClick={() => setSelectedCategory('ALL')}
-                    className="h-7 px-3 rounded-full text-[10px] font-bold uppercase tracking-wider"
                   >
-                    Todos
+                    TODOS
                   </Button>
-                  {categories.slice(0, 4).map(cat => (
+                  {categories.map(cat => (
                     <Button 
                       key={cat.id} 
-                      variant={selectedCategory === cat.id.toString() ? 'default' : 'secondary'} 
-                      size="sm"
-                      onClick={() => setSelectedCategory(cat.id.toString())}
-                      className="h-7 px-3 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                      variant={selectedCategory === cat.name ? 'default' : 'outline'} 
+                      size="sm" 
+                      className="h-7 text-[10px] font-black uppercase rounded-lg"
+                      onClick={() => setSelectedCategory(cat.name)}
                     >
                       {cat.name}
                     </Button>
@@ -154,7 +153,8 @@ function POSContent() {
             </Card>
 
             <Tabs defaultValue="catalog" className="flex-1 flex flex-col overflow-hidden">
-              <TabsList className="grid w-full grid-cols-2 bg-slate-200/50 dark:bg-slate-900/80 p-1 rounded-xl h-10 mb-2">
+              <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-xl h-10 mb-2">
+
                 <TabsTrigger value="catalog" className="rounded-lg text-[11px] font-bold h-8">
                   VIP
                 </TabsTrigger>
@@ -193,13 +193,13 @@ function POSContent() {
 
           {/* CENTER: Expanded Cart (6/12) */}
           <div className="lg:col-span-6 flex flex-col gap-4 overflow-hidden h-full">
-            <Card className="flex-1 border-none shadow-xl bg-white dark:bg-slate-900/80 backdrop-blur-xl overflow-hidden flex flex-col rounded-[2rem] border border-white/5">
-              <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-800/10 flex items-center justify-between">
+            <Card className="flex-1 border-border shadow-xl bg-card backdrop-blur-xl overflow-hidden flex flex-col rounded-[2rem]">
+              <div className="p-4 border-b border-border/50 bg-muted/20 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="bg-primary/10 p-2 rounded-xl">
                     <ShoppingBag className="h-5 w-5 text-primary" />
                   </div>
-                  <h2 className="font-black text-xl tracking-tight">Venta Actual</h2>
+                  <h2 className="font-black text-xl tracking-tight text-foreground">Venta Actual</h2>
                 </div>
                 <Button 
                   variant="ghost" 
@@ -213,7 +213,7 @@ function POSContent() {
               </div>
 
               {/* Table Headers for Cart */}
-              <div className="grid grid-cols-12 gap-2 px-6 py-2 bg-slate-50/50 dark:bg-slate-800/30 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b border-slate-100 dark:border-slate-800/50">
+              <div className="grid grid-cols-12 gap-2 px-6 py-2 bg-muted/30 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b border-border/50">
                 <div className="col-span-6">Producto</div>
                 <div className="col-span-2 text-center">Precio</div>
                 <div className="col-span-2 text-center">Cant.</div>

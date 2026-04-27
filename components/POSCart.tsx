@@ -30,11 +30,11 @@ export function POSCart({ items, onRemove, onUpdateQty, onUpdatePrice }: POSCart
       {items.map((cartItem, index) => (
         <div 
           key={`${cartItem.item.id}-${index}`} 
-          className="grid grid-cols-12 gap-2 items-center p-2 bg-white dark:bg-slate-900/40 rounded-2xl border border-slate-100 dark:border-white/5 hover:border-primary/30 hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition-all group"
+          className="grid grid-cols-12 gap-2 items-center p-2 bg-card/40 rounded-2xl border border-border hover:border-primary/30 hover:bg-muted/40 transition-all group"
         >
           {/* Product Info (6/12) */}
           <div className="col-span-6 flex items-center gap-3 min-w-0">
-            <div className="h-12 w-12 rounded-xl bg-slate-50 dark:bg-slate-800 flex-shrink-0 overflow-hidden border border-slate-100 dark:border-white/10 group-hover:scale-105 transition-transform">
+            <div className="h-12 w-12 rounded-xl bg-muted flex-shrink-0 overflow-hidden border border-border group-hover:scale-105 transition-transform">
               {cartItem.item.photo_url ? (
                 <img src={cartItem.item.photo_url} alt={cartItem.item.title} className="h-full w-full object-cover" />
               ) : (
@@ -58,7 +58,7 @@ export function POSCart({ items, onRemove, onUpdateQty, onUpdatePrice }: POSCart
 
           {/* Price (2/12) */}
           <div className="col-span-2 flex justify-center">
-            <div className="flex items-center bg-slate-50 dark:bg-slate-800/50 rounded-lg px-2 py-1 border border-transparent hover:border-primary/20 transition-colors">
+            <div className="flex items-center bg-muted/50 rounded-lg px-2 py-1 border border-transparent hover:border-primary/20 transition-colors">
               <span className="text-[9px] font-bold text-muted-foreground mr-1">Bs</span>
               <Input 
                 type="number"
@@ -71,23 +71,23 @@ export function POSCart({ items, onRemove, onUpdateQty, onUpdatePrice }: POSCart
 
           {/* Qty (2/12) */}
           <div className="col-span-2 flex justify-center">
-            <div className="flex items-center bg-slate-100/50 dark:bg-slate-800/80 rounded-xl h-8 px-1">
+            <div className="flex items-center bg-muted rounded-xl h-8 px-1">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-6 w-6 hover:bg-white dark:hover:bg-slate-700 rounded-lg" 
+                className="h-6 w-6 hover:bg-background rounded-lg" 
                 onClick={() => onUpdateQty(index, -1)}
                 disabled={cartItem.item.status === 'disponible' && !cartItem.item.es_generico && cartItem.quantity <= 1}
               >
                 <Minus className="h-3 w-3" />
               </Button>
-              <span className="w-7 text-center text-xs font-black dark:text-slate-200">
+              <span className="w-7 text-center text-xs font-black text-foreground">
                 {cartItem.quantity}
               </span>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-6 w-6 hover:bg-white dark:hover:bg-slate-700 rounded-lg" 
+                className="h-6 w-6 hover:bg-background rounded-lg" 
                 onClick={() => onUpdateQty(index, 1)}
                 disabled={!cartItem.item.es_generico && cartItem.item.status !== 'pendiente'}
               >
