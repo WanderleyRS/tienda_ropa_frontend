@@ -157,7 +157,7 @@ export default function CompraDetallePage() {
                                     </CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-2xl font-bold">{compra.monto_total.toFixed(2)} Bs</p>
+                                    <p className="text-2xl font-bold">{(compra.monto_total_factura || compra.monto_total).toFixed(2)} Bs</p>
                                     <p className="text-sm text-muted-foreground mt-1">
                                         {compra.metodo_pago || 'N/A'}
                                     </p>
