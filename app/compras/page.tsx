@@ -177,13 +177,13 @@ export default function ComprasPage() {
                                         <div>
                                             <p className="text-sm text-muted-foreground">Monto Total</p>
                                             <p className="text-lg font-semibold">
-                                                {compra.monto_total.toFixed(2)} Bs
+                                                {(compra.monto_total_factura || compra.monto_total).toFixed(2)} Bs
                                             </p>
                                         </div>
                                         <div>
                                             <p className="text-sm text-muted-foreground">Prendas</p>
                                             <p className="text-lg font-semibold">
-                                                {compra.items_creados}/{compra.items_esperados}
+                                                {compra.items_creados}/{(compra.total_unidades || compra.items_esperados)}
                                             </p>
                                         </div>
                                         <div>
@@ -193,17 +193,17 @@ export default function ComprasPage() {
                                                     <div
                                                         className="bg-primary h-2 rounded-full transition-all"
                                                         style={{
-                                                            width: `${compra.items_esperados > 0
-                                                                    ? (compra.items_creados / compra.items_esperados) * 100
+                                                            width: `${(compra.total_unidades || compra.items_esperados) > 0
+                                                                    ? (compra.items_creados / (compra.total_unidades || compra.items_esperados)) * 100
                                                                     : 0
                                                                 }%`,
                                                         }}
                                                     />
                                                 </div>
                                                 <span className="text-xs font-medium">
-                                                    {compra.items_esperados > 0
+                                                    {(compra.total_unidades || compra.items_esperados) > 0
                                                         ? Math.round(
-                                                            (compra.items_creados / compra.items_esperados) * 100
+                                                            (compra.items_creados / (compra.total_unidades || compra.items_esperados)) * 100
                                                         )
                                                         : 0}
                                                     %

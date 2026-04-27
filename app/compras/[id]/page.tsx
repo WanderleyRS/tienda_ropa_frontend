@@ -12,6 +12,7 @@ import { ArrowLeft, Package, CheckCircle2, Clock, AlertCircle, TrendingUp, Plus,
 import Link from 'next/link';
 import { CrearItemCompraModal } from '@/components/CrearItemCompraModal';
 import { RelacionarItemsModal } from '@/components/RelacionarItemsModal';
+import { ConfirmModal } from '@/components/ConfirmModal';
 
 export default function CompraDetallePage() {
     const params = useParams();
@@ -23,6 +24,8 @@ export default function CompraDetallePage() {
     const [isLoadingCompra, setIsLoadingCompra] = useState(true);
     const [modalCrearOpen, setModalCrearOpen] = useState(false);
     const [modalRelacionarOpen, setModalRelacionarOpen] = useState(false);
+    const [isConfirmCerrarOpen, setIsConfirmCerrarOpen] = useState(false);
+    const [isProcessingCerrar, setIsProcessingCerrar] = useState(false);
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
@@ -56,18 +59,17 @@ export default function CompraDetallePage() {
 
     const handleCerrarLote = async () => {
         if (!compra) return;
-        
-        if (!confirm('¿Estás seguro de cerrar este lote? Las prendas no catalogadas se moverán a Inventario Genérico y no podrás subirles fotos después.')) {
-            return;
-        }
-
+        setIsProcessingCerrar(true);
         try {
             const updated = await comprasApi.cerrarLote(compra.id);
             setCompra(updated);
             toast.success('Lote cerrado exitosamente');
+            setIsConfirmCerrarOpen(false);
         } catch (error: any) {
             console.error('Error closing lot:', error);
             toast.error('Error al cerrar el lote');
+        } finally {
+            setIsProcessingCerrar(false);
         }
     };
 
@@ -398,7 +400,7 @@ export default function CompraDetallePage() {
                                             <CardDescription className="mb-4">
                                                 ¿No vas a catalogar más? Pasa el resto a inventario genérico.
                                             </CardDescription>
-                                            <Button className="w-full" variant="destructive" onClick={handleCerrarLote}>
+                                            <Button className="w-full" variant="destructive" onClick={() => setIsConfirmCerrarOpen(true)}>
                                                 <CheckCircle2 className="h-4 w-4 mr-2" />
                                                 Cerrar Lote
                                             </Button>
@@ -437,6 +439,17 @@ export default function CompraDetallePage() {
                     />
                 </>
             )}
+            {/* Modal de Confirmación para Cerrar Lote */}
+            <ConfirmModal
+                isOpen={isConfirmCerrarOpen}
+                onClose={() => setIsConfirmCerrarOpen(false)}
+                onConfirm={handleCerrarLote}
+                isLoading={isProcessingCerrar}
+                title="¿Cerrar este lote?"
+                description="Las prendas que no hayas catalogado con foto se moverán al Inventario Genérico. Podrás seguir subiendo las prendas VIP pendientes, pero el excedente se consolidará ahora."
+                confirmText="Sí, cerrar lote"
+                variant="warning"
+            />
         </div>
     );
 }
