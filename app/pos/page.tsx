@@ -109,43 +109,43 @@ function POSContent() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 font-sans">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] font-sans transition-colors duration-500">
       <Navbar />
       
-      <main className="max-w-[1600px] mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[calc(100vh-120px)]">
+      <main className="max-w-[1600px] mx-auto px-4 py-4 sm:py-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 h-[calc(100vh-100px)]">
           
           {/* Left Panel: Catalog & Pending */}
           <div className="lg:col-span-8 flex flex-col gap-4 overflow-hidden">
-            <Card className="border-none shadow-sm bg-white dark:bg-slate-900 flex-shrink-0">
-              <CardContent className="p-4">
+            <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 backdrop-blur-md flex-shrink-0">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                   <div className="relative w-full md:w-96">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input 
                       placeholder="Buscar por nombre o código..." 
-                      className="pl-10"
+                      className="pl-10 h-10 bg-slate-50 dark:bg-slate-800/50 border-none ring-offset-transparent focus-visible:ring-primary"
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />
                   </div>
                   
-                  <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                  <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 no-scrollbar">
                     <Button 
-                      variant={selectedCategory === 'ALL' ? 'default' : 'outline'} 
+                      variant={selectedCategory === 'ALL' ? 'default' : 'secondary'} 
                       size="sm"
                       onClick={() => setSelectedCategory('ALL')}
-                      className="whitespace-nowrap"
+                      className="whitespace-nowrap h-9 px-4 rounded-full"
                     >
                       Todos
                     </Button>
                     {categories.map(cat => (
                       <Button 
                         key={cat.id} 
-                        variant={selectedCategory === cat.id.toString() ? 'default' : 'outline'} 
+                        variant={selectedCategory === cat.id.toString() ? 'default' : 'secondary'} 
                         size="sm"
                         onClick={() => setSelectedCategory(cat.id.toString())}
-                        className="whitespace-nowrap"
+                        className="whitespace-nowrap h-9 px-4 rounded-full"
                       >
                         {cat.name}
                       </Button>
@@ -156,23 +156,23 @@ function POSContent() {
             </Card>
 
             <Tabs defaultValue="catalog" className="flex-1 flex flex-col overflow-hidden">
-              <TabsList className="grid w-full grid-cols-2 mb-4 bg-white dark:bg-slate-900 p-1 rounded-xl shadow-sm h-12">
-                <TabsTrigger value="catalog" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-10">
+              <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-200/50 dark:bg-slate-900/80 p-1 rounded-2xl shadow-inner h-12">
+                <TabsTrigger value="catalog" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm h-10 font-bold transition-all">
                   <LayoutGrid className="mr-2 h-4 w-4" />
                   Catálogo VIP
                 </TabsTrigger>
-                <TabsTrigger value="pending" className="rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground h-10">
+                <TabsTrigger value="pending" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm h-10 font-bold transition-all">
                   <Clock className="mr-2 h-4 w-4" />
                   Pedidos WhatsApp
                   {pendingItems.length > 0 && (
-                    <span className="ml-2 bg-orange-500 text-white text-[10px] px-1.5 py-0.5 rounded-full animate-pulse">
+                    <span className="ml-2 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">
                       {pendingItems.length}
                     </span>
                   )}
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="catalog" className="flex-1 overflow-y-auto mt-0 scrollbar-hide">
+              <TabsContent value="catalog" className="flex-1 overflow-y-auto mt-0 pr-1 scrollbar-hide">
                 <POSProductGrid 
                   items={filteredItems} 
                   onAdd={addToCart} 
@@ -180,7 +180,7 @@ function POSContent() {
                 />
               </TabsContent>
 
-              <TabsContent value="pending" className="flex-1 overflow-y-auto mt-0 scrollbar-hide">
+              <TabsContent value="pending" className="flex-1 overflow-y-auto mt-0 pr-1 scrollbar-hide">
                 <POSPendingOrders 
                   items={pendingItems} 
                   onAddAll={items => {
@@ -194,20 +194,23 @@ function POSContent() {
 
           {/* Right Panel: Cart & Checkout */}
           <div className="lg:col-span-4 flex flex-col gap-4 overflow-hidden">
-            <Card className="flex-1 border-none shadow-xl bg-white dark:bg-slate-900 overflow-hidden flex flex-col rounded-2xl">
-              <div className="p-4 border-b bg-slate-50/50 dark:bg-slate-800/50 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="bg-primary/10 p-2 rounded-lg">
+            <Card className="flex-1 border-none shadow-2xl bg-white dark:bg-slate-900 overflow-hidden flex flex-col rounded-[2rem] border border-white/10">
+              <div className="p-5 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/20 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="bg-primary/10 p-2.5 rounded-2xl">
                     <ShoppingBag className="h-5 w-5 text-primary" />
                   </div>
-                  <h2 className="font-bold text-lg">Carrito de Venta</h2>
+                  <div>
+                    <h2 className="font-black text-lg tracking-tight">Carrito de Venta</h2>
+                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Punto de Venta</p>
+                  </div>
                 </div>
-                <Button variant="ghost" size="sm" onClick={clearCart} className="text-muted-foreground hover:text-destructive">
+                <Button variant="ghost" size="sm" onClick={clearCart} className="text-muted-foreground hover:text-destructive h-8 px-3 rounded-full hover:bg-destructive/10">
                   Vaciar
                 </Button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
                 <POSCart 
                   items={cart} 
                   onRemove={removeFromCart} 
@@ -216,7 +219,7 @@ function POSContent() {
                 />
               </div>
 
-              <div className="mt-auto border-t p-4 bg-slate-50/50 dark:bg-slate-800/50">
+              <div className="mt-auto border-t border-slate-100 dark:border-slate-800/50 p-5 bg-slate-50/50 dark:bg-slate-800/20 backdrop-blur-xl">
                 <POSCheckout 
                   cart={cart}
                   selectedClient={selectedClient}

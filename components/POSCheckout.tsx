@@ -169,19 +169,36 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
 
         {/* Toggles */}
         <div className="grid grid-cols-2 gap-2">
-          <div className="flex items-center justify-between p-2 rounded-lg border bg-white dark:bg-slate-900">
+          <div 
+            className={cn(
+              "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all",
+              registrarAbono 
+                ? "bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800" 
+                : "bg-white dark:bg-slate-900 border-border"
+            )}
+            onClick={() => setRegistrarAbono(!registrarAbono)}
+          >
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-green-600" />
-              <span className="text-xs font-medium">Abono</span>
+              <DollarSign className={cn("h-4 w-4", registrarAbono ? "text-green-600" : "text-muted-foreground")} />
+              <span className={cn("text-xs font-bold", registrarAbono ? "text-green-700 dark:text-green-400" : "text-muted-foreground")}>Abono</span>
             </div>
-            <Checkbox checked={registrarAbono} onCheckedChange={(val) => setRegistrarAbono(!!val)} />
+            <Checkbox checked={registrarAbono} onCheckedChange={(val) => setRegistrarAbono(!!val)} onClick={(e) => e.stopPropagation()} />
           </div>
-          <div className="flex items-center justify-between p-2 rounded-lg border bg-white dark:bg-slate-900">
+          
+          <div 
+            className={cn(
+              "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all",
+              agendarEntrega 
+                ? "bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800" 
+                : "bg-white dark:bg-slate-900 border-border"
+            )}
+            onClick={() => setAgendarEntrega(!agendarEntrega)}
+          >
             <div className="flex items-center gap-2">
-              <Truck className="h-4 w-4 text-blue-600" />
-              <span className="text-xs font-medium">Entrega</span>
+              <Truck className={cn("h-4 w-4", agendarEntrega ? "text-blue-600" : "text-muted-foreground")} />
+              <span className={cn("text-xs font-bold", agendarEntrega ? "text-blue-700 dark:text-blue-400" : "text-muted-foreground")}>Entrega</span>
             </div>
-            <Checkbox checked={agendarEntrega} onCheckedChange={(val) => setAgendarEntrega(!!val)} />
+            <Checkbox checked={agendarEntrega} onCheckedChange={(val) => setAgendarEntrega(!!val)} onClick={(e) => e.stopPropagation()} />
           </div>
         </div>
 

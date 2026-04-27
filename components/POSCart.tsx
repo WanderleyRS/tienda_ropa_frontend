@@ -26,70 +26,70 @@ export function POSCart({ items, onRemove, onUpdateQty, onUpdatePrice }: POSCart
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-2">
       {items.map((cartItem, index) => (
         <div 
           key={`${cartItem.item.id}-${index}`} 
-          className="flex gap-3 p-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-transparent hover:border-primary/20 transition-all group"
+          className="flex gap-3 p-2 bg-white dark:bg-slate-900 rounded-xl border border-border shadow-sm hover:border-primary/40 transition-all group"
         >
           {/* Thumbnail */}
-          <div className="h-16 w-16 rounded-lg bg-white dark:bg-slate-900 flex-shrink-0 overflow-hidden border">
+          <div className="h-14 w-14 rounded-lg bg-slate-50 dark:bg-slate-800 flex-shrink-0 overflow-hidden border border-border/50">
             {cartItem.item.photo_url ? (
               <img src={cartItem.item.photo_url} alt={cartItem.item.title} className="h-full w-full object-cover" />
             ) : (
               <div className="h-full w-full flex items-center justify-center">
-                <Tag className="h-6 w-6 text-muted-foreground/30" />
+                <Tag className="h-5 w-5 text-muted-foreground/30" />
               </div>
             )}
           </div>
 
           {/* Details */}
           <div className="flex-1 min-w-0 flex flex-col justify-between">
-            <div className="flex justify-between items-start gap-2">
-              <h4 className="font-semibold text-sm truncate pr-1">
+            <div className="flex justify-between items-start gap-1">
+              <h4 className="font-bold text-xs truncate pr-1 dark:text-slate-100">
                 {cartItem.item.title}
-                {cartItem.item.es_generico && <span className="ml-2 text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded font-bold uppercase">Lote</span>}
+                {cartItem.item.es_generico && <span className="ml-2 text-[9px] bg-amber-100 text-amber-700 px-1 py-0.5 rounded font-black uppercase">LOTE</span>}
               </h4>
               <button 
                 onClick={() => onRemove(index)}
-                className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100"
+                className="text-muted-foreground hover:text-destructive transition-colors opacity-0 group-hover:opacity-100 p-1"
               >
-                <Trash2 className="h-4 w-4" />
+                <Trash2 className="h-3.5 w-3.5" />
               </button>
             </div>
 
-            <div className="flex items-center justify-between gap-4 mt-1">
-              {/* Price Editor (only for generic or admins if we want) */}
-              <div className="flex items-center gap-1">
-                <span className="text-xs text-muted-foreground mr-1">Bs</span>
+            <div className="flex items-center justify-between gap-2 mt-1">
+              {/* Price Editor */}
+              <div className="flex items-center gap-0.5 bg-slate-50 dark:bg-slate-800 rounded px-1.5 border border-transparent hover:border-primary/30 transition-colors">
+                <span className="text-[10px] font-bold text-muted-foreground">Bs</span>
                 <Input 
                   type="number"
                   value={cartItem.price}
                   onChange={(e) => onUpdatePrice(index, parseFloat(e.target.value) || 0)}
-                  className="h-7 w-20 text-sm font-bold border-none bg-transparent hover:bg-white dark:hover:bg-slate-900 focus:bg-white dark:focus:bg-slate-900 px-1"
+                  className="h-6 w-16 text-[11px] font-black border-none bg-transparent focus-visible:ring-0 px-1 text-primary"
                 />
               </div>
 
               {/* Quantity Selector */}
-              <div className="flex items-center bg-white dark:bg-slate-900 rounded-lg border shadow-sm h-8 px-1">
+              <div className="flex items-center bg-slate-100 dark:bg-slate-800 rounded-lg h-7 px-0.5">
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-6 w-6" 
+                  className="h-5 w-5 hover:bg-white dark:hover:bg-slate-700" 
                   onClick={() => onUpdateQty(index, -1)}
                   disabled={cartItem.item.status === 'disponible' && !cartItem.item.es_generico && cartItem.quantity <= 1}
                 >
                   <Minus className="h-3 w-3" />
                 </Button>
-                <span className="w-8 text-center text-xs font-bold">
+                <span className="w-6 text-center text-[11px] font-black dark:text-slate-200">
                   {cartItem.quantity}
                 </span>
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className="h-6 w-6" 
+                  className="h-5 w-5 hover:bg-white dark:hover:bg-slate-700" 
                   onClick={() => onUpdateQty(index, 1)}
-                  disabled={!cartItem.item.es_generico && cartItem.item.status !== 'pendiente'} // Items VIP solo 1 unidad
+                  disabled={!cartItem.item.es_generico && cartItem.item.status !== 'pendiente'}
                 >
                   <Plus className="h-3 w-3" />
                 </Button>
