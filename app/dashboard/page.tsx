@@ -7,10 +7,11 @@ import { ItemsTable } from '@/components/ItemsTable';
 import { CreateItemDialog } from '@/components/CreateItemDialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Building2, ArrowRight } from 'lucide-react';
+import { Plus, Building2, ArrowRight, Zap } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { itemsApi, Item, categoriesApi, companiesApi, Category, Almacen } from '@/lib/api';
 import { Navbar } from '@/components/Navbar';
+import { LeadConversionModal } from '@/components/LeadConversionModal';
 import Link from 'next/link';
 import {
   Select,
@@ -34,6 +35,7 @@ function DashboardContent() {
   const [items, setItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isGenericVentaOpen, setIsGenericVentaOpen] = useState(false);
 
   // Filtros
   const [filterSold, setFilterSold] = useState<boolean | string | undefined>(undefined);
@@ -302,10 +304,16 @@ function DashboardContent() {
             </div>
 
             {(user?.role === 'admin' || user?.role === 'vendedor') && (
-              <Button onClick={() => setIsCreateDialogOpen(true)} className="shadow-lg shadow-primary/20">
-                <Plus className="mr-2 h-4 w-4" />
-                Nuevo Ítem
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={() => setIsGenericVentaOpen(true)} className="border-primary text-primary hover:bg-primary/5">
+                  <Zap className="mr-2 h-4 w-4" />
+                  Venta de Lote
+                </Button>
+                <Button onClick={() => setIsCreateDialogOpen(true)} className="shadow-lg shadow-primary/20">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Nuevo Ítem
+                </Button>
+              </div>
             )}
           </div>
         </div>
@@ -343,6 +351,13 @@ function DashboardContent() {
         open={isCreateDialogOpen}
         onOpenChange={setIsCreateDialogOpen}
         onItemCreated={handleItemCreated}
+      />
+      {/* Generic Sale Modal */}
+      <LeadConversionModal
+        isOpen={isGenericVentaOpen}
+        onClose={() => setIsGenericVentaOpen(false)}
+        onSuccess={loadItems}
+        isGeneric={true}
       />
     </div>
   );

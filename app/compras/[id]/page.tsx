@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { comprasApi, categoriesApi, Compra, Category } from '@/lib/api';
 import { toast } from 'sonner';
-import { ArrowLeft, Package, CheckCircle2, Clock, AlertCircle, TrendingUp, Plus, Link2 } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle2, Clock, AlertCircle, TrendingUp, Plus, Link2, Archive, DollarSign, BarChart3 } from 'lucide-react';
 import Link from 'next/link';
 import { CrearItemCompraModal } from '@/components/CrearItemCompraModal';
 import { RelacionarItemsModal } from '@/components/RelacionarItemsModal';
@@ -52,6 +52,23 @@ export default function CompraDetallePage() {
 
     const getCategoriaNombre = (categoriaId: number) => {
         return categorias.find(c => c.id === categoriaId)?.name || 'N/A';
+    };
+
+    const handleCerrarLote = async () => {
+        if (!compra) return;
+        
+        if (!confirm('¿Estás seguro de cerrar este lote? Las prendas no catalogadas se moverán a Inventario Genérico y no podrás subirles fotos después.')) {
+            return;
+        }
+
+        try {
+            const updated = await comprasApi.cerrarLote(compra.id);
+            setCompra(updated);
+            toast.success('Lote cerrado exitosamente');
+        } catch (error: any) {
+            console.error('Error closing lot:', error);
+            toast.error('Error al cerrar el lote');
+        }
     };
 
     const getEstadoBadge = (estado: string) => {
@@ -254,6 +271,49 @@ export default function CompraDetallePage() {
                             </Card>
                         )}
 
+                        {/* Inventario No Clasificado (Solo si tiene saldo o está cerrado) */}
+                        {(compra.saldo_no_clasificado > 0 || compra.estado === 'COMPLETADA') && (
+                            <Card className="border-primary/20 bg-primary/5">
+                                <CardHeader>
+                                    <div className="flex items-center gap-2">
+                                        <Archive className="h-5 w-5 text-primary" />
+                                        <CardTitle>Resumen de Inventario No Clasificado (Genérico)</CardTitle>
+                                    </div>
+                                    <CardDescription>Mercancía vendida sin catalogar (FIFO)</CardDescription>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        <div className="space-y-1">
+                                            <p className="text-sm text-muted-foreground">Saldo a Recuperar</p>
+                                            <p className="text-2xl font-bold text-primary">{compra.saldo_no_clasificado.toFixed(2)} Bs</p>
+                                            <p className="text-xs text-muted-foreground">{compra.unidades_no_clasificadas} prendas genéricas</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-sm text-muted-foreground">Total Recuperado</p>
+                                            <p className="text-2xl font-bold text-green-600">{compra.saldo_recuperado.toFixed(2)} Bs</p>
+                                            <p className="text-xs text-muted-foreground">{compra.unidades_vendidas_genericas} prendas vendidas</p>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div className="flex justify-between text-sm">
+                                                <span>Progreso de Recuperación</span>
+                                                <span className="font-medium">
+                                                    {compra.saldo_no_clasificado > 0 
+                                                        ? Math.round((compra.saldo_recuperado / compra.saldo_no_clasificado) * 100) 
+                                                        : 100}%
+                                                </span>
+                                            </div>
+                                            <div className="w-full bg-secondary rounded-full h-2">
+                                                <div 
+                                                    className="bg-green-500 h-2 rounded-full transition-all" 
+                                                    style={{ width: `${compra.saldo_no_clasificado > 0 ? Math.min(100, (compra.saldo_recuperado / compra.saldo_no_clasificado) * 100) : 100}%` }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+
                         {/* Acciones - 3 Opciones para Agregar Items */}
                         {compra.estado !== 'COMPLETADA' && (
                             <div className="space-y-4">
@@ -320,6 +380,27 @@ export default function CompraDetallePage() {
                                             <Button className="w-full" variant="outline" onClick={() => setModalRelacionarOpen(true)}>
                                                 <Link2 className="h-4 w-4 mr-2" />
                                                 Ver Items
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
+
+                                    {/* Opción 4: Cerrar Lote (NUEVO) */}
+                                    <Card className="hover:border-red-500/50 transition-colors border-dashed bg-red-500/5">
+                                        <CardHeader>
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-red-500/10">
+                                                    <Archive className="h-6 w-6 text-red-600 dark:text-red-400" />
+                                                </div>
+                                                <CardTitle className="text-lg text-red-600 dark:text-red-400">Finalizar Carga</CardTitle>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <CardDescription className="mb-4">
+                                                ¿No vas a catalogar más? Pasa el resto a inventario genérico.
+                                            </CardDescription>
+                                            <Button className="w-full" variant="destructive" onClick={handleCerrarLote}>
+                                                <CheckCircle2 className="h-4 w-4 mr-2" />
+                                                Cerrar Lote
                                             </Button>
                                         </CardContent>
                                     </Card>

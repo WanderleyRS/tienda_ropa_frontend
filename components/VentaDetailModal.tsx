@@ -43,9 +43,10 @@ interface VentaDetailModalProps {
 
 interface DetalleVenta {
     id: number;
-    producto_id: number;
+    producto_id: number | null;
     cantidad: number;
     precio_unitario: number;
+    es_venta_generica?: boolean;
     producto?: {
         title: string;
     };
@@ -268,7 +269,9 @@ export function VentaDetailModal({ isOpen, onClose, ventaId, onUpdate }: VentaDe
                                         <TableBody>
                                             {venta.detalles.map((detalle) => (
                                                 <TableRow key={detalle.id} className="hover:bg-secondary/10">
-                                                    <TableCell className="font-medium">{detalle.producto?.title || `Producto #${detalle.producto_id}`}</TableCell>
+                                                    <TableCell className="font-medium">
+                                                        {detalle.producto?.title || (detalle.es_venta_generica ? '🧥 Ítem de Lote (Genérico)' : `Producto #${detalle.producto_id}`)}
+                                                    </TableCell>
                                                     <TableCell className="text-right text-muted-foreground">{detalle.cantidad}</TableCell>
                                                     <TableCell className="text-right text-muted-foreground">{detalle.precio_unitario.toFixed(2)} Bs</TableCell>
                                                     <TableCell className="text-right font-bold text-foreground">

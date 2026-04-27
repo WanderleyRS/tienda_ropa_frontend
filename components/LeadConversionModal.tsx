@@ -20,13 +20,14 @@ import { es } from 'date-fns/locale';
 interface LeadConversionModalProps {
     isOpen: boolean;
     onClose: () => void;
-    itemId: number;
-    itemTitle: string;
-    itemPrice: number;
+    itemId?: number;
+    itemTitle?: string;
+    itemPrice?: number;
     onSuccess: () => void;
+    isGeneric?: boolean;
 }
 
-export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPrice, onSuccess }: LeadConversionModalProps) {
+export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPrice, onSuccess, isGeneric = false }: LeadConversionModalProps) {
     const [isLoading, setIsLoading] = useState(false);
     const [isConverting, setIsConverting] = useState(false);
     const [leads, setLeads] = useState<PotencialCliente[]>([]);
@@ -37,6 +38,9 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
     const [registrarAbono, setRegistrarAbono] = useState(false);
     const [montoAbono, setMontoAbono] = useState('');
     const [metodoPago, setMetodoPago] = useState('EFECTIVO');
+    
+    // Estado para precio manual (solo genérico)
+    const [precioManual, setPrecioManual] = useState(itemPrice?.toString() || '');
 
     useEffect(() => {
         if (isOpen) {
@@ -46,8 +50,9 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
             setRegistrarAbono(false);
             setMontoAbono('');
             setMetodoPago('EFECTIVO');
+            setPrecioManual(itemPrice?.toString() || '');
         }
-    }, [isOpen]);
+    }, [isOpen, itemPrice]);
 
     const loadLeads = async () => {
         setIsLoading(true);
@@ -74,6 +79,12 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
     const handleConvert = async () => {
         if (!selectedLeadId) return;
 
+        const precioVenta = parseFloat(precioManual);
+        if (isNaN(precioVenta) || precioVenta <= 0) {
+            toast.error('Ingresa un precio de venta válido');
+            return;
+        }
+
         // Validar abono si está marcado
         if (registrarAbono) {
             const monto = parseFloat(montoAbono);
@@ -81,7 +92,7 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
                 toast.error('El monto del abono debe ser mayor a 0');
                 return;
             }
-            if (monto > itemPrice) {
+            if (monto > precioVenta) {
                 toast.error('El monto del abono no puede ser mayor al total de la venta');
                 return;
             }
@@ -93,9 +104,10 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
                 cliente_id: selectedLeadId,
                 detalles: [
                     {
-                        producto_id: itemId,
+                        producto_id: isGeneric ? null : itemId,
                         cantidad: 1,
-                        precio_unitario: itemPrice
+                        precio_unitario: precioVenta,
+                        es_venta_generica: isGeneric
                     }
                 ],
                 metodo_pago: metodoPago
@@ -130,13 +142,34 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="text-2xl font-bold">Registrar Venta</DialogTitle>
+                    <DialogTitle className="text-2xl font-bold">
+                        {isGeneric ? 'Venta de Lote (Genérica)' : 'Registrar Venta'}
+                    </DialogTitle>
                     <DialogDescription>
-                        Producto: <span className="font-semibold">{itemTitle}</span> - Precio: <span className="font-semibold">{itemPrice.toFixed(2)} Bs</span>
+                        {isGeneric ? (
+                            'Venta rápida de prenda no catalogada. Se usará el lote más antiguo (FIFO).'
+                        ) : (
+                            <>Producto: <span className="font-semibold">{itemTitle}</span> - Precio: <span className="font-semibold">{itemPrice?.toFixed(2)} Bs</span></>
+                        )}
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="space-y-6">
+                    {/* Precio de Venta (Manual si es genérico) */}
+                    <div className="bg-primary/5 p-4 rounded-lg border border-primary/10">
+                        <Label htmlFor="precio-venta" className="text-sm font-semibold mb-2 block">
+                            Precio de Venta (Bs)
+                        </Label>
+                        <Input
+                            id="precio-venta"
+                            type="number"
+                            step="0.01"
+                            value={precioManual}
+                            onChange={(e) => setPrecioManual(e.target.value)}
+                            className="text-lg font-bold"
+                            placeholder="0.00"
+                        />
+                    </div>
                     {/* Búsqueda de clientes */}
                     <div>
                         <Label className="text-sm font-medium mb-2 block">Seleccionar Cliente</Label>
@@ -224,13 +257,13 @@ export function LeadConversionModal({ isOpen, onClose, itemId, itemTitle, itemPr
                                         type="number"
                                         step="0.01"
                                         min="0"
-                                        max={itemPrice}
+                                        max={parseFloat(precioManual) || 0}
                                         placeholder="0.00"
                                         value={montoAbono}
                                         onChange={(e) => setMontoAbono(e.target.value)}
                                     />
                                     <p className="text-xs text-muted-foreground mt-1">
-                                        Máximo: {itemPrice.toFixed(2)} Bs
+                                        Máximo: {(parseFloat(precioManual) || 0).toFixed(2)} Bs
                                     </p>
                                 </div>
 

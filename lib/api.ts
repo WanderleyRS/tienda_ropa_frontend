@@ -11,7 +11,7 @@ export const apiClient = axios.create({
   },
 });
 
-// Request interceptor â€“ add JWT token if present
+// Request interceptor – add JWT token if present
 apiClient.interceptors.request.use(
   (config) => {
     if (typeof window !== 'undefined') {
@@ -43,12 +43,12 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Response interceptor â€“ handle auth errors and network issues
+// Response interceptor – handle auth errors and network issues
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (process.env.NODE_ENV === 'development') {
-      console.error('âŒ API error:', {
+      console.error('❌ API error:', {
         message: error.message,
         code: error.code,
         status: error.response?.status,
@@ -64,7 +64,7 @@ apiClient.interceptors.response.use(
         window.location.href = '/login';
       }
     } else if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-      console.error('Network error â€“ verify backend is running', { API_BASE_URL });
+      console.error('Network error – verify backend is running', { API_BASE_URL });
     }
     return Promise.reject(error);
   }
@@ -98,19 +98,19 @@ export interface User {
 
 export interface Item {
   id: number;
-  local_id?: number; // Added local_id
+  local_id?: number;
   title: string;
   description: string | null;
   price: number | null;
   stock: number;
   photo_url: string;
-  additional_images?: string[]; // Added support for multiple images
-  category_id?: number; // Optional until backend fully enforces it
+  additional_images?: string[];
+  category_id?: number;
   is_sold: boolean;
   status?: string; // disponible, pendiente, vendido
   almacen_id: number;
   almacen_nombre?: string;
-  talla?: string | null; // Added talla
+  talla?: string | null;
 }
 
 export interface ItemCreate {
@@ -228,7 +228,7 @@ export const authApi = {
         url,
       });
       if (error.code === 'ERR_NETWORK' || error.message === 'Network Error') {
-        throw new Error(`Connection error â€“ ensure backend is running at ${API_BASE_URL}`);
+        throw new Error(`Connection error – ensure backend is running at ${API_BASE_URL}`);
       } else if (error.response?.status === 401) {
         throw new Error('Incorrect credentials');
       } else if (error.response?.status === 422) {
@@ -420,18 +420,20 @@ export const clientesApi = {
 
 export interface DetalleVenta {
   id: number;
-  producto_id: number;
+  producto_id: number | null;
   cantidad: number;
   precio_unitario: number;
+  es_venta_generica?: boolean;
   producto?: {
     title: string;
   };
 }
 
 export interface DetalleVentaCreate {
-  producto_id: number;
+  producto_id?: number;
   cantidad: number;
   precio_unitario: number;
+  es_venta_generica?: boolean;
 }
 
 export interface AbonoCreate {
@@ -583,6 +585,11 @@ export interface Compra {
   usuario_id: number;
   fecha_compra: string;
   monto_total: number;
+  monto_total_factura?: number;
+  saldo_no_clasificado: number;
+  unidades_no_clasificadas: number;
+  saldo_recuperado: number;
+  unidades_vendidas_genericas: number;
   metodo_pago?: string;
   estado: string;
   items_esperados: number;
@@ -598,6 +605,7 @@ export interface CompraCreate {
   fecha_compra?: string;
   metodo_pago?: string;
   notas?: string;
+  monto_total_factura?: number;
   detalles: DetalleCompraCreate[];
 }
 
@@ -655,7 +663,10 @@ export const comprasApi = {
     apiClient.get<CompraEstado>(`/compras/${id}/estado`).then(res => res.data),
 
   asignarItems: (compraId: number, itemIds: number[]) =>
-    apiClient.post(`/compras/${compraId}/asignar-items`, itemIds).then(res => res.data)
+    apiClient.post(`/compras/${compraId}/asignar-items`, itemIds).then(res => res.data),
+
+  cerrarLote: (compraId: number) =>
+    apiClient.post<Compra>(`/compras/${compraId}/cerrar-lote`).then(res => res.data)
 };
 
 // ========================================
@@ -730,6 +741,7 @@ export interface ResumenEjecutivo {
     items_en_stock: number;
     items_vendidos: number;
     valor_inventario: number;
+    valor_generico_pendiente: number;
   };
   compras: {
     total_compras: number;
@@ -779,6 +791,7 @@ export interface MetricasInventario {
     valor_inventario_costo: number;
     valor_potencial_venta: number;
     ganancia_potencial: number;
+    valor_generico_pendiente: number;
   };
   rotacion: {
     rotacion_inventario: number;
@@ -893,4 +906,3 @@ export const uploadApi = {
     return response.data;
   }
 };
-

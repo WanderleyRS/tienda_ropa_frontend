@@ -201,15 +201,15 @@ export default function ReportesPage() {
 
                             <Card>
                                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                    <CardTitle className="text-sm font-medium">Valor Inventario</CardTitle>
+                                    <CardTitle className="text-sm font-medium">Valor Inventario Total</CardTitle>
                                     <Package className="h-4 w-4 text-muted-foreground" />
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {resumen ? formatCurrency(resumen.inventario.valor_inventario) : '...'}
+                                        {resumen ? formatCurrency(resumen.inventario.valor_inventario + (resumen.inventario.valor_generico_pendiente || 0)) : '...'}
                                     </div>
                                     <p className="text-xs text-muted-foreground">
-                                        {resumen?.inventario.items_en_stock} items en stock
+                                        {resumen ? formatCurrency(resumen.inventario.valor_inventario) : '0'} VIP + {resumen ? formatCurrency(resumen.inventario.valor_generico_pendiente || 0) : '0'} Genérico
                                     </p>
                                 </CardContent>
                             </Card>
@@ -361,21 +361,22 @@ export default function ReportesPage() {
                                 <CardContent>
                                     <div className="space-y-4">
                                         <div>
-                                            <span className="text-sm text-muted-foreground">Costo Total (Inversión)</span>
+                                            <span className="text-sm text-muted-foreground">Costo Items Catalogados (VIP)</span>
                                             <div className="text-2xl font-bold">
                                                 {metricasInventario ? formatCurrency(metricasInventario.valores.valor_inventario_costo) : '...'}
                                             </div>
                                         </div>
                                         <div>
-                                            <span className="text-sm text-muted-foreground">Venta Potencial</span>
-                                            <div className="text-2xl font-bold text-blue-600">
-                                                {metricasInventario ? formatCurrency(metricasInventario.valores.valor_potencial_venta) : '...'}
+                                            <span className="text-sm text-muted-foreground">Inversión Genérica Pendiente</span>
+                                            <div className="text-2xl font-bold text-orange-600">
+                                                {metricasInventario ? formatCurrency(metricasInventario.valores.valor_generico_pendiente || 0) : '...'}
                                             </div>
+                                            <p className="text-[10px] text-muted-foreground mt-1">Saldo por recuperar de lotes cerrados (FIFO)</p>
                                         </div>
                                         <div className="pt-2 border-t">
-                                            <span className="text-sm text-muted-foreground">Ganancia Potencial</span>
-                                            <div className="text-xl font-bold text-green-600">
-                                                +{metricasInventario ? formatCurrency(metricasInventario.valores.ganancia_potencial) : '...'}
+                                            <span className="text-sm text-muted-foreground">Venta Potencial (Solo VIP)</span>
+                                            <div className="text-xl font-bold text-blue-600">
+                                                {metricasInventario ? formatCurrency(metricasInventario.valores.valor_potencial_venta) : '...'}
                                             </div>
                                         </div>
                                     </div>

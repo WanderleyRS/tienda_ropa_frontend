@@ -27,6 +27,7 @@ export default function NuevaCompraPage() {
     // Form state
     const [proveedorId, setProveedorId] = useState<number>(0);
     const [metodoPago, setMetodoPago] = useState('EFECTIVO');
+    const [montoTotalFactura, setMontoTotalFactura] = useState<number>(0);
     const [notas, setNotas] = useState('');
     const [detalles, setDetalles] = useState<DetalleCompraCreate[]>([
         { categoria_id: 0, cantidad: 1, costo_unitario: 0 }
@@ -113,6 +114,7 @@ export default function NuevaCompraPage() {
                 proveedor_id: proveedorId,
                 metodo_pago: metodoPago,
                 notas: notas || undefined,
+                monto_total_factura: montoTotalFactura > 0 ? montoTotalFactura : undefined,
                 detalles: detallesValidos
             });
 
@@ -206,6 +208,23 @@ export default function NuevaCompraPage() {
                                                 <option value="QR">QR</option>
                                                 <option value="CREDITO">Crédito</option>
                                             </select>
+                                        </div>
+
+                                        <div>
+                                            <Label htmlFor="montoTotalFactura">Monto Total Factura (Real Pagado)</Label>
+                                            <Input
+                                                id="montoTotalFactura"
+                                                type="number"
+                                                min="0"
+                                                step="0.01"
+                                                placeholder="Ej. 1000.00"
+                                                value={montoTotalFactura || ''}
+                                                onChange={(e) => setMontoTotalFactura(Number(e.target.value))}
+                                                className="mt-1"
+                                            />
+                                            <p className="text-[10px] text-muted-foreground mt-1">
+                                                Si es mayor al costo detallado, el resto irá a "Inventario Genérico".
+                                            </p>
                                         </div>
                                     </div>
 
@@ -313,14 +332,27 @@ export default function NuevaCompraPage() {
                                     </div>
 
                                     {/* Totales */}
-                                    <div className="mt-6 pt-6 border-t">
-                                        <div className="flex justify-between items-center text-lg font-semibold">
+                                    <div className="mt-6 pt-6 border-t space-y-2">
+                                        <div className="flex justify-between items-center text-sm text-muted-foreground">
+                                            <span>Subtotal Detallado:</span>
+                                            <span>{calcularTotal().toFixed(2)} Bs</span>
+                                        </div>
+                                        
+                                        {montoTotalFactura > calcularTotal() && (
+                                            <div className="flex justify-between items-center text-sm text-blue-600 dark:text-blue-400">
+                                                <span>Saldo para Inventario Genérico:</span>
+                                                <span className="font-medium">{(montoTotalFactura - calcularTotal()).toFixed(2)} Bs</span>
+                                            </div>
+                                        )}
+
+                                        <div className="flex justify-between items-center text-lg font-semibold pt-2">
                                             <span>Total Prendas:</span>
                                             <span>{calcularTotalPrendas()}</span>
                                         </div>
-                                        <div className="flex justify-between items-center text-xl font-bold mt-2">
-                                            <span>Total:</span>
-                                            <span>{calcularTotal().toFixed(2)} Bs</span>
+                                        
+                                        <div className="flex justify-between items-center text-xl font-bold mt-2 text-primary">
+                                            <span>Total Inversión:</span>
+                                            <span>{(montoTotalFactura || calcularTotal()).toFixed(2)} Bs</span>
                                         </div>
                                     </div>
                                 </CardContent>
