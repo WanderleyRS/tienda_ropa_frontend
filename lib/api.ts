@@ -390,6 +390,16 @@ export interface PotencialCliente {
 }
 
 export const clientesApi = {
+  crear: async (data: any): Promise<PotencialCliente> => {
+    // If we only have 'nombre', we might need to handle the backend requirement for 'apellido_paterno'
+    const payload = {
+      ...data,
+      apellido_paterno: data.apellido_paterno || '.' // Fallback for quick create
+    };
+    const response = await apiClient.post<PotencialCliente>('/clientes/potencial', payload);
+    return response.data;
+  },
+
   crearPotencial: async (data: PotencialClienteCreate): Promise<PotencialCliente> => {
     const response = await apiClient.post<PotencialCliente>('/clientes/potencial', data);
     return response.data;
