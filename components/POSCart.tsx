@@ -2,7 +2,7 @@
 
 import { Item } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { Minus, Plus, Trash2, Tag, Image as ImageIcon } from 'lucide-react';
+import { Minus, Plus, Trash2, Tag, Image as ImageIcon, ShoppingBag } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface POSCartProps {
