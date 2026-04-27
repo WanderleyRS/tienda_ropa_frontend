@@ -109,108 +109,118 @@ function POSContent() {
   });
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] font-sans transition-colors duration-500">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#020617] font-sans transition-colors duration-500 overflow-hidden">
       <Navbar />
       
-      <main className="max-w-[1600px] mx-auto px-4 py-4 sm:py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 h-[calc(100vh-100px)]">
+      <main className="max-w-[1900px] mx-auto px-2 sm:px-4 py-2 sm:py-4">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 h-[calc(100vh-80px)]">
           
-          {/* Left Panel: Catalog & Pending */}
-          <div className="lg:col-span-8 flex flex-col gap-4 overflow-hidden">
-            <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 backdrop-blur-md flex-shrink-0">
-              <CardContent className="p-3 sm:p-4">
-                <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                  <div className="relative w-full md:w-96">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      placeholder="Buscar por nombre o código..." 
-                      className="pl-10 h-10 bg-slate-50 dark:bg-slate-800/50 border-none ring-offset-transparent focus-visible:ring-primary"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-                  </div>
-                  
-                  <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 no-scrollbar">
+          {/* LEFT SIDEBAR: Catalog & Search (3/12) */}
+          <div className="lg:col-span-3 flex flex-col gap-3 overflow-hidden h-full">
+            <Card className="border-none shadow-sm bg-white dark:bg-slate-900/50 backdrop-blur-md">
+              <CardContent className="p-3">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    placeholder="Buscar..." 
+                    className="pl-9 h-9 bg-slate-50 dark:bg-slate-800/50 border-none ring-offset-transparent focus-visible:ring-primary text-sm"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                
+                <div className="flex flex-wrap items-center gap-1.5 mt-3">
+                  <Button 
+                    variant={selectedCategory === 'ALL' ? 'default' : 'secondary'} 
+                    size="sm"
+                    onClick={() => setSelectedCategory('ALL')}
+                    className="h-7 px-3 rounded-full text-[10px] font-bold uppercase tracking-wider"
+                  >
+                    Todos
+                  </Button>
+                  {categories.slice(0, 4).map(cat => (
                     <Button 
-                      variant={selectedCategory === 'ALL' ? 'default' : 'secondary'} 
+                      key={cat.id} 
+                      variant={selectedCategory === cat.id.toString() ? 'default' : 'secondary'} 
                       size="sm"
-                      onClick={() => setSelectedCategory('ALL')}
-                      className="whitespace-nowrap h-9 px-4 rounded-full"
+                      onClick={() => setSelectedCategory(cat.id.toString())}
+                      className="h-7 px-3 rounded-full text-[10px] font-bold uppercase tracking-wider"
                     >
-                      Todos
+                      {cat.name}
                     </Button>
-                    {categories.map(cat => (
-                      <Button 
-                        key={cat.id} 
-                        variant={selectedCategory === cat.id.toString() ? 'default' : 'secondary'} 
-                        size="sm"
-                        onClick={() => setSelectedCategory(cat.id.toString())}
-                        className="whitespace-nowrap h-9 px-4 rounded-full"
-                      >
-                        {cat.name}
-                      </Button>
-                    ))}
-                  </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
 
             <Tabs defaultValue="catalog" className="flex-1 flex flex-col overflow-hidden">
-              <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-200/50 dark:bg-slate-900/80 p-1 rounded-2xl shadow-inner h-12">
-                <TabsTrigger value="catalog" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm h-10 font-bold transition-all">
-                  <LayoutGrid className="mr-2 h-4 w-4" />
-                  Catálogo VIP
+              <TabsList className="grid w-full grid-cols-2 bg-slate-200/50 dark:bg-slate-900/80 p-1 rounded-xl h-10 mb-2">
+                <TabsTrigger value="catalog" className="rounded-lg text-[11px] font-bold h-8">
+                  VIP
                 </TabsTrigger>
-                <TabsTrigger value="pending" className="rounded-xl data-[state=active]:bg-white dark:data-[state=active]:bg-slate-800 data-[state=active]:shadow-sm h-10 font-bold transition-all">
-                  <Clock className="mr-2 h-4 w-4" />
-                  Pedidos WhatsApp
+                <TabsTrigger value="pending" className="rounded-lg text-[11px] font-bold h-8">
+                  WhatsApp
                   {pendingItems.length > 0 && (
-                    <span className="ml-2 bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full animate-pulse">
+                    <span className="ml-1.5 bg-orange-500 text-white text-[9px] px-1.5 py-0.5 rounded-full">
                       {pendingItems.length}
                     </span>
                   )}
                 </TabsTrigger>
               </TabsList>
 
-              <TabsContent value="catalog" className="flex-1 overflow-y-auto mt-0 pr-1 scrollbar-hide">
-                <POSProductGrid 
-                  items={filteredItems} 
-                  onAdd={addToCart} 
-                  isLoading={isLoading} 
-                />
-              </TabsContent>
+              <div className="flex-1 overflow-y-auto pr-1 custom-scrollbar">
+                <TabsContent value="catalog" className="mt-0 outline-none">
+                  <POSProductGrid 
+                    items={filteredItems} 
+                    onAdd={addToCart} 
+                    isLoading={isLoading} 
+                    compact
+                  />
+                </TabsContent>
 
-              <TabsContent value="pending" className="flex-1 overflow-y-auto mt-0 pr-1 scrollbar-hide">
-                <POSPendingOrders 
-                  items={pendingItems} 
-                  onAddAll={items => {
-                    items.forEach(item => addToCart(item));
-                  }}
-                  onRefresh={loadData}
-                />
-              </TabsContent>
+                <TabsContent value="pending" className="mt-0 outline-none">
+                  <POSPendingOrders 
+                    items={pendingItems} 
+                    onAddAll={items => {
+                      items.forEach(item => addToCart(item));
+                    }}
+                    onRefresh={loadData}
+                  />
+                </TabsContent>
+              </div>
             </Tabs>
           </div>
 
-          {/* Right Panel: Cart & Checkout */}
-          <div className="lg:col-span-4 flex flex-col gap-4 overflow-hidden">
-            <Card className="flex-1 border-none shadow-2xl bg-white dark:bg-slate-900 overflow-hidden flex flex-col rounded-[2rem] border border-white/10">
-              <div className="p-5 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/50 dark:bg-slate-800/20 flex items-center justify-between">
+          {/* CENTER: Expanded Cart (6/12) */}
+          <div className="lg:col-span-6 flex flex-col gap-4 overflow-hidden h-full">
+            <Card className="flex-1 border-none shadow-xl bg-white dark:bg-slate-900/80 backdrop-blur-xl overflow-hidden flex flex-col rounded-[2rem] border border-white/5">
+              <div className="p-4 border-b border-slate-100 dark:border-slate-800/50 bg-slate-50/30 dark:bg-slate-800/10 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="bg-primary/10 p-2.5 rounded-2xl">
+                  <div className="bg-primary/10 p-2 rounded-xl">
                     <ShoppingBag className="h-5 w-5 text-primary" />
                   </div>
-                  <div>
-                    <h2 className="font-black text-lg tracking-tight">Carrito de Venta</h2>
-                    <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Punto de Venta</p>
-                  </div>
+                  <h2 className="font-black text-xl tracking-tight">Venta Actual</h2>
                 </div>
-                <Button variant="ghost" size="sm" onClick={clearCart} className="text-muted-foreground hover:text-destructive h-8 px-3 rounded-full hover:bg-destructive/10">
-                  Vaciar
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={clearCart} 
+                  className="text-muted-foreground hover:text-destructive h-8 px-4 rounded-full"
+                  disabled={cart.length === 0}
+                >
+                  Limpiar Carrito
                 </Button>
               </div>
 
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 no-scrollbar">
+              {/* Table Headers for Cart */}
+              <div className="grid grid-cols-12 gap-2 px-6 py-2 bg-slate-50/50 dark:bg-slate-800/30 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b border-slate-100 dark:border-slate-800/50">
+                <div className="col-span-6">Producto</div>
+                <div className="col-span-2 text-center">Precio</div>
+                <div className="col-span-2 text-center">Cant.</div>
+                <div className="col-span-2 text-right">Total</div>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-4 space-y-2 no-scrollbar">
                 <POSCart 
                   items={cart} 
                   onRemove={removeFromCart} 
@@ -218,20 +228,21 @@ function POSContent() {
                   onUpdatePrice={updatePrice}
                 />
               </div>
-
-              <div className="mt-auto border-t border-slate-100 dark:border-slate-800/50 p-5 bg-slate-50/50 dark:bg-slate-800/20 backdrop-blur-xl">
-                <POSCheckout 
-                  cart={cart}
-                  selectedClient={selectedClient}
-                  onClientSelect={setSelectedClient}
-                  onSuccess={() => {
-                    clearCart();
-                    loadData();
-                  }}
-                  onAddGeneric={(item) => addToCart(item)}
-                />
-              </div>
             </Card>
+          </div>
+
+          {/* RIGHT SIDEBAR: Checkout & Totals (3/12) */}
+          <div className="lg:col-span-3 flex flex-col gap-4 overflow-hidden h-full">
+             <POSCheckout 
+              cart={cart}
+              selectedClient={selectedClient}
+              onClientSelect={setSelectedClient}
+              onSuccess={() => {
+                clearCart();
+                loadData();
+              }}
+              onAddGeneric={(item) => addToCart(item)}
+            />
           </div>
 
         </div>

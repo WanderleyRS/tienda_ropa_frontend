@@ -106,204 +106,183 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col h-full gap-4">
       {/* Client Section */}
-      <div className="bg-white dark:bg-slate-900 rounded-xl p-3 border shadow-sm">
-        <div className="flex items-center justify-between mb-2">
-          <Label className="text-xs font-bold uppercase text-muted-foreground">Cliente</Label>
-          {selectedClient && (
-            <Button variant="ghost" size="sm" onClick={() => onClientSelect(null)} className="h-6 text-[10px]">
-              Cambiar
+      <Card className="border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden rounded-2xl">
+        <div className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Cliente</Label>
+            {selectedClient && (
+              <Button variant="ghost" size="sm" onClick={() => onClientSelect(null)} className="h-6 text-[10px] font-bold text-primary">
+                Cambiar
+              </Button>
+            )}
+          </div>
+          {selectedClient ? (
+            <div className="flex items-center gap-3 bg-primary/5 p-3 rounded-xl border border-primary/20">
+              <div className="bg-primary/10 p-2 rounded-full">
+                <UserIcon className="h-4 w-4 text-primary" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[13px] font-black truncate">{selectedClient.nombre} {selectedClient.apellido_paterno}</p>
+                <p className="text-[11px] text-muted-foreground">{selectedClient.celular}</p>
+              </div>
+              <Check className="h-4 w-4 text-green-500" />
+            </div>
+          ) : (
+            <Button 
+              variant="outline" 
+              className="w-full h-12 justify-start gap-3 border-dashed rounded-xl border-slate-200 dark:border-slate-800"
+              onClick={() => setIsClientSelectorOpen(true)}
+            >
+              <Plus className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Asignar Cliente</span>
             </Button>
           )}
         </div>
-        {selectedClient ? (
-          <div className="flex items-center gap-3 bg-primary/5 p-2 rounded-lg border border-primary/20">
-            <div className="bg-primary/10 p-2 rounded-full">
-              <UserIcon className="h-4 w-4 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-bold truncate">{selectedClient.nombre} {selectedClient.apellido_paterno}</p>
-              <p className="text-[10px] text-muted-foreground">{selectedClient.celular}</p>
-            </div>
-            <Check className="h-4 w-4 text-green-500" />
-          </div>
-        ) : (
-          <Button 
-            variant="outline" 
-            className="w-full h-12 justify-start gap-3 border-dashed"
-            onClick={() => setIsClientSelectorOpen(true)}
-          >
-            <Plus className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Seleccionar o crear cliente</span>
-          </Button>
-        )}
-      </div>
+      </Card>
 
-      {/* Payment & Options */}
-      <div className="space-y-3">
-        <div className="flex gap-2">
-          <div className="flex-1 space-y-1.5">
-            <Label className="text-[10px] font-bold uppercase text-muted-foreground">Pago</Label>
+      {/* Payment & Settings */}
+      <Card className="border-none shadow-sm bg-white dark:bg-slate-900 overflow-hidden rounded-2xl flex-1 flex flex-col">
+        <div className="p-4 space-y-4 flex-1 overflow-y-auto custom-scrollbar">
+          <div className="space-y-2">
+            <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Método de Pago</Label>
             <Select value={metodoPago} onValueChange={setMetodoPago}>
-              <SelectTrigger className="h-10">
+              <SelectTrigger className="h-11 rounded-xl bg-slate-50 dark:bg-slate-800/50 border-none">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="EFECTIVO">Efectivo</SelectItem>
+                <SelectItem value="EFECTIVO">Efectivo (Caja)</SelectItem>
                 <SelectItem value="TRANSFERENCIA">Transferencia</SelectItem>
                 <SelectItem value="QR">Código QR</SelectItem>
-                <SelectItem value="TARJETA">Tarjeta</SelectItem>
+                <SelectItem value="TARJETA">Tarjeta Débito/Crédito</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          
+
+          <div className="grid grid-cols-2 gap-2">
+            <div 
+              className={cn(
+                "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all",
+                registrarAbono 
+                  ? "bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800 shadow-sm" 
+                  : "bg-slate-50 dark:bg-slate-800/50 border-transparent"
+              )}
+              onClick={() => setRegistrarAbono(!registrarAbono)}
+            >
+              <div className="flex items-center gap-2">
+                <DollarSign className={cn("h-4 w-4", registrarAbono ? "text-green-600" : "text-muted-foreground")} />
+                <span className={cn("text-xs font-black", registrarAbono ? "text-green-700 dark:text-green-400" : "text-muted-foreground")}>Abono</span>
+              </div>
+            </div>
+            
+            <div 
+              className={cn(
+                "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all",
+                agendarEntrega 
+                  ? "bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800 shadow-sm" 
+                  : "bg-slate-50 dark:bg-slate-800/50 border-transparent"
+              )}
+              onClick={() => setAgendarEntrega(!agendarEntrega)}
+            >
+              <div className="flex items-center gap-2">
+                <Truck className={cn("h-4 w-4", agendarEntrega ? "text-blue-600" : "text-muted-foreground")} />
+                <span className={cn("text-xs font-black", agendarEntrega ? "text-blue-700 dark:text-blue-400" : "text-muted-foreground")}>Entrega</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Special Action */}
           <Button 
             variant="outline" 
-            className="mt-6 h-10 gap-2 border-amber-200 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400"
+            className="w-full h-10 gap-2 border-amber-200 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 rounded-xl"
             onClick={addGenericItem}
           >
             <Wallet className="h-4 w-4" />
-            Lote FIFO
+            Venta Genérica (Lote FIFO)
+          </Button>
+
+          {/* Conditional Forms */}
+          {registrarAbono && (
+            <div className="p-3 bg-green-50 dark:bg-green-950/10 rounded-xl border border-green-100 dark:border-green-900/30 animate-in slide-in-from-top-2 duration-300">
+              <Label className="text-[10px] font-bold text-green-700 uppercase">Monto Inicial</Label>
+              <Input 
+                type="number" 
+                placeholder="0.00" 
+                className="mt-1 h-9 bg-white border-green-200 focus:ring-green-500 rounded-lg"
+                value={montoAbono}
+                onChange={(e) => setMontoAbono(e.target.value)}
+              />
+            </div>
+          )}
+
+          {agendarEntrega && (
+            <div className="p-3 bg-blue-50 dark:bg-blue-950/10 rounded-xl border border-blue-100 dark:border-blue-900/30 space-y-2 animate-in slide-in-from-top-2 duration-300">
+              <Label className="text-[10px] font-bold text-blue-700 uppercase">Logística</Label>
+              <Select 
+                value={agendaData.tipo_entrega} 
+                onValueChange={(val) => setAgendaData(prev => ({...prev, tipo_entrega: val}))}
+              >
+                <SelectTrigger className="h-9 text-xs bg-white rounded-lg">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Delivery">Delivery Local</SelectItem>
+                  <SelectItem value="Recoleccion_Tienda">Recojo en Tienda</SelectItem>
+                  <SelectItem value="Encomienda">Encomienda</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input 
+                type="date" 
+                className="h-9 text-xs bg-white rounded-lg" 
+                value={agendaData.fecha_programada}
+                onChange={(e) => setAgendaData(prev => ({...prev, fecha_programada: e.target.value}))}
+              />
+              <Input 
+                placeholder="Dirección..." 
+                className="h-9 text-xs bg-white rounded-lg" 
+                value={agendaData.direccion_entrega || ''}
+                onChange={(e) => setAgendaData(prev => ({...prev, direccion_entrega: e.target.value}))}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Totals Section */}
+        <div className="p-5 border-t bg-slate-50/50 dark:bg-slate-800/30">
+          <div className="space-y-1 mb-4">
+            <div className="flex justify-between items-center text-muted-foreground text-xs font-bold">
+              <span>Subtotal ({cart.length} ítems)</span>
+              <span>{total.toFixed(0)} Bs</span>
+            </div>
+            <div className="flex justify-between items-center text-primary">
+              <span className="text-[11px] font-black uppercase tracking-wider">Total Final</span>
+              <div className="flex items-baseline gap-1">
+                <span className="text-3xl font-black">{total.toFixed(0)}</span>
+                <span className="text-sm font-bold opacity-70">Bs</span>
+              </div>
+            </div>
+          </div>
+
+          <Button 
+            className="w-full h-14 text-lg font-black rounded-2xl shadow-xl shadow-primary/20 group relative overflow-hidden"
+            onClick={handleFinalizar}
+            disabled={isSubmitting || cart.length === 0}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-primary to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <span className="relative z-10 flex items-center justify-center">
+              {isSubmitting ? (
+                <Loader2 className="h-6 w-6 animate-spin" />
+              ) : (
+                <>
+                  Pagar Venta
+                  <Check className="ml-2 h-6 w-6 group-hover:scale-125 transition-transform" />
+                </>
+              )}
+            </span>
           </Button>
         </div>
-
-        {/* Toggles */}
-        <div className="grid grid-cols-2 gap-2">
-          <div 
-            className={cn(
-              "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all",
-              registrarAbono 
-                ? "bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800" 
-                : "bg-white dark:bg-slate-900 border-border"
-            )}
-            onClick={() => setRegistrarAbono(!registrarAbono)}
-          >
-            <div className="flex items-center gap-2">
-              <DollarSign className={cn("h-4 w-4", registrarAbono ? "text-green-600" : "text-muted-foreground")} />
-              <span className={cn("text-xs font-bold", registrarAbono ? "text-green-700 dark:text-green-400" : "text-muted-foreground")}>Abono</span>
-            </div>
-            <Checkbox checked={registrarAbono} onCheckedChange={(val) => setRegistrarAbono(!!val)} onClick={(e) => e.stopPropagation()} />
-          </div>
-          
-          <div 
-            className={cn(
-              "flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all",
-              agendarEntrega 
-                ? "bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800" 
-                : "bg-white dark:bg-slate-900 border-border"
-            )}
-            onClick={() => setAgendarEntrega(!agendarEntrega)}
-          >
-            <div className="flex items-center gap-2">
-              <Truck className={cn("h-4 w-4", agendarEntrega ? "text-blue-600" : "text-muted-foreground")} />
-              <span className={cn("text-xs font-bold", agendarEntrega ? "text-blue-700 dark:text-blue-400" : "text-muted-foreground")}>Entrega</span>
-            </div>
-            <Checkbox checked={agendarEntrega} onCheckedChange={(val) => setAgendarEntrega(!!val)} onClick={(e) => e.stopPropagation()} />
-          </div>
-        </div>
-
-        {/* Conditional Forms */}
-        {registrarAbono && (
-          <div className="p-3 bg-green-50 dark:bg-green-950/10 rounded-xl border border-green-100 dark:border-green-900/30 animate-in slide-in-from-top-2 duration-300">
-            <Label className="text-[10px] font-bold text-green-700 uppercase">Monto de Abono</Label>
-            <Input 
-              type="number" 
-              placeholder="0.00" 
-              className="mt-1 border-green-200 focus:ring-green-500"
-              value={montoAbono}
-              onChange={(e) => setMontoAbono(e.target.value)}
-            />
-          </div>
-        )}
-
-        {agendarEntrega && (
-          <div className="p-3 bg-blue-50 dark:bg-blue-950/10 rounded-xl border border-blue-100 dark:border-blue-900/30 space-y-2 animate-in slide-in-from-top-2 duration-300">
-            <Label className="text-[10px] font-bold text-blue-700 uppercase">Datos de Entrega</Label>
-            
-            <Select 
-              value={agendaData.tipo_entrega} 
-              onValueChange={(val) => setAgendaData(prev => ({...prev, tipo_entrega: val}))}
-            >
-              <SelectTrigger className="h-8 text-xs bg-white">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Delivery">Delivery Local</SelectItem>
-                <SelectItem value="Recoleccion_Tienda">Recojo en Tienda</SelectItem>
-                <SelectItem value="Encomienda">Encomienda (Nacional)</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <div className="grid grid-cols-2 gap-2">
-               <Input 
-                 type="date" 
-                 className="h-8 text-xs bg-white" 
-                 value={agendaData.fecha_programada}
-                 onChange={(e) => setAgendaData(prev => ({...prev, fecha_programada: e.target.value}))}
-               />
-               <Input 
-                 placeholder="Hora (opc)" 
-                 className="h-8 text-xs bg-white" 
-                 value={agendaData.hora_programada || ''}
-                 onChange={(e) => setAgendaData(prev => ({...prev, hora_programada: e.target.value}))}
-               />
-            </div>
-
-            <Input 
-              placeholder="Dirección completa..." 
-              className="h-8 text-xs bg-white" 
-              value={agendaData.direccion_entrega || ''}
-              onChange={(e) => setAgendaData(prev => ({...prev, direccion_entrega: e.target.value}))}
-            />
-
-            {agendaData.tipo_entrega === 'Encomienda' && (
-              <div className="grid grid-cols-2 gap-2">
-                 <Input 
-                   placeholder="Dpto" 
-                   className="h-8 text-xs bg-white" 
-                   value={agendaData.departamento || ''}
-                   onChange={(e) => setAgendaData(prev => ({...prev, departamento: e.target.value}))}
-                 />
-                 <Input 
-                   placeholder="Transporte" 
-                   className="h-8 text-xs bg-white" 
-                   value={agendaData.empresa_transporte || ''}
-                   onChange={(e) => setAgendaData(prev => ({...prev, empresa_transporte: e.target.value}))}
-                 />
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* Totals & Action */}
-      <div className="space-y-4 pt-4 border-t">
-        <div className="flex justify-between items-end">
-          <span className="text-muted-foreground font-medium">Subtotal ({cart.length} ítems)</span>
-          <span className="text-lg font-bold">{total.toFixed(2)} Bs</span>
-        </div>
-        
-        <div className="flex justify-between items-center text-primary">
-          <span className="text-sm font-bold uppercase tracking-wider">Total a Pagar</span>
-          <span className="text-3xl font-black">{total.toFixed(2)} <span className="text-sm">Bs</span></span>
-        </div>
-
-        <Button 
-          className="w-full h-14 text-lg font-bold rounded-2xl shadow-xl shadow-primary/20 group"
-          onClick={handleFinalizar}
-          disabled={isSubmitting || cart.length === 0}
-        >
-          {isSubmitting ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <>
-              Finalizar Venta
-              <Check className="ml-2 h-5 w-5 group-hover:scale-125 transition-transform" />
-            </>
-          )}
-        </Button>
-      </div>
+      </Card>
 
       <ClientSelector 
         isOpen={isClientSelectorOpen} 
