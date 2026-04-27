@@ -28,6 +28,7 @@ export default function NuevaCompraPage() {
     const [proveedorId, setProveedorId] = useState<number>(0);
     const [metodoPago, setMetodoPago] = useState('EFECTIVO');
     const [montoTotalFactura, setMontoTotalFactura] = useState<number>(0);
+    const [totalUnidades, setTotalUnidades] = useState<number>(0);
     const [notas, setNotas] = useState('');
     const [detalles, setDetalles] = useState<DetalleCompraCreate[]>([
         { categoria_id: 0, cantidad: 1, costo_unitario: 0 }
@@ -115,6 +116,7 @@ export default function NuevaCompraPage() {
                 metodo_pago: metodoPago,
                 notas: notas || undefined,
                 monto_total_factura: montoTotalFactura > 0 ? montoTotalFactura : undefined,
+                total_unidades: totalUnidades > 0 ? totalUnidades : undefined,
                 detalles: detallesValidos
             });
 
@@ -210,21 +212,39 @@ export default function NuevaCompraPage() {
                                             </select>
                                         </div>
 
-                                        <div>
-                                            <Label htmlFor="montoTotalFactura">Monto Total Factura (Real Pagado)</Label>
-                                            <Input
-                                                id="montoTotalFactura"
-                                                type="number"
-                                                min="0"
-                                                step="0.01"
-                                                placeholder="Ej. 1000.00"
-                                                value={montoTotalFactura || ''}
-                                                onChange={(e) => setMontoTotalFactura(Number(e.target.value))}
-                                                className="mt-1"
-                                            />
-                                            <p className="text-[10px] text-muted-foreground mt-1">
-                                                Si es mayor al costo detallado, el resto irá a "Inventario Genérico".
-                                            </p>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <Label htmlFor="montoTotalFactura">Monto Total Factura (Bs)</Label>
+                                                <Input
+                                                    id="montoTotalFactura"
+                                                    type="number"
+                                                    min="0"
+                                                    step="0.01"
+                                                    placeholder="Ej. 1000.00"
+                                                    value={montoTotalFactura || ''}
+                                                    onChange={(e) => setMontoTotalFactura(Number(e.target.value))}
+                                                    className="mt-1"
+                                                />
+                                                <p className="text-[10px] text-muted-foreground mt-1">
+                                                    Monto real pagado (VIP + Genérico)
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <Label htmlFor="totalUnidades">Unidades Totales (Prendas)</Label>
+                                                <Input
+                                                    id="totalUnidades"
+                                                    type="number"
+                                                    min="0"
+                                                    placeholder="Ej. 15"
+                                                    value={totalUnidades || ''}
+                                                    onChange={(e) => setTotalUnidades(Number(e.target.value))}
+                                                    className="mt-1"
+                                                />
+                                                <p className="text-[10px] text-muted-foreground mt-1">
+                                                    Cantidad total de prendas en la factura
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
 

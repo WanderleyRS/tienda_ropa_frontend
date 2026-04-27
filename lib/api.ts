@@ -586,6 +586,7 @@ export interface Compra {
   fecha_compra: string;
   monto_total: number;
   monto_total_factura?: number;
+  total_unidades?: number;
   saldo_no_clasificado: number;
   unidades_no_clasificadas: number;
   saldo_recuperado: number;
@@ -606,6 +607,7 @@ export interface CompraCreate {
   metodo_pago?: string;
   notas?: string;
   monto_total_factura?: number;
+  total_unidades?: number;
   detalles: DetalleCompraCreate[];
 }
 
