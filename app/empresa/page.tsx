@@ -144,6 +144,8 @@ export default function EmpresaPage() {
             return;
         }
 
+        if (!empresaData) return;
+
         setIsSavingEmpresa(true);
         try {
             await companiesApi.updateEmpresa({
@@ -343,14 +345,14 @@ export default function EmpresaPage() {
                                                     id="navbarTitle"
                                                     placeholder="Ej. Mi Marca"
                                                     value={empresaData?.navbar_title || ''}
-                                                    onChange={(e) => setEmpresaData({ ...empresaData, navbar_title: e.target.value })}
+                                                    onChange={(e) => empresaData && setEmpresaData({ ...empresaData, navbar_title: e.target.value })}
                                                 />
                                             </div>
                                             <div className="space-y-2">
                                                 <Label htmlFor="navbarIcon">Icono del Navbar</Label>
                                                 <ImageUploader
                                                     value={empresaData?.navbar_icon_url || ''}
-                                                    onChange={(url) => setEmpresaData({ ...empresaData, navbar_icon_url: url })}
+                                                    onChange={(url) => empresaData && setEmpresaData({ ...empresaData, navbar_icon_url: url })}
                                                     maxSize={128}
                                                     label="Subir Icono"
                                                     folder="branding"
@@ -364,7 +366,7 @@ export default function EmpresaPage() {
                                                 id="storeTitle1"
                                                 placeholder="Ej. Colección Exclusiva"
                                                 value={empresaData?.store_title_1 || ''}
-                                                onChange={(e) => setEmpresaData({ ...empresaData, store_title_1: e.target.value })}
+                                                onChange={(e) => empresaData && setEmpresaData({ ...empresaData, store_title_1: e.target.value })}
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -373,7 +375,7 @@ export default function EmpresaPage() {
                                                 id="storeTitle2"
                                                 placeholder="Ej. Estilo con Historia"
                                                 value={empresaData?.store_title_2 || ''}
-                                                onChange={(e) => setEmpresaData({ ...empresaData, store_title_2: e.target.value })}
+                                                onChange={(e) => empresaData && setEmpresaData({ ...empresaData, store_title_2: e.target.value })}
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -382,7 +384,7 @@ export default function EmpresaPage() {
                                                 id="storeSubtitle"
                                                 placeholder="Ej. Piezas únicas seleccionadas..."
                                                 value={empresaData?.store_subtitle || ''}
-                                                onChange={(e) => setEmpresaData({ ...empresaData, store_subtitle: e.target.value })}
+                                                onChange={(e) => empresaData && setEmpresaData({ ...empresaData, store_subtitle: e.target.value })}
                                             />
                                         </div>
 
