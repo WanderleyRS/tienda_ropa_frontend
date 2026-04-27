@@ -181,20 +181,38 @@ export default function ComprasPage() {
                                             </p>
                                         </div>
                                         <div>
-                                            <p className="text-sm text-muted-foreground">Prendas</p>
-                                            <p className="text-lg font-semibold">
-                                                {compra.items_creados}/{(compra.total_unidades || compra.items_esperados)}
+                                            <p className="text-sm text-muted-foreground">Prendas / Salida</p>
+                                            <p className="text-lg font-semibold flex items-baseline gap-1">
+                                                <span>{compra.items_creados + (compra.unidades_vendidas_genericas || 0)}</span>
+                                                <span className="text-xs text-muted-foreground font-normal">/ {compra.total_unidades || compra.items_esperados}</span>
                                             </p>
+                                            <div className="flex gap-2 mt-0.5">
+                                                <span className="text-[10px] bg-blue-500/10 text-blue-600 px-1 rounded" title="Clasificadas">{compra.items_creados}C</span>
+                                                {(compra.unidades_vendidas_genericas || 0) > 0 && (
+                                                    <span className="text-[10px] bg-amber-500/10 text-amber-600 px-1 rounded" title="Vendidas FIFO">{(compra.unidades_vendidas_genericas || 0)}F</span>
+                                                )}
+                                            </div>
                                         </div>
                                         <div>
-                                            <p className="text-sm text-muted-foreground">Progreso</p>
+                                            <p className="text-sm text-muted-foreground">Progreso Total</p>
                                             <div className="flex items-center gap-2">
-                                                <div className="flex-1 bg-secondary rounded-full h-2">
+                                                <div className="flex-1 bg-secondary rounded-full h-2 overflow-hidden flex">
+                                                    {/* Classified Progress */}
                                                     <div
-                                                        className="bg-primary h-2 rounded-full transition-all"
+                                                        className="bg-primary h-2 transition-all"
                                                         style={{
                                                             width: `${(compra.total_unidades || compra.items_esperados) > 0
                                                                     ? (compra.items_creados / (compra.total_unidades || compra.items_esperados)) * 100
+                                                                    : 0
+                                                                }%`,
+                                                        }}
+                                                    />
+                                                    {/* FIFO Progress */}
+                                                    <div
+                                                        className="bg-amber-500 h-2 transition-all"
+                                                        style={{
+                                                            width: `${(compra.total_unidades || compra.items_esperados) > 0
+                                                                    ? ((compra.unidades_vendidas_genericas || 0) / (compra.total_unidades || compra.items_esperados)) * 100
                                                                     : 0
                                                                 }%`,
                                                         }}
@@ -203,7 +221,7 @@ export default function ComprasPage() {
                                                 <span className="text-xs font-medium">
                                                     {(compra.total_unidades || compra.items_esperados) > 0
                                                         ? Math.round(
-                                                            (compra.items_creados / (compra.total_unidades || compra.items_esperados)) * 100
+                                                            ((compra.items_creados + (compra.unidades_vendidas_genericas || 0)) / (compra.total_unidades || compra.items_esperados)) * 100
                                                         )
                                                         : 0}
                                                     %
