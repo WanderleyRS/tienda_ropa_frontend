@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/contexts/ThemeContext';
 import { Button } from '@/components/ui/button';
 import { CartButton } from '@/components/CartButton';
-import { LogOut, Building2, Menu, X, Moon, Sun, Share2, ChevronDown, LayoutDashboard, ShoppingBag, Settings, Briefcase, Users, Package, FileText, Calendar, UserCheck, ClipboardList, Database } from 'lucide-react';
+import { LogOut, Building2, Menu, X, Moon, Sun, Share2, ChevronDown, LayoutDashboard, ShoppingBag, Settings, Briefcase, Users, Package, FileText, Calendar, UserCheck, ClipboardList, Database, Zap } from 'lucide-react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -131,6 +131,20 @@ function NavbarContent() {
                                     >
                                         <LayoutDashboard className="h-4 w-4" />
                                         <span>Dashboard</span>
+                                    </Link>
+
+                                    {/* POS */}
+                                    <Link
+                                        href="/pos"
+                                        className={cn(
+                                            "px-3 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2",
+                                            pathname === '/pos'
+                                                ? "bg-primary/10 text-primary font-bold shadow-sm"
+                                                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                                        )}
+                                    >
+                                        <Zap className="h-4 w-4 text-orange-500 fill-orange-500/20" />
+                                        <span>POS</span>
                                     </Link>
 
                                     {/* Gestión Dropdown */}
@@ -360,6 +374,17 @@ function NavbarContent() {
                             )}
                         >
                             <LayoutDashboard className="h-5 w-5" /> Dashboard
+                        </Link>
+
+                        <Link
+                            href="/pos"
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={cn(
+                                "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all",
+                                pathname === '/pos' ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-secondary"
+                            )}
+                        >
+                            <Zap className="h-5 w-5 text-orange-500" /> POS (Ventas)
                         </Link>
 
                         <div className="pt-2 pb-1 px-4 text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">Gestión</div>

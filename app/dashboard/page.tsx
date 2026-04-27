@@ -305,10 +305,12 @@ function DashboardContent() {
 
             {(user?.role === 'admin' || user?.role === 'vendedor') && (
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setIsGenericVentaOpen(true)} className="border-primary text-primary hover:bg-primary/5">
-                  <Zap className="mr-2 h-4 w-4" />
-                  Venta de Lote
-                </Button>
+                <Link href="/pos">
+                  <Button variant="outline" className="border-orange-500 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-950/20">
+                    <Zap className="mr-2 h-4 w-4 fill-orange-500" />
+                    Abrir POS
+                  </Button>
+                </Link>
                 <Button onClick={() => setIsCreateDialogOpen(true)} className="shadow-lg shadow-primary/20">
                   <Plus className="mr-2 h-4 w-4" />
                   Nuevo Ítem

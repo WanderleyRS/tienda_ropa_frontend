@@ -448,6 +448,17 @@ export interface Abono {
   metodo_pago: string;
 }
 
+export interface AgendaInline {
+  tipo_entrega: string;
+  fecha_programada: string;
+  hora_programada?: string;
+  direccion_entrega?: string;
+  notas_logistica?: string;
+  departamento?: string;
+  provincia?: string;
+  empresa_transporte?: string;
+}
+
 export interface AgendaCreate {
   venta_id?: number;
   cliente_id?: number;
@@ -489,6 +500,7 @@ export interface VentaCreate {
   detalles: DetalleVentaCreate[];
   abono_inicial?: AbonoCreate;
   metodo_pago?: string;
+  agenda_inline?: AgendaInline;
 }
 
 export interface AbonoResponse {
@@ -703,6 +715,16 @@ export const ventasApi = {
 
   createAbono: async (data: { venta_id: number; monto_abonado: number; metodo_pago: string; fecha_abono?: string }) => {
     const response = await apiClient.post<AbonoResponse>('/abonos/', data);
+    return response.data;
+  },
+
+  getPedidosPendientes: async () => {
+    const response = await apiClient.get<Item[]>('/ventas/pedidos-pendientes');
+    return response.data;
+  },
+
+  liberarItems: async (itemIds: number[]) => {
+    const response = await apiClient.post('/ventas/liberar-items', itemIds);
     return response.data;
   }
 };
