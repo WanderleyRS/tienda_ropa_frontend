@@ -185,9 +185,13 @@ export default function CompraDetallePage() {
 
                             <Card className="bg-muted/20 border-white/5 shadow-sm">
                                 <CardContent className="p-4">
-                                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Catalogado</p>
-                                    <p className="text-xl font-bold font-mono">{compraEstado.items_creados} / {compraEstado.items_esperados}</p>
-                                    <div className="mt-2">
+                                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Items Procesados</p>
+                                    <p className="text-xl font-bold font-mono">{compraEstado.total_salida} / {compraEstado.items_esperados}</p>
+                                    <div className="flex gap-2 mt-1">
+                                        <span className="text-[8px] font-bold opacity-60">C: {compraEstado.items_creados}</span>
+                                        <span className="text-[8px] font-bold text-amber-500/80">F: {compraEstado.unidades_vendidas_genericas}</span>
+                                    </div>
+                                    <div className="mt-1">
                                         <Progress value={compraEstado.progreso_porcentaje} className="h-1" />
                                     </div>
                                 </CardContent>
@@ -234,9 +238,10 @@ export default function CompraDetallePage() {
                                                         <h3 className="font-bold text-base tracking-tight uppercase italic truncate">{cat?.name}</h3>
                                                         {isCompletado && <CheckCircle2 className="h-4 w-4 text-green-500" />}
                                                     </div>
-                                                    <div className="flex gap-3 text-[10px] font-bold text-muted-foreground uppercase">
+                                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-[10px] font-bold text-muted-foreground uppercase">
                                                         <span>Inv: <span className="text-foreground/80">{detalle.subtotal.toFixed(0)}</span></span>
-                                                        <span>Util: <span className="text-primary/80">{detalle.monto_utilizado.toFixed(0)}</span></span>
+                                                        <span>Invertido: <span className="text-foreground/60">{detalle.monto_utilizado.toFixed(0)}</span></span>
+                                                        <span className={detalle.utilidad > 0 ? "text-green-500" : ""}>Utilidad: <span className="font-black">{detalle.utilidad > 0 ? `+${detalle.utilidad.toFixed(0)}` : detalle.utilidad.toFixed(0)}</span></span>
                                                         <span>Bolsa: <span className="text-amber-500 font-black">{detalle.monto_restante.toFixed(0)}</span></span>
                                                     </div>
                                                 </div>
@@ -246,17 +251,23 @@ export default function CompraDetallePage() {
                                                     <p className="text-xl font-black font-mono text-primary">
                                                         {detalle.costo_promedio_sugerido.toFixed(2)} <span className="text-[10px]">Bs</span>
                                                     </p>
-                                                    <p className="text-[10px] text-muted-foreground font-bold md:block hidden">{detalle.items_creados}/{detalle.cantidad}</p>
+                                                    <div className="flex items-center gap-2">
+                                                        <p className="text-[10px] text-muted-foreground font-bold">{detalle.items_consumidos}/{detalle.cantidad}</p>
+                                                        <div className="flex gap-1">
+                                                            {detalle.items_creados > 0 && <div className="w-1.5 h-1.5 rounded-full bg-primary" title="Catalogado" />}
+                                                            {detalle.unidades_vendidas_fifo > 0 && <div className="w-1.5 h-1.5 rounded-full bg-amber-500" title="Vendido FIFO" />}
+                                                        </div>
+                                                    </div>
                                                 </div>
 
                                                 <div className="shrink-0">
                                                     <div className="w-12 h-12 relative">
                                                         <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
                                                             <circle cx="18" cy="18" r="16" className="text-white/5" stroke="currentColor" strokeWidth="4" fill="none" />
-                                                            <circle cx="18" cy="18" r="16" className="text-primary" stroke="currentColor" strokeWidth="4" strokeDasharray={`${(detalle.items_creados / detalle.cantidad) * 100}, 100`} fill="none" strokeLinecap="round" />
+                                                            <circle cx="18" cy="18" r="16" className="text-primary" stroke="currentColor" strokeWidth="4" strokeDasharray={`${(detalle.items_consumidos / detalle.cantidad) * 100}, 100`} fill="none" strokeLinecap="round" />
                                                         </svg>
                                                         <div className="absolute inset-0 flex items-center justify-center text-[9px] font-black italic">
-                                                            {Math.round((detalle.items_creados / detalle.cantidad) * 100)}%
+                                                            {Math.round((detalle.items_consumidos / detalle.cantidad) * 100)}%
                                                         </div>
                                                     </div>
                                                 </div>
