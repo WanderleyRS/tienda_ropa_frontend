@@ -623,8 +623,19 @@ export interface Compra {
   items_creados: number;
   notas?: string;
   fecha_registro: string;
+  estado_registro: number;
+  eliminado_por_id?: number;
+  fecha_eliminacion?: string;
   detalles: DetalleCompra[];
   proveedor?: Proveedor;
+}
+
+export interface CompraAnulacionCheck {
+  puede_anular: boolean;
+  motivo_bloqueo?: string;
+  items_publicados: number;
+  ventas_fifo: number;
+  monto_abono: number;
 }
 
 export interface CompraCreate {
@@ -694,7 +705,13 @@ export const comprasApi = {
     apiClient.post(`/compras/${compraId}/asignar-items`, itemIds).then(res => res.data),
 
   cerrarLote: (compraId: number) =>
-    apiClient.post<Compra>(`/compras/${compraId}/cerrar-lote`).then(res => res.data)
+    apiClient.post<Compra>(`/compras/${compraId}/cerrar-lote`).then(res => res.data),
+
+  checkAnulacion: (id: number) =>
+    apiClient.get<CompraAnulacionCheck>(`/compras/${id}/check-anulacion`).then(res => res.data),
+
+  anularCompra: (id: number) =>
+    apiClient.post<{ status: string; message: string }>(`/compras/${id}/anular`).then(res => res.data)
 };
 
 // ========================================

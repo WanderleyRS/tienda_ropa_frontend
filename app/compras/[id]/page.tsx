@@ -6,9 +6,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { comprasApi, categoriesApi, Compra, Category } from '@/lib/api';
+import { comprasApi, categoriesApi, Compra, Category, CompraAnulacionCheck } from '@/lib/api';
 import { toast } from 'sonner';
-import { ArrowLeft, Package, CheckCircle2, Clock, AlertCircle, TrendingUp, Plus, Link2, Archive, DollarSign, BarChart3 } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle2, Clock, AlertCircle, TrendingUp, Plus, Link2, Archive, DollarSign, BarChart3, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import { CrearItemCompraModal } from '@/components/CrearItemCompraModal';
 import { RelacionarItemsModal } from '@/components/RelacionarItemsModal';
@@ -26,6 +26,11 @@ export default function CompraDetallePage() {
     const [modalRelacionarOpen, setModalRelacionarOpen] = useState(false);
     const [isConfirmCerrarOpen, setIsConfirmCerrarOpen] = useState(false);
     const [isProcessingCerrar, setIsProcessingCerrar] = useState(false);
+
+    // Estados para Anulación
+    const [isAnulacionOpen, setIsAnulacionOpen] = useState(false);
+    const [anulacionCheck, setAnulacionCheck] = useState<CompraAnulacionCheck | null>(null);
+    const [isProcessingAnular, setIsProcessingAnular] = useState(false);
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated) {
@@ -70,6 +75,31 @@ export default function CompraDetallePage() {
             toast.error('Error al cerrar el lote');
         } finally {
             setIsProcessingCerrar(false);
+        }
+    };
+
+    const handleCheckAnulacion = async () => {
+        if (!compra) return;
+        try {
+            const check = await comprasApi.checkAnulacion(compra.id);
+            setAnulacionCheck(check);
+            setIsAnulacionOpen(true);
+        } catch (error: any) {
+            toast.error('Error al verificar estado de la compra');
+        }
+    };
+
+    const handleAnularCompra = async () => {
+        if (!compra) return;
+        setIsProcessingAnular(true);
+        try {
+            await comprasApi.anularCompra(compra.id);
+            toast.success('Compra anulada correctamente');
+            router.push('/compras');
+        } catch (error: any) {
+            toast.error(error.response?.data?.detail || 'Error al anular compra');
+        } finally {
+            setIsProcessingAnular(false);
         }
     };
 
@@ -377,6 +407,27 @@ export default function CompraDetallePage() {
                                             </Button>
                                         </CardContent>
                                     </Card>
+
+                                    {/* Opción 5: Anular Compra (NUEVO) */}
+                                    <Card className="hover:border-gray-500/50 transition-colors border-dashed bg-gray-500/5">
+                                        <CardHeader>
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 rounded-lg bg-gray-500/10">
+                                                    <Trash2 className="h-6 w-6 text-gray-600 dark:text-gray-400" />
+                                                </div>
+                                                <CardTitle className="text-lg text-gray-600 dark:text-gray-400">Anular Registro</CardTitle>
+                                            </div>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <CardDescription className="mb-4">
+                                                Anula esta compra y retira sus prendas del inventario de forma segura.
+                                            </CardDescription>
+                                            <Button className="w-full" variant="outline" onClick={handleCheckAnulacion}>
+                                                <Trash2 className="h-4 w-4 mr-2" />
+                                                Anular Compra
+                                            </Button>
+                                        </CardContent>
+                                    </Card>
                                 </div>
                             </div>
                         )}
@@ -397,8 +448,8 @@ export default function CompraDetallePage() {
                         open={modalCrearOpen}
                         onOpenChange={setModalCrearOpen}
                         compraId={compra.id}
-                        categoriaId={compra.detalles[0]?.categoria_id}
-                        precioCompra={compra.detalles[0]?.costo_unitario}
+                        categoriaId={compra.detalles[0]?.categoria_id || 0}
+                        precioCompra={compra.detalles[0]?.costo_unitario || 0}
                         onItemCreado={loadData}
                     />
 
@@ -420,6 +471,36 @@ export default function CompraDetallePage() {
                 description="Se marcará la compra como completada. Podrás seguir clasificando prendas VIP, pero el stock restante estará disponible para ventas genéricas FIFO por categoría."
                 confirmText="Sí, finalizar"
                 variant="warning"
+            />
+
+            {/* Modal de Anulación */}
+            <ConfirmModal
+                isOpen={isAnulacionOpen}
+                onClose={() => setIsAnulacionOpen(false)}
+                onConfirm={handleAnularCompra}
+                title={anulacionCheck?.puede_anular ? "¿Anular compra definitivamente?" : "No se puede anular"}
+                description={
+                    anulacionCheck?.puede_anular ? (
+                        <div className="space-y-3">
+                            <p>Esta acción marcará la compra como anulada para auditoría.</p>
+                            {anulacionCheck.items_publicados > 0 && (
+                                <div className="p-3 bg-yellow-500/10 border border-yellow-500/50 rounded-lg text-yellow-700 dark:text-yellow-400 text-sm">
+                                    ⚠️ <strong>Advertencia:</strong> Esta compra tiene <strong>{anulacionCheck.items_publicados} ítems publicados</strong> en la tienda. Al anular la compra, estos ítems también serán retirados del catálogo.
+                                </div>
+                            )}
+                            <p className="text-xs text-muted-foreground italic">
+                                * Los datos quedarán guardados en el sistema pero no serán visibles ni afectarán al inventario.
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-700 dark:text-red-400 text-sm">
+                            🚫 <strong>Bloqueo:</strong> {anulacionCheck?.motivo_bloqueo}
+                        </div>
+                    )
+                }
+                isLoading={isProcessingAnular}
+                confirmText={anulacionCheck?.puede_anular ? "Sí, anular compra" : "Cerrar"}
+                variant={anulacionCheck?.puede_anular ? "danger" : "warning"}
             />
         </div>
     );
