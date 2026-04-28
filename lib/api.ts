@@ -805,6 +805,7 @@ export interface ResumenEjecutivo {
     items_vendidos: number;
     valor_inventario: number;
     valor_generico_pendiente: number;
+    valor_inventario_total: number;
   };
   compras: {
     total_compras: number;

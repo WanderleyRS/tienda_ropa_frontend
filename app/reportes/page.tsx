@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { reportesApi, ResumenEjecutivo, EstadoResultados, MetricasInventario, TopProducto } from '@/lib/api';
+import { reportesApi, ResumenEjecutivo, EstadoResultados, MetricasInventario, TopProducto, TopProductosResponse } from '@/lib/api';
 import { format, subDays } from 'date-fns';
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
@@ -454,6 +454,10 @@ export default function ReportesPage() {
                                             <span className="font-bold text-red-700">
                                                 {metricasInventario?.alertas.items_sin_precio_compra} items
                                             </span>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
                         </div>
 
                         {/* DESGLOSE GENÉRICO POR CATEGORÍA */}
@@ -491,26 +495,5 @@ export default function ReportesPage() {
                 </Tabs>
             </main>
         </div>
-    );
-}
-
-// Icono Clock faltante
-function Clock(props: any) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-        </svg>
     );
 }
