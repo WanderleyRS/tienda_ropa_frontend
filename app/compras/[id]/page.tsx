@@ -225,38 +225,51 @@ export default function CompraDetallePage() {
                             </CardHeader>
                             <CardContent>
                                 <div className="space-y-4">
-                                    {compra.detalles.map((detalle) => (
-                                        <div
-                                            key={detalle.id}
-                                            className="flex items-center justify-between p-4 border rounded-lg"
-                                        >
-                                            <div className="flex-1">
-                                                <h3 className="font-semibold">
-                                                    {getCategoriaNombre(detalle.categoria_id)}
-                                                </h3>
-                                                <p className="text-sm text-muted-foreground">
-                                                    Costo unitario: {detalle.costo_unitario.toFixed(2)} Bs
-                                                </p>
-                                            </div>
-                                            <div className="text-right">
-                                                <p className="font-semibold">
-                                                    {detalle.items_creados}/{detalle.cantidad} prendas
-                                                </p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    Subtotal: {detalle.subtotal.toFixed(2)} Bs
-                                                </p>
-                                            </div>
-                                            <div className="ml-4">
-                                                <div className="w-16 h-16 rounded-full border-4 flex items-center justify-center">
-                                                    <span className="text-sm font-bold">
-                                                        {detalle.cantidad > 0
-                                                            ? Math.round((detalle.items_creados / detalle.cantidad) * 100)
-                                                            : 0}%
-                                                    </span>
+                                    {compra.detalles.map((detalle) => {
+                                        const pendientes = detalle.cantidad - detalle.items_creados - detalle.unidades_vendidas_fifo;
+                                        return (
+                                            <div
+                                                key={detalle.id}
+                                                className="flex items-center justify-between p-4 border rounded-lg bg-card"
+                                            >
+                                                <div className="flex-1">
+                                                    <h3 className="font-bold text-lg">
+                                                        {getCategoriaNombre(detalle.categoria_id)}
+                                                    </h3>
+                                                    <div className="flex gap-4 mt-1">
+                                                        <p className="text-xs text-muted-foreground">
+                                                            <span className="font-bold text-foreground">{detalle.items_creados}</span> Clasificados
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            <span className="font-bold text-amber-600">{detalle.unidades_vendidas_fifo}</span> Vendidos FIFO
+                                                        </p>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            <span className="font-bold text-blue-600">{pendientes}</span> Pendientes
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right flex items-center gap-6">
+                                                    <div>
+                                                        <p className="text-xs text-muted-foreground uppercase font-black">Total</p>
+                                                        <p className="font-black text-xl">
+                                                            {detalle.cantidad}
+                                                        </p>
+                                                    </div>
+                                                    <div className="w-12 h-12 rounded-full border-4 border-muted flex items-center justify-center relative">
+                                                        <div 
+                                                            className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent -rotate-45"
+                                                            style={{ 
+                                                                clipPath: `inset(0 0 0 ${100 - Math.round(((detalle.items_creados + detalle.unidades_vendidas_fifo) / detalle.cantidad) * 100)}%)` 
+                                                            }}
+                                                        />
+                                                        <span className="text-[10px] font-black">
+                                                            {Math.round(((detalle.items_creados + detalle.unidades_vendidas_fifo) / detalle.cantidad) * 100)}%
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             </CardContent>
                         </Card>
@@ -273,48 +286,6 @@ export default function CompraDetallePage() {
                             </Card>
                         )}
 
-                        {/* Inventario No Clasificado (Solo si tiene saldo o está cerrado) */}
-                        {(compra.saldo_no_clasificado > 0 || compra.estado === 'COMPLETADA') && (
-                            <Card className="border-primary/20 bg-primary/5">
-                                <CardHeader>
-                                    <div className="flex items-center gap-2">
-                                        <Archive className="h-5 w-5 text-primary" />
-                                        <CardTitle>Resumen de Inventario No Clasificado (Genérico)</CardTitle>
-                                    </div>
-                                    <CardDescription>Mercancía vendida sin catalogar (FIFO)</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                        <div className="space-y-1">
-                                            <p className="text-sm text-muted-foreground">Saldo a Recuperar</p>
-                                            <p className="text-2xl font-bold text-primary">{compra.saldo_no_clasificado.toFixed(2)} Bs</p>
-                                            <p className="text-xs text-muted-foreground">{compra.unidades_no_clasificadas} prendas genéricas</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <p className="text-sm text-muted-foreground">Total Recuperado</p>
-                                            <p className="text-2xl font-bold text-green-600">{compra.saldo_recuperado.toFixed(2)} Bs</p>
-                                            <p className="text-xs text-muted-foreground">{compra.unidades_vendidas_genericas} prendas vendidas</p>
-                                        </div>
-                                        <div className="space-y-3">
-                                            <div className="flex justify-between text-sm">
-                                                <span>Progreso de Recuperación</span>
-                                                <span className="font-medium">
-                                                    {compra.saldo_no_clasificado > 0 
-                                                        ? Math.round((compra.saldo_recuperado / compra.saldo_no_clasificado) * 100) 
-                                                        : 100}%
-                                                </span>
-                                            </div>
-                                            <div className="w-full bg-secondary rounded-full h-2">
-                                                <div 
-                                                    className="bg-green-500 h-2 rounded-full transition-all" 
-                                                    style={{ width: `${compra.saldo_no_clasificado > 0 ? Math.min(100, (compra.saldo_recuperado / compra.saldo_no_clasificado) * 100) : 100}%` }}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )}
 
                         {/* Acciones - 3 Opciones para Agregar Items */}
                         {compra.estado !== 'COMPLETADA' && (
@@ -445,9 +416,9 @@ export default function CompraDetallePage() {
                 onClose={() => setIsConfirmCerrarOpen(false)}
                 onConfirm={handleCerrarLote}
                 isLoading={isProcessingCerrar}
-                title="¿Cerrar este lote?"
-                description="Las prendas que no hayas catalogado con foto se moverán al Inventario Genérico. Podrás seguir subiendo las prendas VIP pendientes, pero el excedente se consolidará ahora."
-                confirmText="Sí, cerrar lote"
+                title="¿Finalizar Carga?"
+                description="Se marcará la compra como completada. Podrás seguir clasificando prendas VIP, pero el stock restante estará disponible para ventas genéricas FIFO por categoría."
+                confirmText="Sí, finalizar"
                 variant="warning"
             />
         </div>

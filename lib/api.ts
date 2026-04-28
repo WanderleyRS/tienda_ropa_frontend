@@ -440,10 +440,12 @@ export interface DetalleVenta {
 }
 
 export interface DetalleVentaCreate {
-  producto_id?: number;
-  cantidad: number;
-  precio_unitario: number;
-  es_venta_generica?: boolean;
+    producto_id?: number | null;
+    categoria_id?: number | null;
+    cantidad: number;
+    precio_unitario: number;
+    es_venta_generica?: boolean;
+    compra_lote_id?: number;
 }
 
 export interface AbonoCreate {
@@ -588,6 +590,8 @@ export interface DetalleCompra {
   categoria_id: number;
   cantidad: number;
   items_creados: number;
+  unidades_vendidas_fifo: number;
+  saldo_recuperado_fifo: number;
   costo_unitario: number;
   subtotal: number;
 }

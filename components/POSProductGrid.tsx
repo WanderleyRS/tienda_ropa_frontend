@@ -5,15 +5,17 @@ import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, Info, Image as ImageIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/utils';
 import Image from 'next/image';
 
 interface POSProductGridProps {
   items: Item[];
   onAdd: (item: Item) => void;
   isLoading: boolean;
+  compact?: boolean;
 }
 
-export function POSProductGrid({ items, onAdd, isLoading }: POSProductGridProps) {
+export function POSProductGrid({ items, onAdd, isLoading, compact }: POSProductGridProps) {
   if (isLoading) {
     return (
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -34,7 +36,12 @@ export function POSProductGrid({ items, onAdd, isLoading }: POSProductGridProps)
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5 gap-4 pb-10">
+    <div className={cn(
+      "grid gap-4 pb-10",
+      compact 
+        ? "grid-cols-2 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-3" 
+        : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5"
+    )}>
       {items.map((item) => (
         <Card 
           key={item.id} 

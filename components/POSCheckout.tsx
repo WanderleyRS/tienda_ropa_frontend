@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Item, ventasApi, PotencialCliente, AgendaInline } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { CreditCard, Truck, User as UserIcon, Check, Plus, Loader2, DollarSign, Wallet, Calendar } from 'lucide-react';
+import { CreditCard, Truck, User as UserIcon, Check, Plus, Loader2, DollarSign, Wallet, Calendar, Tag } from 'lucide-react';
 import { ClientSelector } from '@/components/ClientSelector';
 import { 
   Select,
@@ -26,9 +26,10 @@ interface POSCheckoutProps {
   onClientSelect: (client: PotencialCliente | null) => void;
   onSuccess: () => void;
   onAddGeneric: (item: any) => void;
+  categories: Category[];
 }
 
-export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, onAddGeneric }: POSCheckoutProps) {
+export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, onAddGeneric, categories }: POSCheckoutProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isClientSelectorOpen, setIsClientSelectorOpen] = useState(false);
   
@@ -42,6 +43,13 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
   const [agendaData, setAgendaData] = useState<Partial<AgendaInline>>({
     tipo_entrega: 'Delivery',
     fecha_programada: format(new Date(), 'yyyy-MM-dd')
+  });
+  
+  // Generic Item Modal State
+  const [showGenericModal, setShowGenericModal] = useState(false);
+  const [genericData, setGenericData] = useState({
+    categoria_id: '',
+    precio: ''
   });
 
   const total = useMemo(() => {
@@ -66,6 +74,7 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
         metodo_pago: metodoPago,
         detalles: cart.map(item => ({
           producto_id: item.item.es_generico ? null : item.item.id,
+          categoria_id: item.item.es_generico ? item.item.categoria_id : null,
           cantidad: item.quantity,
           precio_unitario: item.price,
           es_venta_generica: !!item.item.es_generico
@@ -96,14 +105,22 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
     }
   };
 
-  const addGenericItem = () => {
+  const handleAddGeneric = () => {
+    if (!genericData.categoria_id) {
+      toast.error('Selecciona una categoría');
+      return;
+    }
+    const cat = categories.find(c => c.id === Number(genericData.categoria_id));
     onAddGeneric({
       id: Date.now(),
-      title: 'Ítem de Lote (Genérico)',
-      price: 0,
+      title: `${cat?.name || 'Ítem'} (Genérico)`,
+      price: parseFloat(genericData.precio) || 0,
       es_generico: true,
+      categoria_id: Number(genericData.categoria_id),
       status: 'disponible'
     });
+    setShowGenericModal(false);
+    setGenericData({ categoria_id: '', precio: '' });
   };
 
   return (
@@ -197,7 +214,7 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
           <Button 
             variant="outline" 
             className="w-full h-10 gap-2 border-amber-200 bg-amber-50 dark:bg-amber-950/20 text-amber-700 dark:text-amber-400 rounded-xl"
-            onClick={addGenericItem}
+            onClick={() => setShowGenericModal(true)}
           >
             <Wallet className="h-4 w-4" />
             Venta Genérica (Lote FIFO)
@@ -293,6 +310,62 @@ export function POSCheckout({ cart, selectedClient, onClientSelect, onSuccess, o
           setIsClientSelectorOpen(false);
         }}
       />
+
+      {/* Generic Item Modal */}
+      {showGenericModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-in fade-in duration-200">
+          <Card className="w-full max-w-sm border-amber-200 dark:border-amber-900/50 shadow-2xl rounded-3xl overflow-hidden">
+            <div className="p-6 space-y-4">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="bg-amber-100 dark:bg-amber-900/40 p-2 rounded-xl">
+                  <Tag className="h-5 w-5 text-amber-600" />
+                </div>
+                <h3 className="text-lg font-black text-foreground">Añadir Ítem Genérico</h3>
+              </div>
+              
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase text-muted-foreground">Categoría de la Prenda</Label>
+                <Select 
+                  value={genericData.categoria_id} 
+                  onValueChange={(val) => setGenericData(prev => ({...prev, categoria_id: val}))}
+                >
+                  <SelectTrigger className="h-12 rounded-xl bg-muted/30 border-border">
+                    <SelectValue placeholder="Seleccionar categoría..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map(cat => (
+                      <SelectItem key={cat.id} value={cat.id.toString()}>{cat.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-[10px] font-bold uppercase text-muted-foreground">Precio de Venta (Bs)</Label>
+                <div className="relative">
+                  <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input 
+                    type="number"
+                    placeholder="0.00"
+                    className="h-12 pl-10 rounded-xl bg-muted/30 border-border font-bold text-lg"
+                    value={genericData.precio}
+                    onChange={(e) => setGenericData(prev => ({...prev, precio: e.target.value}))}
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-2">
+                <Button variant="ghost" className="flex-1 rounded-xl" onClick={() => setShowGenericModal(false)}>
+                  Cancelar
+                </Button>
+                <Button className="flex-1 bg-amber-600 hover:bg-amber-700 text-white rounded-xl" onClick={handleAddGeneric}>
+                  Añadir al Carrito
+                </Button>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
     </div>
   );
 }

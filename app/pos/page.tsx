@@ -13,7 +13,7 @@ import { POSProductGrid } from '@/components/POSProductGrid';
 import { POSPendingOrders } from '@/components/POSPendingOrders';
 import { POSCart } from '@/components/POSCart';
 import { POSCheckout } from '@/components/POSCheckout';
-import { itemsApi, Item, categoriesApi, Category, ventasApi } from '@/lib/api';
+import { itemsApi, Item, categoriesApi, Category, ventasApi, PotencialCliente } from '@/lib/api';
 import { toast } from 'sonner';
 
 export default function POSPage() {
@@ -33,7 +33,7 @@ function POSContent() {
   
   // Cart state
   const [cart, setCart] = useState<{item: Item | any, quantity: number, price: number}[]>([]);
-  const [selectedClient, setSelectedClient] = useState<any>(null);
+  const [selectedClient, setSelectedClient] = useState<PotencialCliente | null>(null);
 
   // Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -181,8 +181,8 @@ function POSContent() {
                 <TabsContent value="pending" className="mt-0 outline-none">
                   <POSPendingOrders 
                     items={pendingItems} 
-                    onAddAll={items => {
-                      items.forEach(item => addToCart(item));
+                    onAddAll={(items: Item[]) => {
+                      items.forEach((item: Item) => addToCart(item));
                     }}
                     onRefresh={loadData}
                   />
@@ -241,7 +241,8 @@ function POSContent() {
                 clearCart();
                 loadData();
               }}
-              onAddGeneric={(item) => addToCart(item)}
+              onAddGeneric={(item: any) => addToCart(item)}
+              categories={categories}
             />
           </div>
 
