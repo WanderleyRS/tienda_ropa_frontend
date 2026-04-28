@@ -17,7 +17,7 @@ import {
 } from 'recharts';
 import {
     Calendar as CalendarIcon, DollarSign, TrendingUp, Package, ShoppingBag,
-    AlertCircle
+    AlertCircle, Clock, ListFilter
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -33,7 +33,8 @@ export default function ReportesPage() {
     const [resumen, setResumen] = useState<ResumenEjecutivo | null>(null);
     const [estadoResultados, setEstadoResultados] = useState<EstadoResultados | null>(null);
     const [metricasInventario, setMetricasInventario] = useState<MetricasInventario | null>(null);
-    const [topProductos, setTopProductos] = useState<TopProducto[]>([]);
+    const [topProductosData, setTopProductosData] = useState<TopProductosResponse | null>(null);
+    const [agruparPor, setAgruparPor] = useState<'producto' | 'categoria'>('producto');
 
     const [loading, setLoading] = useState(true);
 
@@ -41,7 +42,7 @@ export default function ReportesPage() {
         if (isAuthenticated && user) {
             loadData();
         }
-    }, [isAuthenticated, user, dateRange, selectedAlmacen]);
+    }, [isAuthenticated, user, dateRange, selectedAlmacen, agruparPor]);
 
     const loadData = async () => {
         setLoading(true);
@@ -50,17 +51,17 @@ export default function ReportesPage() {
             const fechaInicio = format(dateRange.from, 'yyyy-MM-dd');
             const fechaFin = format(dateRange.to, 'yyyy-MM-dd');
 
-            const [resumenData, estadoData, inventarioData, topData] = await Promise.all([
+            const [res, est, met, top] = await Promise.all([
                 reportesApi.getResumenEjecutivo(fechaInicio, fechaFin, almacenId),
                 reportesApi.getEstadoResultados(fechaInicio, fechaFin, almacenId),
                 reportesApi.getMetricasInventario(almacenId),
-                reportesApi.getTopProductos(5, almacenId)
+                reportesApi.getTopProductos(5, agruparPor, almacenId)
             ]);
 
-            setResumen(resumenData);
-            setEstadoResultados(estadoData);
-            setMetricasInventario(inventarioData);
-            setTopProductos(topData.top_productos_rentables);
+            setResumen(res);
+            setEstadoResultados(est);
+            setMetricasInventario(met);
+            setTopProductosData(top);
         } catch (error) {
             console.error('Error loading reports:', error);
             toast.error('Error al cargar reportes');
@@ -206,7 +207,7 @@ export default function ReportesPage() {
                                 </CardHeader>
                                 <CardContent>
                                     <div className="text-2xl font-bold">
-                                        {resumen ? formatCurrency(resumen.inventario.valor_inventario + (resumen.inventario.valor_generico_pendiente || 0)) : '...'}
+                                        {resumen ? formatCurrency(resumen.inventario.valor_inventario_total) : '...'}
                                     </div>
                                     <p className="text-xs text-muted-foreground">
                                         {resumen ? formatCurrency(resumen.inventario.valor_inventario) : '0'} VIP + {resumen ? formatCurrency(resumen.inventario.valor_generico_pendiente || 0) : '0'} Genérico
@@ -219,16 +220,28 @@ export default function ReportesPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             {/* Top Productos Rentables */}
                             <Card className="col-span-1">
-                                <CardHeader>
-                                    <CardTitle>Top 5 Productos Más Rentables</CardTitle>
-                                    <CardDescription>Productos con mayor ganancia neta</CardDescription>
+                                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                    <div className="space-y-1">
+                                        <CardTitle>Top 5 Rentabilidad</CardTitle>
+                                        <CardDescription>Items o categorías con mayor ganancia</CardDescription>
+                                    </div>
+                                    <Select value={agruparPor} onValueChange={(v: any) => setAgruparPor(v)}>
+                                        <SelectTrigger className="w-[130px] h-8 text-xs">
+                                            <ListFilter className="h-3 w-3 mr-2" />
+                                            <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="producto">Por Producto</SelectItem>
+                                            <SelectItem value="categoria">Por Categoría</SelectItem>
+                                        </SelectContent>
+                                    </Select>
                                 </CardHeader>
                                 <CardContent className="h-[300px]">
                                     <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={topProductos} layout="vertical" margin={{ left: 20 }}>
+                                        <BarChart data={topProductosData?.top_rentables || []} layout="vertical" margin={{ left: 20 }}>
                                             <CartesianGrid strokeDasharray="3 3" />
                                             <XAxis type="number" />
-                                            <YAxis dataKey="title" type="category" width={100} fontSize={12} />
+                                            <YAxis dataKey="nombre" type="category" width={100} fontSize={10} />
                                             <Tooltip formatter={(value) => formatCurrency(value as number)} />
                                             <Bar dataKey="ganancia" fill="#10b981" radius={[0, 4, 4, 0]} name="Ganancia" />
                                         </BarChart>
@@ -363,20 +376,20 @@ export default function ReportesPage() {
                                         <div>
                                             <span className="text-sm text-muted-foreground">Costo Items Catalogados (VIP)</span>
                                             <div className="text-2xl font-bold">
-                                                {metricasInventario ? formatCurrency(metricasInventario.valores.valor_inventario_costo) : '...'}
+                                                {metricasInventario ? formatCurrency(metricasInventario.valores.valor_inventario_costo_vip) : '...'}
                                             </div>
                                         </div>
                                         <div>
-                                            <span className="text-sm text-muted-foreground">Inversión Genérica Pendiente</span>
+                                            <span className="text-sm text-muted-foreground">Inversión Genérica Pendiente (FIFO)</span>
                                             <div className="text-2xl font-bold text-orange-600">
-                                                {metricasInventario ? formatCurrency(metricasInventario.valores.valor_generico_pendiente || 0) : '...'}
+                                                {metricasInventario ? formatCurrency(metricasInventario.valores.valor_generico_pendiente) : '...'}
                                             </div>
-                                            <p className="text-[10px] text-muted-foreground mt-1">Saldo por recuperar de lotes cerrados (FIFO)</p>
+                                            <p className="text-[10px] text-muted-foreground mt-1">Saldo por recuperar de bolsas residuales</p>
                                         </div>
                                         <div className="pt-2 border-t">
                                             <span className="text-sm text-muted-foreground">Venta Potencial (Solo VIP)</span>
                                             <div className="text-xl font-bold text-blue-600">
-                                                {metricasInventario ? formatCurrency(metricasInventario.valores.valor_potencial_venta) : '...'}
+                                                {metricasInventario ? formatCurrency(metricasInventario.valores.valor_potencial_venta_vip) : '...'}
                                             </div>
                                         </div>
                                     </div>
@@ -396,7 +409,7 @@ export default function ReportesPage() {
                                             </div>
                                             <div>
                                                 <div className="text-2xl font-bold">
-                                                    {metricasInventario?.rotacion.rotacion_inventario}x
+                                                    {metricasInventario?.rotacion.rotacion_anual}x
                                                 </div>
                                                 <p className="text-sm text-muted-foreground">Rotación anual</p>
                                             </div>
@@ -407,9 +420,9 @@ export default function ReportesPage() {
                                             </div>
                                             <div>
                                                 <div className="text-2xl font-bold">
-                                                    {metricasInventario?.rotacion.dias_promedio_venta} días
+                                                    {metricasInventario?.rotacion.total_items_vendidos} items
                                                 </div>
-                                                <p className="text-sm text-muted-foreground">Promedio para vender</p>
+                                                <p className="text-sm text-muted-foreground">Ventas totales (VIP + FIFO)</p>
                                             </div>
                                         </div>
                                     </div>
@@ -441,11 +454,39 @@ export default function ReportesPage() {
                                             <span className="font-bold text-red-700">
                                                 {metricasInventario?.alertas.items_sin_precio_compra} items
                                             </span>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
                         </div>
+
+                        {/* DESGLOSE GENÉRICO POR CATEGORÍA */}
+                        <Card className="mt-6">
+                            <CardHeader>
+                                <CardTitle>Categorización de Inventario Genérico (FIFO)</CardTitle>
+                                <CardDescription>Desglose de inversión pendiente por categorías en bolsas activas</CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    {metricasInventario?.desglose_generico.map((cat) => (
+                                        <div key={cat.categoria_id} className="p-4 rounded-lg border bg-card">
+                                            <div className="text-sm font-medium text-muted-foreground mb-1">{cat.nombre}</div>
+                                            <div className="text-xl font-bold">{formatCurrency(cat.valor_pendiente)}</div>
+                                            <div className="text-xs text-muted-foreground mt-1">
+                                                {cat.unidades_pendientes > 0 ? `${cat.unidades_pendientes} unidades aprox.` : 'Saldo residual'}
+                                            </div>
+                                            <div className="mt-3 w-full bg-secondary h-1 rounded-full overflow-hidden">
+                                                <div 
+                                                    className="bg-orange-500 h-full" 
+                                                    style={{ width: '100%' }}
+                                                />
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {(!metricasInventario?.desglose_generico || metricasInventario.desglose_generico.length === 0) && (
+                                        <div className="col-span-full py-8 text-center text-muted-foreground">
+                                            No hay inversión genérica pendiente.
+                                        </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
                     </TabsContent>
                 </Tabs>
             </main>

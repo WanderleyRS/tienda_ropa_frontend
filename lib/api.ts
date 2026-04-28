@@ -844,21 +844,22 @@ export interface EstadoResultados {
 }
 
 export interface MetricasInventario {
-  resumen: {
-    total_items: number;
-    items_en_stock: number;
-    items_vendidos: number;
-    porcentaje_vendido: number;
-  };
   valores: {
-    valor_inventario_costo: number;
-    valor_potencial_venta: number;
-    ganancia_potencial: number;
+    valor_inventario_costo_vip: number;
+    valor_potencial_venta_vip: number;
     valor_generico_pendiente: number;
+    valor_inventario_total_costo: number;
   };
+  desglose_generico: Array<{
+    categoria_id: number;
+    nombre: string;
+    valor_pendiente: number;
+    unidades_pendientes: number;
+  }>;
   rotacion: {
-    rotacion_inventario: number;
-    dias_promedio_venta: number;
+    total_items_vendidos: number;
+    items_en_stock_vip: number;
+    rotacion_anual: number;
   };
   alertas: {
     items_bajo_stock: number;
@@ -914,18 +915,17 @@ export const classificationsApi = {
 };
 
 export interface TopProducto {
-  id: number;
-  title: string;
-  precio_venta: number;
-  precio_compra: number;
+  nombre: string;
+  unidades: number;
+  ingresos: number;
   ganancia: number;
   margen_porcentaje: number;
-  category_id: number;
 }
 
 export interface TopProductosResponse {
-  top_productos_rentables: TopProducto[];
-  total_items_vendidos: number;
+  periodo: { inicio: string; fin: string };
+  agrupado_por: string;
+  top_rentables: TopProducto[];
 }
 
 export const reportesApi = {
@@ -939,9 +939,9 @@ export const reportesApi = {
       params: { fecha_inicio: fechaInicio, fecha_fin: fechaFin, almacen_id: almacenId }
     }).then(res => res.data),
 
-  getTopProductos: (limite: number = 10, almacenId?: number) =>
+  getTopProductos: (limite: number = 10, agruparPor: string = 'producto', almacenId?: number) =>
     apiClient.get<TopProductosResponse>('/reportes/top-productos', {
-      params: { limite, almacen_id: almacenId }
+      params: { limite, agrupar_por: agruparPor, almacen_id: almacenId }
     }).then(res => res.data),
 
   getMetricasInventario: (almacenId?: number) =>
