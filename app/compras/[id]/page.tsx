@@ -174,91 +174,88 @@ export default function CompraDetallePage() {
                     </div>
                 ) : compra && compraEstado ? (
                     <div className="space-y-8">
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <Card className="bg-primary/5 border-primary/20 border-2">
-                                <CardContent className="p-6">
-                                    <p className="text-[10px] uppercase font-black text-primary tracking-widest mb-1">Inversión Total</p>
-                                    <p className="text-2xl font-black font-mono">{(compra.monto_total_factura || compra.monto_total).toFixed(2)} Bs</p>
-                                    <Badge variant="outline" className="mt-2 text-[9px] bg-background">VALOR FACTURA</Badge>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+                            <Card className="bg-muted/20 border-white/5 shadow-sm">
+                                <CardContent className="p-4">
+                                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Inversión Total</p>
+                                    <p className="text-xl font-bold font-mono">{(compra.monto_total_factura || compra.monto_total).toFixed(2)} Bs</p>
+                                    <Badge variant="outline" className="mt-1 text-[8px] opacity-60">FACTURA</Badge>
                                 </CardContent>
                             </Card>
 
-                            <Card className="bg-green-500/5 border-green-500/20 border-2">
-                                <CardContent className="p-6">
-                                    <p className="text-[10px] uppercase font-black text-green-600 tracking-widest mb-1">Items Catalogados</p>
-                                    <p className="text-2xl font-black font-mono">{compraEstado.items_creados} / {compraEstado.items_esperados}</p>
-                                    <div className="mt-3">
-                                        <Progress value={compraEstado.progreso_porcentaje} className="h-1.5" />
+                            <Card className="bg-muted/20 border-white/5 shadow-sm">
+                                <CardContent className="p-4">
+                                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Catalogado</p>
+                                    <p className="text-xl font-bold font-mono">{compraEstado.items_creados} / {compraEstado.items_esperados}</p>
+                                    <div className="mt-2">
+                                        <Progress value={compraEstado.progreso_porcentaje} className="h-1" />
                                     </div>
                                 </CardContent>
                             </Card>
 
-                            <Card className="bg-blue-500/5 border-blue-500/20 border-2">
-                                <CardContent className="p-6">
-                                    <p className="text-[10px] uppercase font-black text-blue-600 tracking-widest mb-1">Bolsa Residual</p>
-                                    <p className="text-2xl font-black font-mono">{(compraEstado.detalles.reduce((acc, d) => acc + d.monto_restante, 0)).toFixed(2)} Bs</p>
-                                    <p className="text-[10px] text-muted-foreground mt-2 italic font-medium underline">POR ASIGNAR A ITEMS</p>
+                            <Card className="bg-primary/5 border-primary/10 border shadow-sm">
+                                <CardContent className="p-4">
+                                    <p className="text-[9px] uppercase font-bold text-primary tracking-widest mb-1">Bolsa Residual</p>
+                                    <p className="text-xl font-black font-mono text-primary">{(compraEstado.detalles.reduce((acc, d) => acc + d.monto_restante, 0)).toFixed(2)} Bs</p>
+                                    <p className="text-[9px] text-muted-foreground mt-1 italic">POR ASIGNAR</p>
                                 </CardContent>
                             </Card>
 
-                            <Card className="bg-card border-muted-foreground/20 border-2">
-                                <CardContent className="p-6">
-                                    <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Origen / Fecha</p>
-                                    <p className="text-xl font-bold truncate">{compra.proveedor?.nombre || 'Proveedor'}</p>
-                                    <p className="text-[10px] text-muted-foreground mt-2">{new Date(compra.fecha_compra).toLocaleDateString()}</p>
+                            <Card className="bg-muted/20 border-white/5 shadow-sm">
+                                <CardContent className="p-4">
+                                    <p className="text-[9px] uppercase font-bold text-muted-foreground tracking-widest mb-1">Proveedor</p>
+                                    <p className="text-lg font-bold truncate opacity-80">{compra.proveedor?.nombre || 'Proveedor'}</p>
+                                    <p className="text-[9px] text-muted-foreground mt-1">{new Date(compra.fecha_compra).toLocaleDateString()}</p>
                                 </CardContent>
                             </Card>
                         </div>
 
-                        <Card className="overflow-hidden border-2 border-foreground/5 shadow-2xl">
-                            <CardHeader className="bg-muted/30 border-b py-6 px-8">
-                                <CardTitle className="text-2xl font-black flex items-center gap-2 italic uppercase tracking-tighter">
-                                    <TrendingUp className="h-6 w-6 text-primary" />
-                                    Control de Bolsas (Categoría)
+                        <Card className="overflow-hidden border border-white/5 bg-muted/10 shadow-xl">
+                            <CardHeader className="bg-muted/20 border-b py-4 px-6">
+                                <CardTitle className="text-lg font-black flex items-center gap-2 italic uppercase tracking-tight">
+                                    <TrendingUp className="h-4 w-4 text-primary" />
+                                    Bolsas por Categoría
                                 </CardTitle>
-                                <CardDescription>Distribución del costo de compra por clasificación de mercadería.</CardDescription>
                             </CardHeader>
                             <CardContent className="p-0">
-                                <div className="divide-y divide-foreground/5">
+                                <div className="divide-y divide-white/5">
                                     {compraEstado.detalles.map((detalle) => {
                                         const cat = categorias.find(c => c.id === detalle.categoria_id);
                                         const isCompletado = detalle.items_restantes === 0;
                                         
                                         return (
-                                            <div key={detalle.categoria_id} className="p-8 flex flex-col md:flex-row items-center gap-8 hover:bg-muted/20 transition-colors group">
-                                                <div className="shrink-0 flex items-center justify-center w-16 h-16 rounded-2xl bg-foreground text-background font-black text-3xl group-hover:scale-110 transition-transform italic shadow-lg">
+                                            <div key={detalle.categoria_id} className="px-6 py-4 flex flex-col md:flex-row items-center gap-6 hover:bg-white/5 transition-colors group">
+                                                <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-muted border border-white/10 text-foreground font-black text-xl group-hover:scale-105 transition-transform italic">
                                                     {cat?.name.substring(0, 1).toUpperCase()}
                                                 </div>
                                                 
-                                                <div className="flex-1 space-y-2">
-                                                    <div className="flex items-center gap-3">
-                                                        <h3 className="font-black text-2xl tracking-tighter uppercase italic">{cat?.name}</h3>
-                                                        {isCompletado && <Badge className="bg-green-500 text-white border-0 text-[10px] font-black h-5">CUADRADO 100%</Badge>}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center gap-2 mb-0.5">
+                                                        <h3 className="font-bold text-base tracking-tight uppercase italic truncate">{cat?.name}</h3>
+                                                        {isCompletado && <CheckCircle2 className="h-4 w-4 text-green-500" />}
                                                     </div>
-                                                    <div className="flex flex-wrap gap-4 text-[12px] font-bold text-muted-foreground uppercase tracking-widest">
-                                                        <span>Inversión: <span className="text-foreground">{detalle.subtotal.toFixed(2)} Bs</span></span>
-                                                        <span className="w-1 h-1 bg-muted-foreground/20 rounded-full self-center" />
-                                                        <span>Utilizado: <span className="text-primary">{detalle.monto_utilizado.toFixed(2)} Bs</span></span>
-                                                        <span className="w-1 h-1 bg-muted-foreground/20 rounded-full self-center" />
-                                                        <span>Saldo Bolsa: <span className="text-amber-600 font-black">{detalle.monto_restante.toFixed(2)} Bs</span></span>
+                                                    <div className="flex gap-3 text-[10px] font-bold text-muted-foreground uppercase">
+                                                        <span>Inv: <span className="text-foreground/80">{detalle.subtotal.toFixed(0)}</span></span>
+                                                        <span>Util: <span className="text-primary/80">{detalle.monto_utilizado.toFixed(0)}</span></span>
+                                                        <span>Bolsa: <span className="text-amber-500 font-black">{detalle.monto_restante.toFixed(0)}</span></span>
                                                     </div>
                                                 </div>
 
-                                                <div className="flex flex-col items-end gap-1 px-8 border-x border-foreground/5">
-                                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Costo Sugerido / Item</p>
-                                                    <p className="text-3xl font-black font-mono text-primary leading-none">
-                                                        {detalle.costo_promedio_sugerido.toFixed(2)} <span className="text-sm">Bs</span>
+                                                <div className="flex flex-row md:flex-col items-center md:items-end gap-x-4 md:gap-y-0.5 px-6 md:border-x border-white/5">
+                                                    <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest md:block hidden">Sugerido</p>
+                                                    <p className="text-xl font-black font-mono text-primary">
+                                                        {detalle.costo_promedio_sugerido.toFixed(2)} <span className="text-[10px]">Bs</span>
                                                     </p>
-                                                    <p className="text-[11px] text-muted-foreground font-bold mt-1">{detalle.items_creados} / {detalle.cantidad} items</p>
+                                                    <p className="text-[10px] text-muted-foreground font-bold md:block hidden">{detalle.items_creados}/{detalle.cantidad}</p>
                                                 </div>
 
                                                 <div className="shrink-0">
-                                                    <div className="w-20 h-20 relative group-hover:scale-105 transition-transform">
+                                                    <div className="w-12 h-12 relative">
                                                         <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                                                            <circle cx="18" cy="18" r="16" className="text-muted/30" stroke="currentColor" strokeWidth="4" fill="none" />
+                                                            <circle cx="18" cy="18" r="16" className="text-white/5" stroke="currentColor" strokeWidth="4" fill="none" />
                                                             <circle cx="18" cy="18" r="16" className="text-primary" stroke="currentColor" strokeWidth="4" strokeDasharray={`${(detalle.items_creados / detalle.cantidad) * 100}, 100`} fill="none" strokeLinecap="round" />
                                                         </svg>
-                                                        <div className="absolute inset-0 flex items-center justify-center text-[12px] font-black italic">
+                                                        <div className="absolute inset-0 flex items-center justify-center text-[9px] font-black italic">
                                                             {Math.round((detalle.items_creados / detalle.cantidad) * 100)}%
                                                         </div>
                                                     </div>
@@ -271,80 +268,80 @@ export default function CompraDetallePage() {
                         </Card>
 
                         {compra.estado !== 'COMPLETADA' && (
-                            <div className="space-y-6 pt-4">
-                                <div className="flex items-center gap-3">
-                                    <div className="h-8 w-1.5 bg-primary rounded-full" />
-                                    <h2 className="text-3xl font-black italic uppercase tracking-tighter">Asistente de Catalogación</h2>
+                            <div className="space-y-4 pt-2">
+                                <div className="flex items-center gap-2">
+                                    <div className="h-6 w-1 bg-primary rounded-full" />
+                                    <h2 className="text-xl font-black italic uppercase tracking-tight">Asistente de Catalogación</h2>
                                 </div>
                                 
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                    <Card className="hover:border-primary/50 transition-all cursor-pointer shadow-xl hover:shadow-2xl hover:-translate-y-2 border-2 group">
-                                        <CardHeader className="pb-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-4 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                                                    <Package className="h-8 w-8" />
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    <Card className="hover:border-primary/40 transition-all cursor-pointer bg-muted/10 border-white/5 group">
+                                        <CardHeader className="pb-2 pt-4 px-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-3 rounded-xl bg-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                                                    <Package className="h-5 w-5" />
                                                 </div>
                                                 <div>
-                                                    <CardTitle className="text-xl font-black uppercase italic tracking-tighter">Catalogar Lote</CardTitle>
-                                                    <CardDescription className="text-xs font-bold uppercase text-primary">Carga Masiva (Recomendado)</CardDescription>
+                                                    <CardTitle className="text-base font-black uppercase italic tracking-tight">Catalogar Lote</CardTitle>
+                                                    <CardDescription className="text-[10px] font-bold uppercase text-primary">IA Masiva</CardDescription>
                                                 </div>
                                             </div>
                                         </CardHeader>
-                                        <CardContent>
-                                            <p className="text-sm text-muted-foreground mb-8 font-medium leading-relaxed">
-                                                Sube todas las fotos del lote y pega el texto de WhatsApp. Gemini clasificará cada prenda vinculándola a su bolsa de inversión automáticamente.
+                                        <CardContent className="px-5 pb-5">
+                                            <p className="text-[11px] text-muted-foreground mb-4 font-medium leading-relaxed opacity-70">
+                                                Gemini clasificará cada prenda vinculándola a su bolsa de inversión automáticamente.
                                             </p>
                                             <Link href={`/items/bulk-upload?compra_id=${compra.id}`}>
-                                                <Button className="w-full font-black uppercase italic shadow-xl shadow-primary/20 h-12">
-                                                    <TrendingUp className="h-5 w-5 mr-2" />
-                                                    Iniciar Asistente Masivo
+                                                <Button size="sm" className="w-full font-black uppercase italic h-10">
+                                                    <TrendingUp className="h-4 w-4 mr-2" />
+                                                    Iniciar Masivo
                                                 </Button>
                                             </Link>
                                         </CardContent>
                                     </Card>
 
-                                    <Card className="hover:border-green-500/50 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-2 border-2 group">
-                                        <CardHeader className="pb-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-4 rounded-2xl bg-green-500/10 group-hover:bg-green-500 group-hover:text-white transition-colors">
-                                                    <Plus className="h-8 w-8" />
+                                    <Card className="hover:border-green-500/40 transition-all bg-muted/10 border-white/5 group">
+                                        <CardHeader className="pb-2 pt-4 px-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-3 rounded-xl bg-green-500/10 group-hover:bg-green-500 group-hover:text-white transition-colors">
+                                                    <Plus className="h-5 w-5" />
                                                 </div>
                                                 <div>
-                                                    <CardTitle className="text-xl font-black uppercase italic tracking-tighter">Ingreso Manual</CardTitle>
-                                                    <CardDescription className="text-xs font-bold uppercase text-green-600">Items Individuales</CardDescription>
+                                                    <CardTitle className="text-base font-black uppercase italic tracking-tight">Ingreso Manual</CardTitle>
+                                                    <CardDescription className="text-[10px] font-bold uppercase text-green-600">Individual</CardDescription>
                                                 </div>
                                             </div>
                                         </CardHeader>
-                                        <CardContent>
-                                            <p className="text-sm text-muted-foreground mb-8 font-medium leading-relaxed">
-                                                Formulario rápido para catalogar prendas VIP o únicas. El sistema sugerirá el costo automático basado en el saldo de la bolsa residual.
+                                        <CardContent className="px-5 pb-5">
+                                            <p className="text-[11px] text-muted-foreground mb-4 font-medium leading-relaxed opacity-70">
+                                                Formulario rápido para catalogar prendas VIP o únicas con sugerencia de costo.
                                             </p>
-                                            <Button className="w-full font-black uppercase italic h-12" variant="outline" onClick={() => setModalCrearOpen(true)}>
-                                                <Plus className="h-5 w-5 mr-2" />
+                                            <Button size="sm" className="w-full font-black uppercase italic h-10" variant="outline" onClick={() => setModalCrearOpen(true)}>
+                                                <Plus className="h-4 w-4 mr-2" />
                                                 Ingresar Prenda
                                             </Button>
                                         </CardContent>
                                     </Card>
 
-                                    <Card className="hover:border-blue-500/50 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-2 border-2 group">
-                                        <CardHeader className="pb-4">
-                                            <div className="flex items-center gap-4">
-                                                <div className="p-4 rounded-2xl bg-blue-500/10 group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                                                    <Link2 className="h-8 w-8" />
+                                    <Card className="hover:border-blue-500/40 transition-all bg-muted/10 border-white/5 group">
+                                        <CardHeader className="pb-2 pt-4 px-5">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-3 rounded-xl bg-blue-500/10 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                                    <Link2 className="h-5 w-5" />
                                                 </div>
                                                 <div>
-                                                    <CardTitle className="text-xl font-black uppercase italic tracking-tighter">Vincular Prendas</CardTitle>
-                                                    <CardDescription className="text-xs font-bold uppercase text-blue-600">Inventario Existente</CardDescription>
+                                                    <CardTitle className="text-base font-black uppercase italic tracking-tight">Vincular</CardTitle>
+                                                    <CardDescription className="text-[10px] font-bold uppercase text-blue-600">Existente</CardDescription>
                                                 </div>
                                             </div>
                                         </CardHeader>
-                                        <CardContent>
-                                            <p className="text-sm text-muted-foreground mb-8 font-medium leading-relaxed">
-                                                ¿Subiste items sin asignar lote? Búscalos aquí para vincularlos a esta compra y regularizar el cuadre contable.
+                                        <CardContent className="px-5 pb-5">
+                                            <p className="text-[11px] text-muted-foreground mb-4 font-medium leading-relaxed opacity-70">
+                                                Busca items sin asignar para vincularlos a esta compra y regularizar el cuadre.
                                             </p>
-                                            <Button className="w-full font-black uppercase italic h-12 text-blue-600" variant="ghost" onClick={() => setModalRelacionarOpen(true)}>
-                                                <Link2 className="h-5 w-5 mr-2" />
-                                                Buscar Prendas Libres
+                                            <Button size="sm" className="w-full font-black uppercase italic h-10 text-blue-600" variant="ghost" onClick={() => setModalRelacionarOpen(true)}>
+                                                <Link2 className="h-4 w-4 mr-2" />
+                                                Buscar Libres
                                             </Button>
                                         </CardContent>
                                     </Card>
