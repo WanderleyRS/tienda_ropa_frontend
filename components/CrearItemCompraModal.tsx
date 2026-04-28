@@ -1,14 +1,15 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { itemsApi, categoriesApi, Category } from '@/lib/api';
+import { itemsApi, categoriesApi, Category, comprasApi, CompraEstado } from '@/lib/api';
 import { toast } from 'sonner';
-import { Save, Upload, Loader2 } from 'lucide-react';
+import { Save, Upload, Loader2, Info, ShoppingBag } from 'lucide-react';
 import { uploadApi } from '@/lib/api';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface CrearItemCompraModalProps {
     open: boolean;
@@ -29,6 +30,10 @@ export function CrearItemCompraModal({
 }: CrearItemCompraModalProps) {
     const [isSaving, setIsSaving] = useState(false);
     const [isUploadingImage, setIsUploadingImage] = useState(false);
+    const [isLoadingEstado, setIsLoadingEstado] = useState(false);
+    const [compraEstado, setCompraEstado] = useState<CompraEstado | null>(null);
+    const [categories, setCategories] = useState<Category[]>([]);
+    
     const [formData, setFormData] = useState({
         title: '',
         description: '',
@@ -41,11 +46,60 @@ export function CrearItemCompraModal({
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [previewUrl, setPreviewUrl] = useState<string>('');
 
+    // Cargar estado de la compra y categorías al abrir
+    useEffect(() => {
+        if (open && compraId) {
+            loadInitialData();
+        }
+    }, [open, compraId]);
+
+    const loadInitialData = async () => {
+        setIsLoadingEstado(true);
+        try {
+            const [estado, allCategories] = await Promise.all([
+                comprasApi.getCompraEstado(compraId),
+                categoriesApi.getAll()
+            ]);
+            setCompraEstado(estado);
+            setCategories(allCategories);
+            
+            // Si hay categorías en la compra, seleccionar la primera o la pasada por prop
+            if (!formData.category_id && estado.detalles.length > 0) {
+                const firstCat = estado.detalles[0];
+                handleCategoryChange(firstCat.categoria_id, estado, allCategories);
+            } else if (formData.category_id) {
+                handleCategoryChange(formData.category_id, estado, allCategories);
+            }
+        } catch (error) {
+            console.error('Error loading modal data:', error);
+            toast.error('Error al cargar datos de la compra');
+        } finally {
+            setIsLoadingEstado(false);
+        }
+    };
+
+    const handleCategoryChange = (catId: number, estado?: CompraEstado | null, allCats?: Category[]) => {
+        const currentEstado = estado || compraEstado;
+        const currentCats = allCats || categories;
+        
+        const detail = currentEstado?.detalles.find(d => d.categoria_id === catId);
+        
+        setFormData(prev => ({ 
+            ...prev, 
+            category_id: catId,
+            // Sugerir el costo promedio restante de la bolsa
+            precio_compra: detail ? detail.costo_promedio_sugerido.toString() : prev.precio_compra
+        }));
+    };
+
+    const selectedCategoryDetail = useMemo(() => {
+        return compraEstado?.detalles.find(d => d.categoria_id === formData.category_id);
+    }, [compraEstado, formData.category_id]);
+
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             setSelectedFile(file);
-            // Create preview
             const reader = new FileReader();
             reader.onloadend = () => {
                 setPreviewUrl(reader.result as string);
@@ -67,28 +121,31 @@ export function CrearItemCompraModal({
             return;
         }
 
+        if (!formData.category_id) {
+            toast.error('Selecciona una categoría');
+            return;
+        }
+
         setIsSaving(true);
         try {
-            // 1. Subir imagen
             setIsUploadingImage(true);
             const imageResult = await uploadApi.uploadImage(selectedFile);
             setIsUploadingImage(false);
 
-            // 2. Crear item
             const itemData = {
                 title: formData.title,
                 description: formData.description || undefined,
                 price: parseFloat(formData.price) || 0,
                 stock: parseInt(formData.stock) || 1,
                 photo_url: imageResult.url,
-                category_id: formData.category_id || undefined,
+                category_id: formData.category_id,
                 compra_id: compraId,
-                precio_compra: parseFloat(formData.precio_compra) || undefined
+                precio_compra: parseFloat(formData.precio_compra) || 0
             };
 
             await itemsApi.create(itemData);
 
-            toast.success('Item creado exitosamente');
+            toast.success('Item creado y vinculado exitosamente');
             onItemCreado();
 
             // Reset form
@@ -116,142 +173,184 @@ export function CrearItemCompraModal({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-[650px] max-h-[95vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>Crear Item Individual</DialogTitle>
+                    <DialogTitle className="flex items-center gap-2">
+                        <ShoppingBag className="h-5 w-5 text-primary" />
+                        Crear Item Individual (Modo Asistente)
+                    </DialogTitle>
                     <DialogDescription>
-                        Crea un item y asígnalo automáticamente a esta compra
+                        Clasifica una prenda de la compra <span className="font-bold text-foreground">{compraEstado?.codigo}</span>
                     </DialogDescription>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Foto */}
-                    <div>
-                        <Label htmlFor="photo">Foto *</Label>
-                        <div className="mt-2">
-                            {previewUrl ? (
-                                <div className="relative">
-                                    <img
-                                        src={previewUrl}
-                                        alt="Preview"
-                                        className="w-full h-48 object-cover rounded-lg"
-                                    />
-                                    <Button
-                                        type="button"
-                                        variant="destructive"
-                                        size="sm"
-                                        className="absolute top-2 right-2"
-                                        onClick={() => {
-                                            setSelectedFile(null);
-                                            setPreviewUrl('');
-                                        }}
-                                    >
-                                        Cambiar
-                                    </Button>
-                                </div>
-                            ) : (
-                                <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed rounded-lg cursor-pointer hover:bg-muted/50">
-                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <Upload className="w-10 h-10 mb-3 text-muted-foreground" />
-                                        <p className="mb-2 text-sm text-muted-foreground">
-                                            <span className="font-semibold">Click para subir</span> o arrastra
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Panel de Bolsa Residual */}
+                    {selectedCategoryDetail && (
+                        <Alert className="bg-primary/5 border-primary/20">
+                            <Info className="h-4 w-4" />
+                            <AlertTitle className="text-sm font-semibold">Bolsa de Categoría</AlertTitle>
+                            <AlertDescription className="mt-2">
+                                <div className="grid grid-cols-2 gap-4 text-xs">
+                                    <div className="space-y-1">
+                                        <p className="text-muted-foreground">Inversión Restante</p>
+                                        <p className="font-mono text-sm font-bold">
+                                            {selectedCategoryDetail.monto_restante.toFixed(2)} Bs
                                         </p>
-                                        <p className="text-xs text-muted-foreground">PNG, JPG (MAX. 5MB)</p>
                                     </div>
-                                    <input
-                                        id="photo"
-                                        type="file"
-                                        className="hidden"
-                                        accept="image/*"
-                                        onChange={handleFileChange}
+                                    <div className="space-y-1 text-right">
+                                        <p className="text-muted-foreground">Prendas por Catalogar</p>
+                                        <p className="font-mono text-sm font-bold">
+                                            {selectedCategoryDetail.items_restantes} / {selectedCategoryDetail.cantidad}
+                                        </p>
+                                    </div>
+                                    <div className="col-span-2 pt-1 border-t border-primary/10">
+                                        <p className="text-muted-foreground text-[10px] uppercase tracking-wider">Costo sugerido para esta prenda</p>
+                                        <p className="text-primary font-bold">{selectedCategoryDetail.costo_promedio_sugerido.toFixed(2)} Bs</p>
+                                    </div>
+                                </div>
+                            </AlertDescription>
+                        </Alert>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Columna Izquierda: Foto */}
+                        <div className="space-y-4">
+                            <Label>Foto de la Prenda *</Label>
+                            <div className="relative group">
+                                {previewUrl ? (
+                                    <div className="relative aspect-square overflow-hidden rounded-xl border">
+                                        <img
+                                            src={previewUrl}
+                                            alt="Preview"
+                                            className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                                        />
+                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                                size="sm"
+                                                onClick={() => {
+                                                    setSelectedFile(null);
+                                                    setPreviewUrl('');
+                                                }}
+                                            >
+                                                Cambiar Foto
+                                            </Button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <label className="flex flex-col items-center justify-center aspect-square border-2 border-dashed rounded-xl cursor-pointer hover:bg-muted/50 hover:border-primary/50 transition-all">
+                                        <div className="flex flex-col items-center justify-center p-6 text-center">
+                                            <Upload className="w-12 h-12 mb-4 text-muted-foreground" />
+                                            <p className="text-sm font-medium">Click para subir foto</p>
+                                            <p className="text-xs text-muted-foreground mt-1">PNG, JPG hasta 5MB</p>
+                                        </div>
+                                        <input
+                                            id="photo"
+                                            type="file"
+                                            className="hidden"
+                                            accept="image/*"
+                                            onChange={handleFileChange}
+                                        />
+                                    </label>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Columna Derecha: Datos */}
+                        <div className="space-y-4">
+                            <div>
+                                <Label htmlFor="category">Categoría de la Factura *</Label>
+                                <select
+                                    id="category"
+                                    className="w-full h-10 px-3 py-2 mt-1.5 border rounded-md bg-background text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                    value={formData.category_id}
+                                    onChange={(e) => handleCategoryChange(Number(e.target.value))}
+                                    disabled={isLoadingEstado}
+                                >
+                                    {isLoadingEstado ? (
+                                        <option>Cargando categorías...</option>
+                                    ) : (
+                                        compraEstado?.detalles.map(det => {
+                                            const cat = categories.find(c => c.id === det.categoria_id);
+                                            return (
+                                                <option key={det.categoria_id} value={det.categoria_id}>
+                                                    {cat?.name || `Cat #${det.categoria_id}`} ({det.items_creados}/{det.cantidad})
+                                                </option>
+                                            );
+                                        })
+                                    )}
+                                </select>
+                            </div>
+
+                            <div>
+                                <Label htmlFor="title">Título de la Prenda *</Label>
+                                <Input
+                                    id="title"
+                                    value={formData.title}
+                                    onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+                                    placeholder="Ej: Polera Nike Roja"
+                                    className="mt-1.5"
+                                    required
+                                />
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <Label htmlFor="price">Precio Venta (Bs)</Label>
+                                    <Input
+                                        id="price"
+                                        type="number"
+                                        step="0.01"
+                                        value={formData.price}
+                                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                                        placeholder="0.00"
+                                        className="mt-1.5 font-bold text-primary"
                                     />
-                                </label>
-                            )}
+                                </div>
+                                <div>
+                                    <Label htmlFor="precio_compra">Precio Compra (Bs)</Label>
+                                    <Input
+                                        id="precio_compra"
+                                        type="number"
+                                        step="0.01"
+                                        value={formData.precio_compra}
+                                        onChange={(e) => setFormData({ ...formData, precio_compra: e.target.value })}
+                                        className="mt-1.5 bg-muted/50 font-mono"
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="pt-2">
+                                <Label htmlFor="description">Descripción (Opcional)</Label>
+                                <textarea
+                                    id="description"
+                                    value={formData.description}
+                                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                    className="w-full mt-1.5 px-3 py-2 border rounded-md bg-background text-sm focus:ring-2 focus:ring-primary/20 outline-none"
+                                    rows={3}
+                                    placeholder="Talla, material, estado..."
+                                />
+                            </div>
                         </div>
-                    </div>
-
-                    {/* Título */}
-                    <div>
-                        <Label htmlFor="title">Título *</Label>
-                        <Input
-                            id="title"
-                            value={formData.title}
-                            onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                            placeholder="Ej: Polera Nike Roja"
-                            required
-                        />
-                    </div>
-
-                    {/* Descripción */}
-                    <div>
-                        <Label htmlFor="description">Descripción</Label>
-                        <textarea
-                            id="description"
-                            value={formData.description}
-                            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                            className="w-full px-3 py-2 border rounded-md bg-background text-foreground dark:bg-gray-800 dark:border-gray-700"
-                            rows={3}
-                            placeholder="Descripción del item..."
-                        />
-                    </div>
-
-                    {/* Precio Venta y Stock */}
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <Label htmlFor="price">Precio Venta (Bs)</Label>
-                            <Input
-                                id="price"
-                                type="number"
-                                step="0.01"
-                                value={formData.price}
-                                onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                                placeholder="0.00"
-                            />
-                        </div>
-
-                        <div>
-                            <Label htmlFor="stock">Stock</Label>
-                            <Input
-                                id="stock"
-                                type="number"
-                                value={formData.stock}
-                                onChange={(e) => setFormData({ ...formData, stock: e.target.value })}
-                                placeholder="1"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Precio Compra (pre-llenado) */}
-                    <div>
-                        <Label htmlFor="precio_compra">Precio Compra (Bs)</Label>
-                        <Input
-                            id="precio_compra"
-                            type="number"
-                            step="0.01"
-                            value={formData.precio_compra}
-                            onChange={(e) => setFormData({ ...formData, precio_compra: e.target.value })}
-                            placeholder="0.00"
-                        />
-                        <p className="text-xs text-muted-foreground mt-1">
-                            Pre-llenado con el costo de la compra
-                        </p>
                     </div>
 
                     {/* Botones */}
-                    <div className="flex gap-3 justify-end pt-4">
+                    <div className="flex gap-3 justify-end pt-4 border-t">
                         <Button
                             type="button"
-                            variant="outline"
+                            variant="ghost"
                             onClick={() => onOpenChange(false)}
                             disabled={isSaving}
                         >
                             Cancelar
                         </Button>
-                        <Button type="submit" disabled={isSaving || isUploadingImage}>
+                        <Button type="submit" disabled={isSaving || isUploadingImage} className="min-w-[140px]">
                             {isUploadingImage ? (
                                 <>
                                     <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                    Subiendo imagen...
+                                    Subiendo...
                                 </>
                             ) : isSaving ? (
                                 <>
@@ -261,7 +360,7 @@ export function CrearItemCompraModal({
                             ) : (
                                 <>
                                     <Save className="h-4 w-4 mr-2" />
-                                    Crear Item
+                                    Vincular Prenda
                                 </>
                             )}
                         </Button>

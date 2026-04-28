@@ -6,13 +6,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { comprasApi, categoriesApi, Compra, Category, CompraAnulacionCheck } from '@/lib/api';
+import { comprasApi, categoriesApi, Compra, Category, CompraAnulacionCheck, CompraEstado } from '@/lib/api';
 import { toast } from 'sonner';
-import { ArrowLeft, Package, CheckCircle2, Clock, AlertCircle, TrendingUp, Plus, Link2, Archive, DollarSign, BarChart3, Trash2 } from 'lucide-react';
+import { ArrowLeft, Package, CheckCircle2, Clock, AlertCircle, TrendingUp, Plus, Link2, Archive, Trash2, ShoppingBag } from 'lucide-react';
 import Link from 'next/link';
 import { CrearItemCompraModal } from '@/components/CrearItemCompraModal';
 import { RelacionarItemsModal } from '@/components/RelacionarItemsModal';
 import { ConfirmModal } from '@/components/ConfirmModal';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
 
 export default function CompraDetallePage() {
     const params = useParams();
@@ -20,6 +22,7 @@ export default function CompraDetallePage() {
     const { isAuthenticated, isLoading } = useAuth();
 
     const [compra, setCompra] = useState<Compra | null>(null);
+    const [compraEstado, setCompraEstado] = useState<CompraEstado | null>(null);
     const [categorias, setCategorias] = useState<Category[]>([]);
     const [isLoadingCompra, setIsLoadingCompra] = useState(true);
     const [modalCrearOpen, setModalCrearOpen] = useState(false);
@@ -27,7 +30,6 @@ export default function CompraDetallePage() {
     const [isConfirmCerrarOpen, setIsConfirmCerrarOpen] = useState(false);
     const [isProcessingCerrar, setIsProcessingCerrar] = useState(false);
 
-    // Estados para Anulación
     const [isAnulacionOpen, setIsAnulacionOpen] = useState(false);
     const [anulacionCheck, setAnulacionCheck] = useState<CompraAnulacionCheck | null>(null);
     const [isProcessingAnular, setIsProcessingAnular] = useState(false);
@@ -43,11 +45,13 @@ export default function CompraDetallePage() {
     const loadData = async () => {
         setIsLoadingCompra(true);
         try {
-            const [compraData, categoriasData] = await Promise.all([
+            const [compraData, estadoData, categoriasData] = await Promise.all([
                 comprasApi.getCompra(Number(params.id)),
+                comprasApi.getCompraEstado(Number(params.id)),
                 categoriesApi.getAll()
             ]);
             setCompra(compraData);
+            setCompraEstado(estadoData);
             setCategorias(categoriasData);
         } catch (error: any) {
             console.error('Error loading compra:', error);
@@ -58,18 +62,14 @@ export default function CompraDetallePage() {
         }
     };
 
-    const getCategoriaNombre = (categoriaId: number) => {
-        return categorias.find(c => c.id === categoriaId)?.name || 'N/A';
-    };
-
     const handleCerrarLote = async () => {
         if (!compra) return;
         setIsProcessingCerrar(true);
         try {
-            const updated = await comprasApi.cerrarLote(compra.id);
-            setCompra(updated);
+            await comprasApi.cerrarLote(compra.id);
             toast.success('Lote cerrado exitosamente');
             setIsConfirmCerrarOpen(false);
+            loadData();
         } catch (error: any) {
             console.error('Error closing lot:', error);
             toast.error('Error al cerrar el lote');
@@ -107,27 +107,24 @@ export default function CompraDetallePage() {
         switch (estado) {
             case 'COMPLETADA':
                 return (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-green-500/10 text-green-600 dark:text-green-400">
-                        <CheckCircle2 className="h-4 w-4" />
-                        Completada
-                    </span>
+                    <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20 px-3 py-1">
+                        <CheckCircle2 className="h-3 w-3 mr-1.5" /> COMPLETADA
+                    </Badge>
                 );
             case 'PROCESANDO':
                 return (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                        <Clock className="h-4 w-4" />
-                        Procesando
-                    </span>
+                    <Badge variant="outline" className="bg-blue-500/10 text-blue-600 border-blue-500/20 px-3 py-1">
+                        <Clock className="h-3 w-3 mr-1.5" /> PROCESANDO
+                    </Badge>
                 );
             case 'PENDIENTE':
                 return (
-                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium bg-yellow-500/10 text-yellow-600 dark:text-yellow-400">
-                        <AlertCircle className="h-4 w-4" />
-                        Pendiente
-                    </span>
+                    <Badge variant="outline" className="bg-amber-500/10 text-amber-600 border-amber-500/20 px-3 py-1">
+                        <AlertCircle className="h-3 w-3 mr-1.5" /> PENDIENTE
+                    </Badge>
                 );
             default:
-                return <span className="text-sm text-muted-foreground">{estado}</span>;
+                return <Badge variant="outline">{estado}</Badge>;
         }
     };
 
@@ -137,164 +134,133 @@ export default function CompraDetallePage() {
         <div className="min-h-screen bg-background">
             <Navbar />
             <div className="max-w-6xl mx-auto px-4 py-8">
-                {/* Header */}
-                <div className="flex items-center gap-4 mb-8">
+                <div className="flex flex-col md:flex-row md:items-center gap-6 mb-10">
                     <Link href="/compras">
-                        <Button variant="outline" size="icon">
-                            <ArrowLeft className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="shrink-0">
+                            <ArrowLeft className="h-6 w-6" />
                         </Button>
                     </Link>
                     <div className="flex-1">
-                        <h1 className="text-3xl font-bold text-foreground">
-                            {compra?.codigo || 'Cargando...'}
-                        </h1>
-                        <p className="text-muted-foreground mt-1">
-                            Detalle de la compra
+                        <div className="flex items-center gap-3 mb-1">
+                            <h1 className="text-4xl font-black tracking-tighter text-foreground uppercase italic">
+                                {compra?.codigo || '---'}
+                            </h1>
+                            {compra && getEstadoBadge(compra.estado)}
+                        </div>
+                        <p className="text-muted-foreground flex items-center gap-2 text-sm">
+                            <ShoppingBag className="h-4 w-4" /> 
+                            Registro de lote de mercadería
                         </p>
                     </div>
-                    {compra && getEstadoBadge(compra.estado)}
+                    
+                    {compra && (
+                        <div className="flex gap-2">
+                            <Button variant="outline" onClick={handleCheckAnulacion} className="text-muted-foreground">
+                                <Trash2 className="h-4 w-4 mr-2" /> Anular
+                            </Button>
+                            {compra.estado !== 'COMPLETADA' && (
+                                <Button onClick={() => setIsConfirmCerrarOpen(true)} className="bg-foreground text-background hover:bg-foreground/90 font-bold shadow-xl">
+                                    <Archive className="h-4 w-4 mr-2" /> Finalizar Lote
+                                </Button>
+                            )}
+                        </div>
+                    )}
                 </div>
 
                 {isLoadingCompra ? (
-                    <div className="text-center py-12">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-                        <p className="text-muted-foreground mt-4">Cargando compra...</p>
+                    <div className="flex flex-col items-center justify-center py-24">
+                        <div className="h-12 w-12 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+                        <p className="text-muted-foreground font-medium">Sincronizando bolsa de inversión...</p>
                     </div>
-                ) : compra ? (
-                    <div className="space-y-6">
-                        {/* Información General */}
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                                        Proveedor
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-2xl font-bold">{compra.proveedor?.nombre || 'N/A'}</p>
-                                    {compra.proveedor?.celular && (
-                                        <p className="text-sm text-muted-foreground mt-1">
-                                            {compra.proveedor.celular}
-                                        </p>
-                                    )}
+                ) : compra && compraEstado ? (
+                    <div className="space-y-8">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <Card className="bg-primary/5 border-primary/20 border-2">
+                                <CardContent className="p-6">
+                                    <p className="text-[10px] uppercase font-black text-primary tracking-widest mb-1">Inversión Total</p>
+                                    <p className="text-2xl font-black font-mono">{(compra.monto_total_factura || compra.monto_total).toFixed(2)} Bs</p>
+                                    <Badge variant="outline" className="mt-2 text-[9px] bg-background">VALOR FACTURA</Badge>
                                 </CardContent>
                             </Card>
 
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                                        Monto Total
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-2xl font-bold">{(compra.monto_total_factura || compra.monto_total).toFixed(2)} Bs</p>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                        {compra.metodo_pago || 'N/A'}
-                                    </p>
+                            <Card className="bg-green-500/5 border-green-500/20 border-2">
+                                <CardContent className="p-6">
+                                    <p className="text-[10px] uppercase font-black text-green-600 tracking-widest mb-1">Items Catalogados</p>
+                                    <p className="text-2xl font-black font-mono">{compraEstado.items_creados} / {compraEstado.items_esperados}</p>
+                                    <div className="mt-3">
+                                        <Progress value={compraEstado.progreso_porcentaje} className="h-1.5" />
+                                    </div>
                                 </CardContent>
                             </Card>
 
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle className="text-sm font-medium text-muted-foreground">
-                                        Fecha de Compra
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-2xl font-bold">
-                                        {new Date(compra.fecha_compra).toLocaleDateString('es-BO')}
-                                    </p>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                        {new Date(compra.fecha_compra).toLocaleTimeString('es-BO', {
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                        })}
-                                    </p>
+                            <Card className="bg-blue-500/5 border-blue-500/20 border-2">
+                                <CardContent className="p-6">
+                                    <p className="text-[10px] uppercase font-black text-blue-600 tracking-widest mb-1">Bolsa Residual</p>
+                                    <p className="text-2xl font-black font-mono">{(compraEstado.detalles.reduce((acc, d) => acc + d.monto_restante, 0)).toFixed(2)} Bs</p>
+                                    <p className="text-[10px] text-muted-foreground mt-2 italic font-medium underline">POR ASIGNAR A ITEMS</p>
+                                </CardContent>
+                            </Card>
+
+                            <Card className="bg-card border-muted-foreground/20 border-2">
+                                <CardContent className="p-6">
+                                    <p className="text-[10px] uppercase font-black text-muted-foreground tracking-widest mb-1">Origen / Fecha</p>
+                                    <p className="text-xl font-bold truncate">{compra.proveedor?.nombre || 'Proveedor'}</p>
+                                    <p className="text-[10px] text-muted-foreground mt-2">{new Date(compra.fecha_compra).toLocaleDateString()}</p>
                                 </CardContent>
                             </Card>
                         </div>
 
-                        {/* Progreso */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Progreso de Carga</CardTitle>
-                                <CardDescription>
-                                    {compra.items_creados} de {compra.items_esperados} prendas cargadas
-                                </CardDescription>
+                        <Card className="overflow-hidden border-2 border-foreground/5 shadow-2xl">
+                            <CardHeader className="bg-muted/30 border-b py-6 px-8">
+                                <CardTitle className="text-2xl font-black flex items-center gap-2 italic uppercase tracking-tighter">
+                                    <TrendingUp className="h-6 w-6 text-primary" />
+                                    Control de Bolsas (Categoría)
+                                </CardTitle>
+                                <CardDescription>Distribución del costo de compra por clasificación de mercadería.</CardDescription>
                             </CardHeader>
-                            <CardContent>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span>Progreso total</span>
-                                        <span className="font-medium">
-                                            {compra.items_esperados > 0
-                                                ? Math.round((compra.items_creados / compra.items_esperados) * 100)
-                                                : 0}%
-                                        </span>
-                                    </div>
-                                    <div className="w-full bg-secondary rounded-full h-3">
-                                        <div
-                                            className="bg-primary h-3 rounded-full transition-all"
-                                            style={{
-                                                width: `${compra.items_esperados > 0
-                                                    ? (compra.items_creados / compra.items_esperados) * 100
-                                                    : 0
-                                                    }%`,
-                                            }}
-                                        />
-                                    </div>
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        {/* Detalles por Categoría */}
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Detalles por Categoría</CardTitle>
-                                <CardDescription>Desglose de la compra por categoría de prenda</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    {compra.detalles.map((detalle) => {
-                                        const pendientes = detalle.cantidad - detalle.items_creados - detalle.unidades_vendidas_fifo;
+                            <CardContent className="p-0">
+                                <div className="divide-y divide-foreground/5">
+                                    {compraEstado.detalles.map((detalle) => {
+                                        const cat = categorias.find(c => c.id === detalle.categoria_id);
+                                        const isCompletado = detalle.items_restantes === 0;
+                                        
                                         return (
-                                            <div
-                                                key={detalle.id}
-                                                className="flex items-center justify-between p-4 border rounded-lg bg-card"
-                                            >
-                                                <div className="flex-1">
-                                                    <h3 className="font-bold text-lg">
-                                                        {getCategoriaNombre(detalle.categoria_id)}
-                                                    </h3>
-                                                    <div className="flex gap-4 mt-1">
-                                                        <p className="text-xs text-muted-foreground">
-                                                            <span className="font-bold text-foreground">{detalle.items_creados}</span> Clasificados
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            <span className="font-bold text-amber-600">{detalle.unidades_vendidas_fifo}</span> Vendidos FIFO
-                                                        </p>
-                                                        <p className="text-xs text-muted-foreground">
-                                                            <span className="font-bold text-blue-600">{pendientes}</span> Pendientes
-                                                        </p>
+                                            <div key={detalle.categoria_id} className="p-8 flex flex-col md:flex-row items-center gap-8 hover:bg-muted/20 transition-colors group">
+                                                <div className="shrink-0 flex items-center justify-center w-16 h-16 rounded-2xl bg-foreground text-background font-black text-3xl group-hover:scale-110 transition-transform italic shadow-lg">
+                                                    {cat?.name.substring(0, 1).toUpperCase()}
+                                                </div>
+                                                
+                                                <div className="flex-1 space-y-2">
+                                                    <div className="flex items-center gap-3">
+                                                        <h3 className="font-black text-2xl tracking-tighter uppercase italic">{cat?.name}</h3>
+                                                        {isCompletado && <Badge className="bg-green-500 text-white border-0 text-[10px] font-black h-5">CUADRADO 100%</Badge>}
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-4 text-[12px] font-bold text-muted-foreground uppercase tracking-widest">
+                                                        <span>Inversión: <span className="text-foreground">{detalle.subtotal.toFixed(2)} Bs</span></span>
+                                                        <span className="w-1 h-1 bg-muted-foreground/20 rounded-full self-center" />
+                                                        <span>Utilizado: <span className="text-primary">{detalle.monto_utilizado.toFixed(2)} Bs</span></span>
+                                                        <span className="w-1 h-1 bg-muted-foreground/20 rounded-full self-center" />
+                                                        <span>Saldo Bolsa: <span className="text-amber-600 font-black">{detalle.monto_restante.toFixed(2)} Bs</span></span>
                                                     </div>
                                                 </div>
-                                                <div className="text-right flex items-center gap-6">
-                                                    <div>
-                                                        <p className="text-xs text-muted-foreground uppercase font-black">Total</p>
-                                                        <p className="font-black text-xl">
-                                                            {detalle.cantidad}
-                                                        </p>
-                                                    </div>
-                                                    <div className="w-12 h-12 rounded-full border-4 border-muted flex items-center justify-center relative">
-                                                        <div 
-                                                            className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent -rotate-45"
-                                                            style={{ 
-                                                                clipPath: `inset(0 0 0 ${100 - Math.round(((detalle.items_creados + detalle.unidades_vendidas_fifo) / detalle.cantidad) * 100)}%)` 
-                                                            }}
-                                                        />
-                                                        <span className="text-[10px] font-black">
-                                                            {Math.round(((detalle.items_creados + detalle.unidades_vendidas_fifo) / detalle.cantidad) * 100)}%
-                                                        </span>
+
+                                                <div className="flex flex-col items-end gap-1 px-8 border-x border-foreground/5">
+                                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Costo Sugerido / Item</p>
+                                                    <p className="text-3xl font-black font-mono text-primary leading-none">
+                                                        {detalle.costo_promedio_sugerido.toFixed(2)} <span className="text-sm">Bs</span>
+                                                    </p>
+                                                    <p className="text-[11px] text-muted-foreground font-bold mt-1">{detalle.items_creados} / {detalle.cantidad} items</p>
+                                                </div>
+
+                                                <div className="shrink-0">
+                                                    <div className="w-20 h-20 relative group-hover:scale-105 transition-transform">
+                                                        <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                                            <circle cx="18" cy="18" r="16" className="text-muted/30" stroke="currentColor" strokeWidth="4" fill="none" />
+                                                            <circle cx="18" cy="18" r="16" className="text-primary" stroke="currentColor" strokeWidth="4" strokeDasharray={`${(detalle.items_creados / detalle.cantidad) * 100}, 100`} fill="none" strokeLinecap="round" />
+                                                        </svg>
+                                                        <div className="absolute inset-0 flex items-center justify-center text-[12px] font-black italic">
+                                                            {Math.round((detalle.items_creados / detalle.cantidad) * 100)}%
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -304,127 +270,81 @@ export default function CompraDetallePage() {
                             </CardContent>
                         </Card>
 
-                        {/* Notas */}
-                        {compra.notas && (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>Notas</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-muted-foreground">{compra.notas}</p>
-                                </CardContent>
-                            </Card>
-                        )}
-
-
-                        {/* Acciones - 3 Opciones para Agregar Items */}
                         {compra.estado !== 'COMPLETADA' && (
-                            <div className="space-y-4">
-                                <h2 className="text-xl font-semibold">Agregar Prendas a la Compra</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {/* Opción 1: Carga Masiva */}
-                                    <Card className="hover:border-primary/50 transition-colors cursor-pointer">
-                                        <CardHeader>
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 rounded-lg bg-primary/10">
-                                                    <Package className="h-6 w-6 text-primary" />
+                            <div className="space-y-6 pt-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="h-8 w-1.5 bg-primary rounded-full" />
+                                    <h2 className="text-3xl font-black italic uppercase tracking-tighter">Asistente de Catalogación</h2>
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                    <Card className="hover:border-primary/50 transition-all cursor-pointer shadow-xl hover:shadow-2xl hover:-translate-y-2 border-2 group">
+                                        <CardHeader className="pb-4">
+                                            <div className="flex items-center gap-4">
+                                                <div className="p-4 rounded-2xl bg-primary/10 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                                                    <Package className="h-8 w-8" />
                                                 </div>
-                                                <CardTitle className="text-lg">Carga Masiva</CardTitle>
+                                                <div>
+                                                    <CardTitle className="text-xl font-black uppercase italic tracking-tighter">Catalogar Lote</CardTitle>
+                                                    <CardDescription className="text-xs font-bold uppercase text-primary">Carga Masiva (Recomendado)</CardDescription>
+                                                </div>
                                             </div>
                                         </CardHeader>
                                         <CardContent>
-                                            <CardDescription className="mb-4">
-                                                Para múltiples items. Usa Gemini para parsear chat de WhatsApp.
-                                            </CardDescription>
-                                            <Link href="/items/bulk-upload">
-                                                <Button className="w-full">
-                                                    <TrendingUp className="h-4 w-4 mr-2" />
-                                                    Ir a Carga Masiva
+                                            <p className="text-sm text-muted-foreground mb-8 font-medium leading-relaxed">
+                                                Sube todas las fotos del lote y pega el texto de WhatsApp. Gemini clasificará cada prenda vinculándola a su bolsa de inversión automáticamente.
+                                            </p>
+                                            <Link href={`/items/bulk-upload?compra_id=${compra.id}`}>
+                                                <Button className="w-full font-black uppercase italic shadow-xl shadow-primary/20 h-12">
+                                                    <TrendingUp className="h-5 w-5 mr-2" />
+                                                    Iniciar Asistente Masivo
                                                 </Button>
                                             </Link>
                                         </CardContent>
                                     </Card>
 
-                                    {/* Opción 2: Crear Individual */}
-                                    <Card className="hover:border-primary/50 transition-colors">
-                                        <CardHeader>
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 rounded-lg bg-green-500/10">
-                                                    <Plus className="h-6 w-6 text-green-600 dark:text-green-400" />
+                                    <Card className="hover:border-green-500/50 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-2 border-2 group">
+                                        <CardHeader className="pb-4">
+                                            <div className="flex items-center gap-4">
+                                                <div className="p-4 rounded-2xl bg-green-500/10 group-hover:bg-green-500 group-hover:text-white transition-colors">
+                                                    <Plus className="h-8 w-8" />
                                                 </div>
-                                                <CardTitle className="text-lg">Crear Individual</CardTitle>
+                                                <div>
+                                                    <CardTitle className="text-xl font-black uppercase italic tracking-tighter">Ingreso Manual</CardTitle>
+                                                    <CardDescription className="text-xs font-bold uppercase text-green-600">Items Individuales</CardDescription>
+                                                </div>
                                             </div>
                                         </CardHeader>
                                         <CardContent>
-                                            <CardDescription className="mb-4">
-                                                Para 1-3 items. Formulario rápido para crear prendas una por una.
-                                            </CardDescription>
-                                            <Button className="w-full" variant="outline" onClick={() => setModalCrearOpen(true)}>
-                                                <Plus className="h-4 w-4 mr-2" />
-                                                Crear Item
+                                            <p className="text-sm text-muted-foreground mb-8 font-medium leading-relaxed">
+                                                Formulario rápido para catalogar prendas VIP o únicas. El sistema sugerirá el costo automático basado en el saldo de la bolsa residual.
+                                            </p>
+                                            <Button className="w-full font-black uppercase italic h-12" variant="outline" onClick={() => setModalCrearOpen(true)}>
+                                                <Plus className="h-5 w-5 mr-2" />
+                                                Ingresar Prenda
                                             </Button>
                                         </CardContent>
                                     </Card>
 
-                                    {/* Opción 3: Relacionar Existentes */}
-                                    <Card className="hover:border-primary/50 transition-colors">
-                                        <CardHeader>
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 rounded-lg bg-blue-500/10">
-                                                    <Link2 className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                                    <Card className="hover:border-blue-500/50 transition-all shadow-xl hover:shadow-2xl hover:-translate-y-2 border-2 group">
+                                        <CardHeader className="pb-4">
+                                            <div className="flex items-center gap-4">
+                                                <div className="p-4 rounded-2xl bg-blue-500/10 group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                                                    <Link2 className="h-8 w-8" />
                                                 </div>
-                                                <CardTitle className="text-lg">Relacionar Existentes</CardTitle>
+                                                <div>
+                                                    <CardTitle className="text-xl font-black uppercase italic tracking-tighter">Vincular Prendas</CardTitle>
+                                                    <CardDescription className="text-xs font-bold uppercase text-blue-600">Inventario Existente</CardDescription>
+                                                </div>
                                             </div>
                                         </CardHeader>
                                         <CardContent>
-                                            <CardDescription className="mb-4">
-                                                Asigna items ya creados sin compra a esta compra.
-                                            </CardDescription>
-                                            <Button className="w-full" variant="outline" onClick={() => setModalRelacionarOpen(true)}>
-                                                <Link2 className="h-4 w-4 mr-2" />
-                                                Ver Items
-                                            </Button>
-                                        </CardContent>
-                                    </Card>
-
-                                    {/* Opción 4: Cerrar Lote (NUEVO) */}
-                                    <Card className="hover:border-red-500/50 transition-colors border-dashed bg-red-500/5">
-                                        <CardHeader>
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 rounded-lg bg-red-500/10">
-                                                    <Archive className="h-6 w-6 text-red-600 dark:text-red-400" />
-                                                </div>
-                                                <CardTitle className="text-lg text-red-600 dark:text-red-400">Finalizar Carga</CardTitle>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <CardDescription className="mb-4">
-                                                ¿No vas a catalogar más? Pasa el resto a inventario genérico.
-                                            </CardDescription>
-                                            <Button className="w-full" variant="destructive" onClick={() => setIsConfirmCerrarOpen(true)}>
-                                                <CheckCircle2 className="h-4 w-4 mr-2" />
-                                                Cerrar Lote
-                                            </Button>
-                                        </CardContent>
-                                    </Card>
-
-                                    {/* Opción 5: Anular Compra (NUEVO) */}
-                                    <Card className="hover:border-gray-500/50 transition-colors border-dashed bg-gray-500/5">
-                                        <CardHeader>
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 rounded-lg bg-gray-500/10">
-                                                    <Trash2 className="h-6 w-6 text-gray-600 dark:text-gray-400" />
-                                                </div>
-                                                <CardTitle className="text-lg text-gray-600 dark:text-gray-400">Anular Registro</CardTitle>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <CardDescription className="mb-4">
-                                                Anula esta compra y retira sus prendas del inventario de forma segura.
-                                            </CardDescription>
-                                            <Button className="w-full" variant="outline" onClick={handleCheckAnulacion}>
-                                                <Trash2 className="h-4 w-4 mr-2" />
-                                                Anular Compra
+                                            <p className="text-sm text-muted-foreground mb-8 font-medium leading-relaxed">
+                                                ¿Subiste items sin asignar lote? Búscalos aquí para vincularlos a esta compra y regularizar el cuadre contable.
+                                            </p>
+                                            <Button className="w-full font-black uppercase italic h-12 text-blue-600" variant="ghost" onClick={() => setModalRelacionarOpen(true)}>
+                                                <Link2 className="h-5 w-5 mr-2" />
+                                                Buscar Prendas Libres
                                             </Button>
                                         </CardContent>
                                     </Card>
@@ -433,23 +353,23 @@ export default function CompraDetallePage() {
                         )}
                     </div>
                 ) : (
-                    <Card>
-                        <CardContent className="py-12 text-center">
-                            <p className="text-muted-foreground">Compra no encontrada</p>
-                        </CardContent>
-                    </Card>
+                    <div className="py-32 text-center">
+                        <AlertCircle className="h-16 w-16 text-destructive mx-auto mb-6 opacity-20" />
+                        <h2 className="text-2xl font-black uppercase italic tracking-tighter">Compra no encontrada</h2>
+                        <p className="text-muted-foreground mt-2 font-medium">El registro solicitado no existe o ha sido eliminado.</p>
+                        <Link href="/compras" className="mt-8 block">
+                            <Button variant="link">Volver al listado de compras</Button>
+                        </Link>
+                    </div>
                 )}
             </div>
 
-            {/* Modales */}
             {compra && (
                 <>
                     <CrearItemCompraModal
                         open={modalCrearOpen}
                         onOpenChange={setModalCrearOpen}
                         compraId={compra.id}
-                        categoriaId={compra.detalles[0]?.categoria_id || 0}
-                        precioCompra={compra.detalles[0]?.costo_unitario || 0}
                         onItemCreado={loadData}
                     />
 
@@ -461,45 +381,44 @@ export default function CompraDetallePage() {
                     />
                 </>
             )}
-            {/* Modal de Confirmación para Cerrar Lote */}
+
             <ConfirmModal
                 isOpen={isConfirmCerrarOpen}
                 onClose={() => setIsConfirmCerrarOpen(false)}
                 onConfirm={handleCerrarLote}
                 isLoading={isProcessingCerrar}
-                title="¿Finalizar Carga?"
-                description="Se marcará la compra como completada. Podrás seguir clasificando prendas VIP, pero el stock restante estará disponible para ventas genéricas FIFO por categoría."
-                confirmText="Sí, finalizar"
+                title="¿Finalizar Carga del Lote?"
+                description="Al cerrar el lote, el saldo de inversión residual se considerará como 'costo amortizado'. No podrás vincular más prendas de precisión a este presupuesto."
+                confirmText="SÍ, FINALIZAR LOTE"
                 variant="warning"
             />
 
-            {/* Modal de Anulación */}
             <ConfirmModal
                 isOpen={isAnulacionOpen}
                 onClose={() => setIsAnulacionOpen(false)}
                 onConfirm={handleAnularCompra}
-                title={anulacionCheck?.puede_anular ? "¿Anular compra definitivamente?" : "No se puede anular"}
+                title={anulacionCheck?.puede_anular ? "¿Anular registro definitivamente?" : "Anulación Bloqueada"}
                 description={
                     anulacionCheck?.puede_anular ? (
-                        <div className="space-y-3">
-                            <p>Esta acción marcará la compra como anulada para auditoría.</p>
+                        <div className="space-y-4">
+                            <p className="font-medium">Esta acción retirará todo el stock vinculado a este lote.</p>
                             {anulacionCheck.items_publicados > 0 && (
-                                <div className="p-3 bg-yellow-500/10 border border-yellow-500/50 rounded-lg text-yellow-700 dark:text-yellow-400 text-sm">
-                                    ⚠️ <strong>Advertencia:</strong> Esta compra tiene <strong>{anulacionCheck.items_publicados} ítems publicados</strong> en la tienda. Al anular la compra, estos ítems también serán retirados del catálogo.
+                                <div className="p-4 bg-destructive/10 border-2 border-destructive/20 rounded-xl">
+                                    <div className="flex items-center gap-2 text-destructive font-black uppercase text-sm mb-1">
+                                        <AlertCircle className="h-4 w-4" /> ¡ALERTA DE STOCK!
+                                    </div>
+                                    <p className="text-sm font-bold">Hay {anulacionCheck.items_publicados} prendas publicadas que serán ELIMINADAS.</p>
                                 </div>
                             )}
-                            <p className="text-xs text-muted-foreground italic">
-                                * Los datos quedarán guardados en el sistema pero no serán visibles ni afectarán al inventario.
-                            </p>
                         </div>
                     ) : (
-                        <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-700 dark:text-red-400 text-sm">
-                            🚫 <strong>Bloqueo:</strong> {anulacionCheck?.motivo_bloqueo}
+                        <div className="p-4 bg-destructive/10 border-2 border-destructive/20 rounded-xl text-destructive font-bold text-sm">
+                            MOTIVO: {anulacionCheck?.motivo_bloqueo}
                         </div>
                     )
                 }
                 isLoading={isProcessingAnular}
-                confirmText={anulacionCheck?.puede_anular ? "Sí, anular compra" : "Cerrar"}
+                confirmText={anulacionCheck?.puede_anular ? "CONFIRMAR ANULACIÓN" : "CERRAR"}
                 variant={anulacionCheck?.puede_anular ? "danger" : "warning"}
             />
         </div>

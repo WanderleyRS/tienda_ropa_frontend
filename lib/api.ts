@@ -123,6 +123,8 @@ export interface ItemCreate {
   category_id?: number;
   almacen_id?: number;
   talla?: string;
+  compra_id?: number;
+  precio_compra?: number;
 }
 
 export interface ItemUpdate {
@@ -663,10 +665,16 @@ export interface CompraEstado {
   items_esperados: number;
   items_creados: number;
   progreso_porcentaje: number;
+  monto_total: number;
   detalles: {
     categoria_id: number;
     cantidad: number;
     items_creados: number;
+    items_restantes: number;
+    subtotal: number;
+    monto_utilizado: number;
+    monto_restante: number;
+    costo_promedio_sugerido: number;
     completado: boolean;
   }[];
 }
